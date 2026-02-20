@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient'
 
 const LookForPetSitter = () => {
     const [rows, setRows] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)/*  */
     const [error, setError] = useState(null)
 
     useEffect(() => {
@@ -21,6 +21,7 @@ const LookForPetSitter = () => {
 
                 // 取得篩選區的保母服務清單
 
+                
                 if (error) throw error
                 setRows(data)
             } catch (err) {
