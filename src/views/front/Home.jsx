@@ -71,28 +71,66 @@ const Home = () => {
                         <p className="h5 mb-2">以此為名，傳達出與我們合作的保母能給寵物無微不至的照顧！</p>
                     </div>
                 </div>
-                <div className="row text-center mt-5 mb-9">
-                    <div className="col-md-4 position-relative mb-6 mb-md-0">
-                        <div className="bg-white rounded-4 p-7 h-100">
-                            <h5 className="mb-10 fw-bold">多元服務</h5>
-                            <p className="h5">comPETent 提供多元的服務，各種寵物皆能找到保母，不局限於貓、狗，還有提供各種服務的保母。</p>
+                <div className="col-md-4 mb-6 mb-md-0">
+                    <div className="card rounded-4">
+                        <div className="position-relative">
+                            <img src="https://images.unsplash.com/photo-1532469060546-4eb37b460481?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="card-img-top rounded-top-4" alt="保母圖片" height="300" />
+                            <div className="bg-light bg-opacity-75 d-flex justify-content-between align-items-center position-absolute bottom-0 start-0 w-100 py-2 px-10">
+                                <h4 className="card-title mb-0 fw-bold">Tommy</h4>
+                                <div className="d-flex">
+                                    <p className="fs-6 fw-bold mb-0 px-2 py-1 rounded-pill bg-white me-10">陪伴散步</p>
+                                    <p className="fs-6 fw-bold mb-0 px-2 py-1 rounded-pill bg-white">狗</p>
+                                </div>
+                            </div>
                         </div>
-                        <button type="button" className="btn btn-primary text-white fw-bold position-absolute top-100 start-50 translate-middle">找服務<i className="bi bi-arrow-right ms-2"></i></button>
-                    </div>
-                    <div className="col-md-4 position-relative mb-6 mb-md-0">
-                        <div className="bg-white rounded-4 p-7 h-100">
-                            <h5 className="mb-10 fw-bold">自由接案</h5>
-                            <p className="h5">comPETent 提供保母一個自由接案的平台，讓您有機會嶄現您的專業，提供寵物無微不至的照顧。</p>
+                        <div className="card-body">
+                            <div className="card-text d-flex flex-column justify-content-center align-items-center">
+                                <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="" />台中市 中區</p>
+                                <p className="mb-3">
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <span className="fs-6 ms-2 fw-bold">4.7</span>
+                                </p>
+                                <div className="border border-secondary w-75 mb-3"></div>
+                                <p className="fs-6 fw-bold">NT$ <span className="fs-5">200</span> /次</p>
+                            </div>
                         </div>
-                        <button type="button" className="btn btn-primary text-white fw-bold position-absolute top-100 start-50 translate-middle">當保母<i className="bi bi-arrow-right ms-2"></i></button>
                     </div>
-                    <div className="col-md-4 position-relative mb-6 mb-md-0">
-                        <div className="bg-white rounded-4 p-7 h-100">
-                            <h5 className="mb-10 fw-bold">安心保障</h5>
-                            <p className="h5">於服務開始前取消預約，將全額退款。comPETent 提供免費寵物保險，且所有保母皆通過良民證審查，讓飼主更安心。</p>
+                </div>
+                <div className="col-md-4 mb-6 mb-md-0">
+                    <div className="card rounded-4">
+                        <div className="position-relative">
+                            <img src="https://images.unsplash.com/photo-1642112312562-f7dfcfcff8b6?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="card-img-top rounded-top-4 overflow-hidden" alt="保母圖片" height="300" />
+                            <div className="bg-light bg-opacity-75 d-flex justify-content-between align-items-center position-absolute bottom-0 start-0 w-100 py-2 px-10">
+                                <h4 className="card-title mb-0 fw-bold">Sana</h4>
+                                <div className="d-flex">
+                                    <p className="fs-6 fw-bold mb-0 px-2 py-1 rounded-pill bg-white me-10">寄宿</p>
+                                    <p className="fs-6 fw-bold mb-0 px-2 py-1 rounded-pill bg-white">貓</p>
+                                </div>
+                            </div>
                         </div>
-                        <button type="button" className="btn btn-primary text-white fw-bold position-absolute top-100 start-50 translate-middle">看保障<i className="bi bi-arrow-right ms-2"></i></button>
+                        <div className="card-body">
+                            <div className="card-text d-flex flex-column justify-content-center align-items-center">
+                                <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="" />高雄市 新興區</p>
+                                <p className="mb-3">
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <span className="fs-6 ms-2 fw-bold">4.6</span>
+                                </p>
+                                <div className="border border-secondary w-75 mb-3"></div>
+                                <p className="fs-6 fw-bold">NT$ <span className="fs-5">800</span> /次</p>
+                            </div>
+                        </div>
                     </div>
+                </div>
+                <div className="d-flex justify-content-center mt-6">
+                    <button type="button" className="btn btn-primary text-white fw-bold">查看更多<i className="bi bi-arrow-right ms-2"></i></button>
                 </div>
             </section>
             <section className="container mb-9">
