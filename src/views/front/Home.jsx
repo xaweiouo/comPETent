@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 const Home = () => {
+    const [open, setOpen] = useState(false);
     return (
         <>
             <section className="container">
