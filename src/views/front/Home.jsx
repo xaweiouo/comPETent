@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 const Home = () => {
-    const [open, setOpen] = useState(false);
     return (
         <>
             <section className="container">
@@ -65,7 +64,7 @@ const Home = () => {
             <section className="container mb-9">
                 <div className="row justify-content-center text-center">
                     <div className="col-md-6">
-                        <h2 className="mb-4 mb-md-8 text-primary fw-bold"><img src="./src/images/icons/feet_icon.png" className="me-3" alt="" width="32" />關於 comPETent 我能寵</h2>
+                        <h2 className="mb-8 text-primary fw-bold"><img src="./src/images/icons/feet_icon.png" className="me-3" alt="" width="32" />關於 comPETent 我能寵</h2>
                         <p className="h5 mb-2">comPETent 是協助媒合飼主與物保母的平台。</p>
                         <p className="h5 mb-2">competent 有形容“能勝任的”意思，裡面包含了 PET 這三個字母，</p>
                         <p className="h5 mb-2">以此為名，傳達出與我們合作的保母能給寵物無微不至的照顧！</p>
