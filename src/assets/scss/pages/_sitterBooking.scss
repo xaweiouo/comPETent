@@ -1,0 +1,115 @@
+// _sitterBooking.scss
+html, body {
+  background-color: rgba(254, 243, 226, 1);
+}
+img {
+  overflow: hidden;
+  object-fit: cover;
+}
+.nav-logo {
+  width: 68px;
+  height: 52px;
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 32px;
+    
+  }
+}
+
+.banner-image {
+  width: 100%;
+  object-fit: cover;
+  @media (max-width: 768px) {
+    width: 240px;
+    height: auto;
+  }
+}
+
+.btn-gradint-primary {
+  color: #fff;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 84, 0, 1) 0%,
+    rgba(255, 178, 44, 1) 100%
+  );
+  &:hover {
+    color: #fff;
+    background: linear-gradient(
+      240deg,
+      rgba(255, 84, 0, 1) 0%,
+      rgba(255, 178, 44, 1) 100%
+    );
+    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+}
+
+.btn-gradint-secondary {
+  color: #E54C00;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 84, 0, .5) 0%,
+    rgba(255, 178, 44, .5) 100%
+  );
+  &:hover {
+    color: #E54C00;
+    background: linear-gradient(
+      240deg,
+      rgba(255, 84, 0, .5) 0%,
+      rgba(255, 178, 44, .5) 100%
+    );
+    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+}
+
+// 定義顏色
+$black-800: #353535;
+
+.booking-back-btn {
+  display: inline-flex;      
+  align-items: center;       
+  border: none;
+  background: transparent;
+  text-decoration: none;
+}
+
+.booking-back-btn h5 {
+  color: $black-800;
+  margin: 0;        
+}
+
+.badge-pill-gray {
+  border: 1px solid #CECECE; 
+  padding: 4px 12px;
+}
+
+.pet-card {
+  // width: 306px;      
+  // margin: 0;        
+  border-radius: 20px;
+    background-color: rgba(0, 255, 0, 0.1); // 先用來 debug，看卡片範圍
+
+}
+
+.booking-card-transparent {
+  background-color: transparent;  // 讓卡片吃到 body 的淡黃色
+}
+
+.background-transparent {
+  background-color: transparent;  // 讓卡片吃到 body 的淡黃色
+}
+
+.pet-toggle-pill {
+  border-radius: 999px;
+  padding: 0.35rem 1.1rem;
+  border: 2px solid rgba($warning, 0.6); // Bootstrap 的 $warning
+  background-color: #fff;
+  color: $dark;
+  font-weight: 700;
+}
+
+/* 被選中狀態：框加深，接近設計稿「實線橘圈」 */
+.btn-check:checked + .pet-toggle-pill {
+  border-color: $warning;
+}
+
+

@@ -11,6 +11,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "gh-pages": "^6.3.0",
