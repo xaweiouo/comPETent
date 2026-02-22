@@ -183,7 +183,7 @@ const SitterServiceDetail = () => {
 
           <div className="row row-cols-2 g-4">
             <div className="col">
-              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '224px' }}>
+              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
 
                 <div className="mb-7">
                   <img src="./src/images/icons/star_full_icon.png" alt="" />
@@ -197,8 +197,8 @@ const SitterServiceDetail = () => {
               </div>
             </div>
             <div className="col">
-              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '224px' }}>
-
+              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
+                <div className="d-flex">
                 <p className="mb-3">
                   服務項目
                   <span class="badge rounded-pill text-bg-light border ms-10">
@@ -206,12 +206,15 @@ const SitterServiceDetail = () => {
                   </span>
                 </p>
 
-                <p className="mb-7">
+                <p className="mb-7 ms-4">
                   服務寵物
                   <span class="badge rounded-pill text-bg-light border ms-10">
                     {detail.species}
                   </span>
                 </p>
+                </div>
+
+
                 <p>{detail.description}</p>
               </div>
             </div>
