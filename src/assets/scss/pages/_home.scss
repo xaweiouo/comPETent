@@ -24,7 +24,7 @@ img {
   }
 }
 
-.btn-gradint-primary {
+.btn.btn-gradient-primary {
   color: #fff;
   background: linear-gradient(
     90deg,
@@ -40,9 +40,14 @@ img {
     );
     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
   }
+  &:active {
+    color: #fff;
+    background-color: rgba(255, 84, 0, .5);
+    border-color: rgba(255, 84, 0, .5);
+  }
 }
 
-.btn-gradint-secondary {
+.btn.btn-gradient-secondary {
   color: #E54C00;
   background: linear-gradient(
     90deg,
@@ -57,6 +62,11 @@ img {
       rgba(255, 178, 44, .5) 100%
     );
     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+  &:active {
+    color: #E54C00;
+    background-color: rgba(255, 84, 0, .5);
+    border-color: rgba(255, 84, 0, .5);
   }
 }
 
