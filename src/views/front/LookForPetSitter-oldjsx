@@ -1,0 +1,46 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabaseClient'
+
+
+const LookForPetSitter = () => {
+    const [rows, setRows] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true)
+            setError(null)
+            try {
+                // 取得 全部保母服務清單
+                // const { data, error } = await supabase.from('sitter_service_with_rating').select('*')
+
+                // 對 保母列表進行排序
+                const { data, error } = await supabase.from('sitter_service_with_rating').select('*').order('sitter_id', { ascending: false })
+                // const { data, error } = await supabase.from('sitter_service_with_rating').select('*').order('sitter_id', { ascending: true })
+
+                // 取得篩選區的保母服務清單
+
+                
+                if (error) throw error
+                setRows(data)
+            } catch (err) {
+                setError(err?.message ?? String(err))
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
+
+    return (
+        <div>
+            <h1>Supabase_【sitter_service_with_rating 資料讀取測試】</h1>
+            {loading && <p>載入中...</p>}
+            {error && <pre style={{ color: 'red' }}>{error}</pre>}
+            {rows && <pre id="output">{JSON.stringify(rows, null, 2)}</pre>}
+        </div>
+    )
+}
+
+export default LookForPetSitter
