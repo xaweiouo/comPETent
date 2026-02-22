@@ -1,289 +1,308 @@
-import { useEffect, useState } from 'react'
+import React, { useState } from 'react';
 
-/**
- * 注意：在 Artifacts 預覽環境中，若無法解析外部檔案路徑 (如 ../lib/supabaseClient)，
- * 我們通常會將必要的實例化邏輯整合或確保路徑指向正確的虛擬檔案。
- */
-let supabase;
-try {
-  // 嘗試動態引用，若環境路徑不支援則捕捉錯誤以防崩潰
-  const client = require('../lib/supabaseClient');
-  supabase = client.supabase;
-} catch (e) {
-  console.warn("無法載入 supabaseClient，請檢查檔案路徑。");
-}
+// 使用內嵌 SVG 替代 lucide-react 以解決套件遺失問題
+const Icons = {
+  MapPin: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+  ),
+  Star: ({ fill = "none" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+  ),
+  Calendar: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+  ),
+  Briefcase: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+  ),
+  Cat: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.45.44.12.64.6.44 1.01-.19.38-.6.56-1.01.44-1.01-.3-2.86.42-4.05 2.14.35.2.68.44.98.72 2.48 2.36 2.48 6.14 0 8.5-.3.28-.63.52-.98.72 1.19 1.72 3.04 2.44 4.05 2.14.41-.12.82.06 1.01.44.2.41 0 .89-.44 1.01-1.39.39-4.64-.45-6.42-2.45-.65.17-1.33.26-2 .26s-1.35-.09-2-.26c-1.78 2-5.03 2.84-6.42 2.45-.44-.12-.64-.6-.44-1.01.19-.38.6-.56 1.01-.44 1.01.3 2.86-.42 4.05-2.14-.35-.2-.68-.44-.98-.72-2.48-2.36-2.48-6.14 0-8.5.3-.28.63-.52.98-.72-1.19-1.72-3.04-2.44-4.05-2.14-.41.12-.82-.06-1.01-.44-.2-.41 0-.89.44-1.01 1.39-.39 4.64.45 6.42 2.45.65-.17 1.33-.26 2-.26Z"/><path d="M15 10.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5.22-.5.5-.5.5.22.5.5Z"/><path d="M10 10.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5.22-.5.5-.5.5.22.5.5Z"/><path d="M12 14c.5 0 .9-.4.9-.9 0-.2-.1-.4-.2-.5l-.7-.6-.7.6c-.1.1-.2.3-.2.5 0 .5.4.9.9.9Z"/></svg>
+  ),
+  Heart: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+  ),
+  ChevronDown: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  )
+};
 
-/**
- * LookForPetSitter 組件
- * * 介面配置：
- * - 左側 (col-lg-3): 藍框設計的進階篩選面板
- * - 右側 (col-lg-9): 紫框設計的保母資料列表
- */
 const LookForPetSitter = () => {
-  const [allRows, setAllRows] = useState([])
-  const [filteredRows, setFilteredRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  // 篩選條件狀態 (對應左側 UI)
-  const [filters, setFilters] = useState({
-    serviceType: '',
-    location: '',
-    keyword: ''
-  })
-
-  // 從資料庫獲取保母服務與評分資料
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!supabase) {
-        setError("Supabase 用戶端未定義，請檢查設定。");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true)
-      setError(null)
-      try {
-        // 從資料庫 View 或 Table 取得資料
-        const { data, error: supabaseError } = await supabase
-          .from('sitter_service_with_rating')
-          .select('*')
-          .order('sitter_id', { ascending: false })
-
-        if (supabaseError) throw supabaseError
-        
-        setAllRows(data || [])
-        setFilteredRows(data || [])
-      } catch (err) {
-        console.error("資料獲取失敗:", err)
-        setError("讀取保母資料時發生錯誤，請稍後再試。")
-      } finally {
-        setLoading(false)
-      }
+  // 模擬保姆數據
+  const [sitters] = useState([
+    {
+      id: 1,
+      name: '阿倫',
+      rating: 5,
+      pets: ['狗'],
+      services: ['陪伴散步'],
+      desc: '陪伴散步，會隨時注意狗狗的狀況與安全！',
+      location: '台中市 中區',
+      distance: '1km',
+      price: '200 / 30 分鐘',
+      img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop'
+    },
+    {
+      id: 2,
+      name: '雪莉',
+      rating: 4.8,
+      pets: ['貓', '鳥', '鼠'],
+      services: ['寄宿'],
+      desc: '可供寄宿並協助餵食、清理籠子。',
+      location: '台中市 中區',
+      distance: '2km',
+      price: '600 / 一晚',
+      img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop'
+    },
+    {
+      id: 3,
+      name: 'John',
+      rating: 3.5,
+      pets: ['鳥', '魚', '爬蟲'],
+      services: ['到府照顧'],
+      desc: '到府協助餵食、清理籠子。',
+      location: '台中市 中區',
+      distance: '3km',
+      price: '200 / 30 分鐘',
+      img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop'
     }
-    fetchData()
-  }, [])
-
-  // 監聽篩選條件變化並過濾資料
-  useEffect(() => {
-    let result = [...allRows]
-
-    if (filters.keyword) {
-      const k = filters.keyword.toLowerCase()
-      result = result.filter(item => 
-        (item.sitter_name && item.sitter_name.toLowerCase().includes(k)) ||
-        (item.description && item.description.toLowerCase().includes(k))
-      )
-    }
-
-    if (filters.serviceType) {
-      result = result.filter(item => item.service_name === filters.serviceType)
-    }
-
-    if (filters.location) {
-      result = result.filter(item => item.city === filters.location)
-    }
-
-    setFilteredRows(result)
-  }, [filters, allRows])
-
-  // 處理表單變更
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target
-    setFilters(prev => ({ ...prev, [name]: value }))
-  }
+  ]);
 
   return (
-    <div className="container py-5">
-      {/* 標題區域 */}
-      <div className="row mb-5">
-        <div className="col-12">
-          <h2 className="fw-bold text-dark border-start border-primary border-5 ps-3">尋找專屬保母</h2>
-          <p className="text-muted ps-3 mt-2">篩選最符合您需求的專業寵物照顧者</p>
-        </div>
-      </div>
-
-      <div className="row">
-        {/* 左側：藍框部分 - 進階篩選面板 */}
-        <div className="col-lg-3 mb-4">
-          <div className="card shadow-sm border-0 rounded-4 sticky-top" style={{ top: '100px', border: '2px solid #3498db' }}>
-            <div className="card-header bg-primary text-white py-3 border-0 rounded-top-4">
-              <h5 className="mb-0 fw-bold">
-                <i className="bi bi-funnel-fill me-2"></i>條件篩選
-              </h5>
+    <div className="look-for-pet-sitter min-vh-100 pb-5" style={{ backgroundColor: '#FFF9ED' }}>
+      {/* 搜尋區塊 */}
+      <section className="py-5" style={{ backgroundColor: '#FFEDC2' }}>
+        <div className="container">
+          <h2 className="text-center mb-4 fw-bold" style={{ color: '#E87A30' }}>我想尋找</h2>
+          
+          <div className="row g-3 px-md-5">
+            {/* 第一排：類別選擇 */}
+            <div className="col-md-3">
+              <label className="form-label fw-bold small">服務類別</label>
+              <div className="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                <span className="input-group-text bg-white border-0 ps-3 text-warning">
+                  <Icons.Briefcase />
+                </span>
+                <select className="form-select border-0 shadow-none">
+                  <option>服務</option>
+                  <option>陪伴散步</option>
+                  <option>寄宿</option>
+                  <option>到府照顧</option>
+                </select>
+              </div>
             </div>
-            <div className="card-body p-4 bg-white rounded-bottom-4">
-              {/* 關鍵字搜尋 */}
-              <div className="mb-4">
-                <label className="form-label fw-bold text-secondary">關鍵字搜尋</label>
-                <input 
-                  type="text" 
-                  className="form-control bg-light border-0 py-2 shadow-none" 
-                  placeholder="搜尋名稱或內容..." 
-                  name="keyword"
-                  value={filters.keyword}
-                  onChange={handleFilterChange}
-                />
-              </div>
-
-              {/* 服務項目 */}
-              <div className="mb-4">
-                <label className="form-label fw-bold text-secondary">服務項目</label>
-                <select 
-                  className="form-select bg-light border-0 py-2 shadow-none" 
-                  name="serviceType"
-                  value={filters.serviceType}
-                  onChange={handleFilterChange}
-                >
-                  <option value="">全部服務</option>
-                  <option value="到府代餵">到府代餵</option>
-                  <option value="到府洗澡">到府洗澡</option>
-                  <option value="陪伴散步">陪伴散步</option>
-                  <option value="安親住宿">安親住宿</option>
+            
+            <div className="col-md-3">
+              <label className="form-label fw-bold small">寵物類別</label>
+              <div className="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                <span className="input-group-text bg-white border-0 ps-3 text-warning">
+                  <Icons.Cat />
+                </span>
+                <select className="form-select border-0 shadow-none">
+                  <option>寵物</option>
+                  <option>狗</option>
+                  <option>貓</option>
+                  <option>其他</option>
                 </select>
               </div>
+            </div>
 
-              {/* 所在地區 */}
-              <div className="mb-4">
-                <label className="form-label fw-bold text-secondary">所在地區</label>
-                <select 
-                  className="form-select bg-light border-0 py-2 shadow-none" 
-                  name="location"
-                  value={filters.location}
-                  onChange={handleFilterChange}
-                >
-                  <option value="">所有縣市</option>
-                  <option value="台北市">台北市</option>
-                  <option value="新北市">新北市</option>
-                  <option value="台中市">台中市</option>
-                  <option value="高雄市">高雄市</option>
+            <div className="col-md-3">
+              <label className="form-label fw-bold small">服務地區</label>
+              <div className="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                <span className="input-group-text bg-white border-0 ps-3 text-warning">
+                  <Icons.MapPin />
+                </span>
+                <select className="form-select border-0 shadow-none">
+                  <option>縣市</option>
+                  <option>台中市</option>
                 </select>
               </div>
+            </div>
 
-              {/* 重置 */}
-              <button 
-                className="btn btn-outline-primary w-100 rounded-pill fw-bold"
-                onClick={() => setFilters({ serviceType: '', location: '', keyword: '' })}
-              >
-                清除所有條件
+            <div className="col-md-3">
+              <label className="form-label fw-bold small">&nbsp;</label>
+              <div className="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                <select className="form-select border-0 shadow-none ps-4">
+                  <option>地區</option>
+                  <option>中區</option>
+                  <option>西區</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 第二排：時間選擇與搜尋 */}
+            <div className="col-md-3">
+              <label className="form-label fw-bold small">服務時間</label>
+              <div className="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                <span className="input-group-text bg-white border-0 ps-3 text-warning">
+                  <Icons.Calendar />
+                </span>
+                <input type="text" className="form-control border-0 shadow-none" placeholder="DD/MM/YYYY" />
+              </div>
+            </div>
+
+            <div className="col-md-6 d-flex align-items-end">
+              <div className="d-flex align-items-center w-100 gap-2">
+                <select className="form-select shadow-sm rounded-pill border-0 py-2 text-center">
+                  <option>00</option>
+                  {[...Array(24)].map((_, i) => (
+                    <option key={i} value={i}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className="fw-bold">時</span>
+                <select className="form-select shadow-sm rounded-pill border-0 py-2 text-center">
+                  <option>00</option>
+                  <option>30</option>
+                </select>
+                <span className="fw-bold">分</span>
+                <span className="mx-1 text-warning">—</span>
+                <select className="form-select shadow-sm rounded-pill border-0 py-2 text-center">
+                  <option>00</option>
+                  {[...Array(24)].map((_, i) => (
+                    <option key={i} value={i}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className="fw-bold">時</span>
+                <select className="form-select shadow-sm rounded-pill border-0 py-2 text-center">
+                  <option>00</option>
+                  <option>30</option>
+                </select>
+                <span className="fw-bold">分</span>
+              </div>
+            </div>
+
+            <div className="col-md-3 d-flex align-items-end">
+              <button className="btn w-100 rounded-pill py-2 fw-bold text-white shadow-sm" style={{ backgroundColor: '#FF5E00' }}>
+                搜尋
               </button>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* 右側：紫框部分 - 保母展示區 */}
-        <div className="col-lg-9">
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status"></div>
-              <p className="mt-3 text-muted">正在為您搜尋保母...</p>
-            </div>
-          ) : error ? (
-            <div className="alert alert-danger border-0 rounded-4 shadow-sm">
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>{error}
-            </div>
-          ) : (
-            <div className="row g-4">
-              {filteredRows.length > 0 ? (
-                filteredRows.map((sitter) => (
-                  <div className="col-md-6 col-xl-4" key={sitter.sitter_id}>
-                    <div className="card h-100 shadow-sm border-0 rounded-4 overflow-hidden card-hover-effect">
-                      {/* 頭像區域 */}
-                      <div className="position-relative">
-                        <img 
-                          src={sitter.avatar_url || "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=600&auto=format&fit=crop"} 
-                          className="card-img-top" 
-                          alt="保母照"
-                          style={{ height: '200px', objectFit: 'cover' }}
-                        />
-                        <div className="position-absolute top-0 end-0 m-3">
-                          <span className="badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill fw-bold">
-                            <i className="bi bi-star-fill text-warning me-1"></i>
-                            {sitter.rating ? Number(sitter.rating).toFixed(1) : 'NEW'}
-                          </span>
-                        </div>
-                      </div>
+      {/* 列表內容區塊 */}
+      <section className="container mt-5">
+        <div className="d-flex justify-content-center align-items-center mb-4 position-relative">
+          <h3 className="fw-bold d-flex align-items-center" style={{ color: '#E87A30' }}>
+            <span className="me-2" style={{ transform: 'rotate(-20deg)', display: 'inline-block' }}>🐾</span>
+            附近的保姆
+          </h3>
+          
+          <div className="position-absolute end-0">
+             <button className="btn bg-white shadow-sm rounded-pill btn-sm d-flex align-items-center px-3 border-0">
+               距離 <Icons.ChevronDown />
+             </button>
+          </div>
+        </div>
 
-                      {/* 保母詳情區 (紫框風格) */}
-                      <div className="card-body p-4 border-top border-purple border-5">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <h5 className="card-title fw-bold text-dark mb-0 text-truncate" style={{ maxWidth: '140px' }}>
-                            {sitter.sitter_name || '專業保母'}
-                          </h5>
-                          <span className="text-purple fw-bold fs-5">${sitter.price || 0}</span>
-                        </div>
-                        
-                        <p className="text-muted small mb-3">
-                          <i className="bi bi-geo-alt-fill text-danger me-1"></i>
-                          {sitter.city || '未知地區'}
-                        </p>
-                        
-                        <div className="mb-3">
-                          <span className="badge bg-purple-light text-purple rounded-pill px-3 py-1">
-                            {sitter.service_name || '一般服務'}
-                          </span>
-                        </div>
+        {/* 保姆卡片列表 */}
+        <div className="row flex-column align-items-center gap-4">
+          {sitters.map(sitter => (
+            <div key={sitter.id} className="col-12 col-lg-10">
+              <div className="card border-0 shadow-sm rounded-4 overflow-hidden p-3 p-md-4">
+                <div className="row g-4 align-items-center">
+                  {/* 左側頭像 */}
+                  <div className="col-md-3 text-center text-md-start">
+                    <img 
+                      src={sitter.img} 
+                      alt={sitter.name} 
+                      className="rounded-4 w-100 shadow-sm"
+                      style={{ height: '180px', objectFit: 'cover', maxWidth: '240px' }}
+                    />
+                  </div>
+                  
+                  {/* 中間資訊 */}
+                  <div className="col-md-6">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <h4 className="fw-bold mb-0">{sitter.name}</h4>
+                      <button className="btn btn-link p-0 text-danger border-0">
+                        <Icons.Heart />
+                      </button>
+                    </div>
+                    
+                    <div className="d-flex align-items-center gap-1 mb-2 text-warning">
+                      {[...Array(5)].map((_, i) => (
+                        <Icons.Star key={i} fill={i < Math.floor(sitter.rating) ? "currentColor" : "none"} />
+                      ))}
+                      <span className="text-dark fw-bold ms-1">{sitter.rating}</span>
+                    </div>
 
-                        <p className="card-text text-secondary small mb-4" style={{ height: '3em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                          {sitter.description || '專業且細心的照顧者，致力於提供您的愛寵最安心的陪伴環境。'}
-                        </p>
+                    <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                      <span className="small text-muted fw-bold">服務寵物</span>
+                      {sitter.pets.map(p => (
+                        <span key={p} className="badge bg-light text-dark border rounded-pill px-3 fw-normal">{p}</span>
+                      ))}
+                    </div>
 
-                        <button className="btn btn-purple w-100 rounded-pill fw-bold py-2 shadow-sm mt-auto">
-                          查看詳情
-                        </button>
-                      </div>
+                    <div className="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                      <span className="small text-muted fw-bold">服務項目</span>
+                      {sitter.services.map(s => (
+                        <span key={s} className="badge rounded-pill px-3 fw-normal" style={{ backgroundColor: '#E2E2E2', color: '#666' }}>{s}</span>
+                      ))}
+                    </div>
+
+                    <p className="text-secondary small mb-3">{sitter.desc}</p>
+                    
+                    <div className="fw-bold">
+                      NT$ <span className="fs-5" style={{ color: '#FF5E00' }}>{sitter.price}</span>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="col-12 text-center py-5 bg-light rounded-4">
-                  <i className="bi bi-search display-3 text-muted opacity-25"></i>
-                  <h5 className="mt-4 text-muted">目前沒有符合條件的保母</h5>
-                  <p className="text-muted">您可以試著清除篩選條件再試一次</p>
+
+                  {/* 右側地點與按鈕 */}
+                  <div className="col-md-3 text-md-end d-flex flex-column justify-content-between align-items-md-end h-100" style={{ minHeight: '180px' }}>
+                    <div className="text-warning small mb-4">
+                      <div className="d-flex align-items-center justify-content-md-end mb-1">
+                        <Icons.MapPin /> <span className="ms-1">{sitter.location}</span>
+                      </div>
+                      <div className="fw-bold">距離 {sitter.distance}</div>
+                    </div>
+                    
+                    <div className="d-flex gap-2 justify-content-md-end mt-auto">
+                      <button className="btn btn-outline-warning rounded-pill px-3 fw-bold btn-sm border-2">詳情</button>
+                      <button className="btn rounded-pill px-3 fw-bold btn-sm text-white" style={{ backgroundColor: '#FF5E00' }}>預約</button>
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          )}
+          ))}
         </div>
+
+        {/* 分頁器 */}
+        <div className="d-flex justify-content-center mt-5 align-items-center gap-4">
+          <span className="text-muted cursor-pointer hover-opacity">&lt;</span>
+          <div className="d-flex gap-2">
+            <span className="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center shadow-sm" style={{ width: '32px', height: '32px', cursor: 'pointer' }}>1</span>
+            <span className="text-muted d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', cursor: 'pointer' }}>2</span>
+            <span className="text-muted d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', cursor: 'pointer' }}>3</span>
+          </div>
+          <span className="text-muted cursor-pointer hover-opacity">&gt;</span>
+        </div>
+      </section>
+
+      {/* Footer 標誌 */}
+      <div className="text-center mt-5 pt-4">
+        <div className="d-inline-block p-3 rounded-circle" style={{ backgroundColor: '#FFEDC2' }}>
+           <span className="fs-1">🐾</span>
+        </div>
+        <div className="fw-bold mt-2" style={{ color: '#E87A30', letterSpacing: '2px', fontSize: '1.2rem' }}>comPETent</div>
+        <p className="text-muted small mt-2">© 2024 comPETent. All Rights Reserved.</p>
       </div>
 
-      {/* 自定義樣式 */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .card-hover-effect {
-          transition: all 0.3s ease;
-          cursor: pointer;
+      <style>{`
+        .look-for-pet-sitter .form-select { 
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f0ad4e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); 
         }
-        .card-hover-effect:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 1rem 3rem rgba(0,0,0,0.15) !important;
+        .look-for-pet-sitter .form-control:focus, .look-for-pet-sitter .form-select:focus { 
+          border-color: #FFEDC2; 
+          box-shadow: 0 0 0 0.25rem rgba(255, 237, 194, 0.25); 
         }
-        /* 紫色設計標籤與按鈕 */
-        .border-purple { border-color: #8e44ad !important; }
-        .text-purple { color: #8e44ad !important; }
-        .bg-purple-light { background-color: #f5eeff !important; color: #8e44ad !important; }
-        .btn-purple {
-          background-color: #8e44ad;
-          border: none;
-          color: white;
-        }
-        .btn-purple:hover {
-          background-color: #732d91;
-          color: white;
-        }
-        /* 藍色主視覺 (對應藍框篩選面板) */
-        .bg-primary { background-color: #3498db !important; }
-        .text-primary { color: #3498db !important; }
-        .btn-outline-primary {
-          color: #3498db;
-          border-color: #3498db;
-        }
-        .btn-outline-primary:hover {
-          background-color: #3498db;
-          color: white;
-        }
-      `}} />
+        .cursor-pointer { cursor: pointer; }
+        .hover-opacity:hover { opacity: 0.7; }
+        .btn-outline-warning { color: #E87A30; border-color: #E87A30; }
+        .btn-outline-warning:hover { background-color: #E87A30; color: white; border-color: #E87A30; }
+      `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default LookForPetSitter
+export default LookForPetSitter;
