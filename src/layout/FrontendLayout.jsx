@@ -1,8 +1,9 @@
 import { Outlet } from "react-router"
+import Header from "../components/Header"
 const FrontendLayout = () => {
-    return(
+    return (
         <main>
-            <h1>aj_src/layout/FrontendLayout.jsx</h1>
+            <Header/>
             <Outlet />
         </main>
     )
