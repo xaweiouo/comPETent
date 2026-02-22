@@ -278,7 +278,7 @@ const SitterServiceDetail = () => {
                     return;
                   }
 
-                  navigate('/booking', {
+                  navigate('booking', {
                     state: {
                       serviceId: detail.id,
                       sitterId: detail.sitter_id,
