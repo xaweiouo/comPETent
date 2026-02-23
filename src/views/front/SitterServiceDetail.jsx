@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
-// import image01 from '../../images/image-01.jpg';
+import allen_carousel01 from '../../images/Allen_carousel01.jpg';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -12,7 +12,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 const SitterServiceDetail = () => {
   const [data, setData] = useState([]);
   const [detail, setDetail] = useState({});
-  const [reviews, setReviews] = useState([])
+  // const [reviews, setReviews] = useState([]);
 
   const schedule = [
     { day: "週一", times: ["10:30 - 12:00", "18:30 - 21:00"] },
@@ -34,33 +34,52 @@ const SitterServiceDetail = () => {
 
   const navigate = useNavigate();
 
-  const getServiceDetail = async () => {
+  // const getServiceDetail = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('services') // 你的資料表名稱
+  //       .select('*')
+  //     if (error) throw error;
+  //     setData(data)
+  //   } catch (err) {
+  //     console.error('連線錯誤：', err);
+  //   }
+  // }
+
+  const getAllService = async () => {
     try {
       const { data, error } = await supabase
-        .from('services') // 你的資料表名稱
-        .select('*')
+        .from('services')
+        .select(`
+    *,
+    users!sitter_id (*), 
+    reviews:users!sitter_id (
+      reviews!sitter_id (*) 
+    )
+  `);
       if (error) throw error;
+      console.log(data)
       setData(data)
     } catch (err) {
       console.error('連線錯誤：', err);
     }
   }
 
-  const getReviews = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('reviews') // 你的資料表名稱
-        .select('*')
-      if (error) throw error;
-      setReviews(data)
-    } catch (err) {
-      console.error('連線錯誤：', err);
-    }
-  }
+  // const getReviews = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('reviews') // 你的資料表名稱
+  //       .select('*')
+  //     if (error) throw error;
+  //     setReviews(data)
+  //   } catch (err) {
+  //     console.error('連線錯誤：', err);
+  //   }
+  // }
 
   useEffect(() => {
-    getServiceDetail();
-    getReviews();
+    getAllService();
+    // getReviews();
   }, []);
 
   return (
@@ -75,7 +94,7 @@ const SitterServiceDetail = () => {
             <div className="">
               {data.map(service =>
 
-                <button type="button" className="btn btn-primary" onClick={() => setDetail(service)}>{service.id}保母詳情</button>
+                <button type="button" className="btn btn-primary" onClick={() => setDetail(service)}>{service.users.nickname}保母詳情</button>
               )}
             </div>
             {/* <div className="col-md-9">
@@ -106,16 +125,11 @@ const SitterServiceDetail = () => {
             <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
           </div>
 
-          <div
-            className="position-absolute top-0 end-0 m-5"
-            style={{ zIndex: 10, cursor: 'pointer' }}
-          >
-            <img src="./src/images/icons/empt_heart_icon.png" alt="" />
-          </div>
+
 
           <div className="carousel-inner rounded-4" style={{ height: '451px' }}>
             <div className="carousel-item h-100 active">
-              <img src='./src/images/Allen_carousel01.jpg' className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
+              <img src={allen_carousel01} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
             </div>
 
             <div className="carousel-item h-100">
@@ -138,19 +152,39 @@ const SitterServiceDetail = () => {
         </div>
 
         <div className="container">
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center mb-7">
+              <img
+                // src='./src/images/Allen.png'
+                src={detail.photo_url}
+                className="rounded-circle border border-secondary border-2 me-4"
+                alt="User Avatar"
+                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+              />
+              <h2 className="me-10">{detail?.users?.nickname}</h2>
+              <span class="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
+            </div>
+
+            <div className="d-flex">
+              <div className="d-flex">
+                <p className="h5 mb-7 me-2" style={{ color: '#FF5400' }}>NT$</p>
+                <p className="h5 mb-7" style={{ color: '#FF5400' }}>{detail.price_per_30min != null ? `${detail.price_per_30min} / 30分鐘` : detail.price_per_day != null ? `${detail.price_per_day} / 天` : `${detail.price_per_session} / 次`}</p>
+              </div>
+
+              <div
+                className="ms-8 me-3"
+                style={{ zIndex: 10, cursor: 'pointer' }}
+              >
+                <img src="./src/images/icons/empt_heart_icon.png" alt="" />
+              </div>
+            </div>
+
+          </div>
+
           <div className="row row-cols-2 g-4">
             <div className="col">
-              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '224px' }}>
-                <div className="d-flex align-items-center mb-7">
-                  <img
-                    src='./src/images/Allen.png'
-                    className="rounded-circle border border-secondary border-2 me-4"
-                    alt="User Avatar"
-                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                  />
-                  <h2 className="me-10">阿倫</h2>
-                  <span class="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
-                </div>
+              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
+
                 <div className="mb-7">
                   <img src="./src/images/icons/star_full_icon.png" alt="" />
                   <img src="./src/images/icons/star_null_icon.png" alt="" />
@@ -163,11 +197,8 @@ const SitterServiceDetail = () => {
               </div>
             </div>
             <div className="col">
-              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '224px' }}>
+              <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
                 <div className="d-flex">
-                  <p className="h5 mb-7 me-2" style={{ color: '#FF5400' }}>NT$</p>
-                  <p className="h5 mb-7" style={{ color: '#FF5400' }}>{detail.price_per_30min != null ? `${detail.price_per_30min} / 30分鐘` : detail.price_per_day != null ? `${detail.price_per_day} / 天` : `${detail.price_per_session} / 次`}</p>
-                </div>
                 <p className="mb-3">
                   服務項目
                   <span class="badge rounded-pill text-bg-light border ms-10">
@@ -175,12 +206,15 @@ const SitterServiceDetail = () => {
                   </span>
                 </p>
 
-                <p className="mb-7">
+                <p className="mb-7 ms-4">
                   服務寵物
                   <span class="badge rounded-pill text-bg-light border ms-10">
                     {detail.species}
                   </span>
                 </p>
+                </div>
+
+
                 <p>{detail.description}</p>
               </div>
             </div>
@@ -238,6 +272,19 @@ const SitterServiceDetail = () => {
                   borderRadius: "50px",
                   border: "none"
                 }}
+                onClick={() => {
+                  if (!detail.id || !detail.sitter_id) {
+                    alert('請先選擇一個保母服務');
+                    return;
+                  }
+
+                  navigate('booking', {
+                    state: {
+                      serviceId: detail.id,
+                      sitterId: detail.sitter_id,
+                    },
+                  });
+                }}
               >
                 開始預約
               </button>
@@ -261,13 +308,41 @@ const SitterServiceDetail = () => {
             >
 
               {/* 單一評論卡片 */}
+              {
+                detail?.reviews?.reviews.map(review =>
+                  <div className="card border-0 shadow-sm mb-3">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div className="d-flex align-items-center mb-2">
 
-              {reviews.filter(review => review.sitter_id === detail.id).map(review => (
+                          <img
+                            src='./src/images/Allen.png'
+                            className="rounded-circle me-3"
+                            alt="Avatar"
+                            style={{ width: '48px', height: '48px', objectFit: 'cover' }}
+                          />
+                          <div>
+                            <h6 className="mb-0 fw-bold">Yian</h6>
+                            <div className="text-warning">
+
+                              ★★★★★
+                            </div>
+                          </div>
+                        </div>
+                        <small className="text-muted">2026/01/02</small>
+                      </div>
+                      <p className="card-text mt-2">{review.comment}</p>
+                    </div>
+                  </div>
+                )
+              }
+
+              {/* {reviews.filter(review => review.sitter_id === detail.id).map(review => (
                 <div className="card border-0 shadow-sm mb-3">
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="d-flex align-items-center mb-2">
-                        {/* 圓形頭貼 */}
+                        
                         <img
                           src='./src/images/Allen.png'
                           className="rounded-circle me-3"
@@ -277,7 +352,7 @@ const SitterServiceDetail = () => {
                         <div>
                           <h6 className="mb-0 fw-bold">Yian</h6>
                           <div className="text-warning">
-                            {/* 這裡可以用 Icon 字體如 FontAwesome */}
+                          
                             ★★★★★
                           </div>
                         </div>
@@ -287,7 +362,7 @@ const SitterServiceDetail = () => {
                     <p className="card-text mt-2">{review.comment}</p>
                   </div>
                 </div>
-              ))}
+              ))} */}
 
 
             </div>

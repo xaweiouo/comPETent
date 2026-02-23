@@ -112,4 +112,24 @@ $black-800: #353535;
   border-color: $warning;
 }
 
+@media (max-width: 768px) {
+  /* 讓整行有空間換行，但保持主方向橫排 */
+  .booking-service-time-row .col-12 {
+    flex-wrap: wrap;
+  }
+
+  /* 日期區塊：在手機寬度縮小 & 預留給時分一點空間 */
+  .booking-service-time-row .col-12 > .flex-grow-1 {
+    flex: 1 1 60%;     /* 日期大約佔 60% 寬 */
+    margin-right: 0.5rem;
+  }
+
+  /* 時分區塊：改成獨立第二列，吃滿寬度 */
+  .booking-time-group-arrival,
+  .booking-time-group-departure {
+    flex: 0 0 100%;
+    margin-top: 0.5rem;
+    justify-content: flex-start;
+  }
+}
 
