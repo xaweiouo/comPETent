@@ -1,0 +1,44 @@
+import fullStar from '../images/icons/star_full_icon.png';
+import halfStar from '../images/icons/star_half_icon.png';
+import nullStar from '../images/icons/star_null_icon.png';
+
+export const starRating = (rating) => {
+
+  const roundedRating = Math.round(rating * 2) / 2;
+
+  const stars = [1, 2, 3, 4, 5].map(star => {
+    switch (true) {
+
+      case (roundedRating >= star):
+        return fullStar;
+
+      case (roundedRating === star - 0.5):
+        return halfStar;
+
+      default:
+        return nullStar;
+    }
+  });
+
+  // const starIcons = {
+  //   full: fullStar,
+  //   half: halfStar,
+  //   null: nullStar
+  // };
+
+  return stars.map(star => (
+    // <img src={starIcons[star]} alt="" />
+    <img src={star} alt=""/>
+  ));
+  // return stars.map(star => {
+  //   switch (true) {
+  //     case (roundedRating >= star):
+  //       return 'full';
+  //     case (roundedRating === star - 0.5):
+  //       return 'half';
+  //     default:
+  //       return 'null';
+  //   }
+  // });
+
+};

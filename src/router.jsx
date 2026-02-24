@@ -5,6 +5,8 @@ import LookForPetSitter from "./views/front/LookForPetSitter";
 import SitterServiceDetail from "./views/front/SitterServiceDetail";
 import SitterBookingForm from "./views/front/SitterBookingForm";
 import NotFound from "./views/front/NotFound";
+import OwnerProfile from "./views/front/OwnerProfile";
+import Login from "./views/front/Login";
 
 export const router = createHashRouter([
   {
@@ -26,6 +28,14 @@ export const router = createHashRouter([
       {
         path: "lookforpetsitter/:id/booking",
         element: <SitterBookingForm />,
+      },
+      {
+        path: "ownerprofile",
+        element: <OwnerProfile />,
+      },
+      {
+        path: "login",
+        element: <Login />,
       },
     ],
   },
