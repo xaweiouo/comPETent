@@ -1,49 +1,66 @@
 import { supabase } from "../../utils/supabaseClient";
-
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../store/slices/authSlice";
+
 
 function Login() {
-  const [currentUser, setCurrentUser] = useState(null);
+  const dispatch = useDispatch();
+  const{user,isAuthenticated}=useSelector(state=>state.auth);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid }
+  } = useForm({
+    mode: "onChange",
+  });
 
-  async function handleTestLogin() {
+  async function handleLogin(loginInfo) {
+    console.log("正在嘗試登入的資料:", loginInfo);
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: "owner1@example.com",
-      password: "owner1",
+      email: loginInfo.email,
+      password: loginInfo.password
     });
 
-    console.log("login result:", data, error);
-
     if (error) {
-      alert("測試登入失敗：" + error.message);
+      alert(`登入失敗: ${error.message}`);
+      console.log(error)
     } else {
-      // 把目前登入者存起來
-      setCurrentUser(data.user);
-      alert("測試登入成功！");
-      console.log("current user:", currentUser);
+      dispatch(setUser(data.user));
+      alert('登入成功！');
     }
   }
 
   return (
     <>
       <div className="container">
-        <form className="">
+        <form className="" style={{ maxWidth: '500px', margin: 'auto', marginTop: '100px' }} onSubmit={handleSubmit(handleLogin)}>
           <h1 className="text-danger text-center mb-3">登入</h1>
           <div className="mb-5">
-            <label htmlFor="username" className="form-label">電子信箱</label>
-            <input id="username" type="email" className="form-control" name="username" />
+            <label htmlFor="email" className="form-label">電子信箱</label>
+            <input id="email" type="email" className="form-control" name="email"
+              {...register("email", { required: "請輸入 Email" })} />
+            {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
           </div>
 
           <div className="mb-3">
             <label htmlFor="password" className="form-label">密碼</label>
-            <input id="password" type="password" className="form-control" name="password" />
+            <input id="password" type="password" className="form-control" name="password"
+              {...register("password", {
+                required: "請輸入密碼",
+                // minLength: { value: 6, message: "密碼至少 6 位元" }
+              })} />
+              {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
           </div>
 
-          <button type="submit" className='btn btn-primary w-100 mt-2'
-          onClick={handleTestLogin}>
-            登入
+          <button type="submit" className='btn btn-primary w-100 mt-2' disabled={isSubmitting}>
+            {isSubmitting ? '登入中...' : '登入'}
           </button>
         </form>
+
+        {isAuthenticated?'已登入':'未登入'}
       </div>
     </>
   )
