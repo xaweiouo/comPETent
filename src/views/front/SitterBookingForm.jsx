@@ -3,6 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import sitterLogo from "../../images/booking_img/阿倫保姆logo_預約表單.png";
 import { useLocation, useNavigate } from "react-router";
+import dogIcon from "../../images/icons/dog_icon.png";
+import cakeIcon from "../../images/icons/cake_icon.png";
+import calendarIcon from "../../images/icons/calendar_icon.png";
+import clockIcon from "../../images/icons/clock_icon.png";
+import locationIcon from "../../images/icons/location_icon.png";
+import infoIcon from "../../images/icons/info_icon.png";
+import fallbackPetImage from "../../images/booking_img/小黃logo_預約表單.jpg";
+import feetIcon from "../../images/icons/feet_icon.png";
 
 
 
@@ -838,7 +846,7 @@ function SitterBookingForm() {
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="d-flex align-items-center py-3">
                                     <img
-                                        src="./src/images/icons/feet_icon.png"
+                                        src={feetIcon}
                                         className="me-2"
                                         alt=""
                                         width="20"
@@ -977,7 +985,7 @@ function SitterBookingForm() {
                             <div className="card border-0 rounded-4 background-transparent">
                                 <div className="card-body px-0 py-2">
                                     <div className="d-flex align-items-center mb-4">
-                                        <img src="./src/images/icons/feet_icon.png" alt="feet" width="20" height="20" className="me-2" />
+                                        <img src={feetIcon} alt="feet" width="20" height="20" className="me-2" />
                                         <h4 className="text-primary mb-0">毛小孩詳細資料</h4>
                                     </div>
 
@@ -993,7 +1001,7 @@ function SitterBookingForm() {
                                                     <div className="w-100 mb-3">
                                                         <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                                                             <img
-                                                                src={newPet.photo_url || "src/images/booking_img/booking_img_logo.jpg"}
+                                                                src={newPet.photo_url || fallbackPetImage}
                                                                 alt={newPet.name || "new pet"}
                                                                 className="w-100 h-100 rounded-4"
                                                                 style={{ objectFit: "cover" }}
@@ -1029,7 +1037,7 @@ function SitterBookingForm() {
                                                                     style={{ backgroundColor: "#FEF3E2" }}
                                                                 >
                                                                     <img
-                                                                        src="./src/images/icons/feet_icon.png"
+                                                                        src={feetIcon}
                                                                         alt="feet"
                                                                         width="20"
                                                                         height="20"
@@ -1061,7 +1069,7 @@ function SitterBookingForm() {
                                                                     style={{ backgroundColor: "#FEF3E2" }}
                                                                 >
                                                                     <img
-                                                                        src="./src/images/icons/dog_icon.png"
+                                                                        src={dogIcon}
                                                                         alt="dog"
                                                                         width="20"
                                                                         height="20"
@@ -1092,7 +1100,7 @@ function SitterBookingForm() {
                                                                     style={{ backgroundColor: "#FEF3E2" }}
                                                                 >
                                                                     <img
-                                                                        src="./src/images/icons/cake_icon.png"
+                                                                        src={cakeIcon}
                                                                         alt="cake"
                                                                         width="20"
                                                                         height="20"
@@ -1119,7 +1127,7 @@ function SitterBookingForm() {
                                                                     style={{ backgroundColor: "#FEF3E2" }}
                                                                 >
                                                                     <img
-                                                                        src="./src/images/icons/calendar_icon.png"
+                                                                        src={calendarIcon}
                                                                         alt="calendar"
                                                                         width="20"
                                                                         height="20"
@@ -1267,7 +1275,7 @@ function SitterBookingForm() {
                                                     <div className="w-100 mb-3">
                                                         <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                                                             <img
-                                                                src={(isEditing ? editingPetForm.photo_url : selectedPet.photo_url) || "src/images/booking_img/booking_img_logo.jpg"}
+                                                                src={(isEditing ? editingPetForm.photo_url : selectedPet.photo_url) || fallbackPetImage}
                                                                 alt={isEditing ? editingPetForm.name : selectedPet.name}
                                                                 className="w-100 h-100 rounded-4"
                                                                 style={{ objectFit: "cover" }}
@@ -1307,7 +1315,7 @@ function SitterBookingForm() {
                                                             <label className="form-label">種類</label>
                                                             <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                    <img src="./src/images/icons/feet_icon.png" alt="feet" width="20" height="20" />
+                                                                    <img src={feetIcon} alt="feet" width="20" height="20" />
                                                                 </span>
                                                                 <select
                                                                     className="form-select"
@@ -1329,7 +1337,7 @@ function SitterBookingForm() {
                                                             <label className="form-label">體型</label>
                                                             <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                    <img src="./src/images/icons/dog_icon.png" alt="dog" width="20" height="20" />
+                                                                    <img src={dogIcon} alt="dog" width="20" height="20" />
                                                                 </span>
                                                                 <select
                                                                     className="form-select border-0"
@@ -1351,7 +1359,7 @@ function SitterBookingForm() {
                                                             <label className="form-label">出生日期</label>
                                                             <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                    <img src="./src/images/icons/cake_icon.png" alt="cake" width="20" height="20" />
+                                                                    <img src={cakeIcon} alt="cake" width="20" height="20" />
                                                                 </span>
                                                                 <input
                                                                     type="date"
@@ -1370,7 +1378,7 @@ function SitterBookingForm() {
                                                             <label className="form-label">上次施打疫苗日期</label>
                                                             <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                    <img src="./src/images/icons/calendar_icon.png" alt="calendar" width="20" height="20" />
+                                                                    <img src={calendarIcon} alt="calendar" width="20" height="20" />
                                                                 </span>
                                                                 <input
                                                                     type="date"
@@ -1531,7 +1539,7 @@ function SitterBookingForm() {
                                     {/* 標題 */}
                                     <div className="d-flex align-items-center mb-3">
                                         <img
-                                            src="./src/images/icons/clock_icon.png"
+                                            src={clockIcon}
                                             alt="service time"
                                             width="20"
                                             height="20"
@@ -1553,7 +1561,7 @@ function SitterBookingForm() {
                                                 <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                     <span className="input-group-text border-0 background-transparent">
                                                         <img
-                                                            src="./src/images/icons/calendar_icon.png"
+                                                            src={calendarIcon}
                                                             alt="date"
                                                             width="20"
                                                             height="20"
@@ -1644,7 +1652,7 @@ function SitterBookingForm() {
                                                 <div className="input-group rounded-pill overflow-hidden border border-warning">
                                                     <span className="input-group-text border-0 background-transparent">
                                                         <img
-                                                            src="./src/images/icons/calendar_icon.png"
+                                                            src={calendarIcon}
                                                             alt="date"
                                                             width="20"
                                                             height="20"
@@ -1731,7 +1739,7 @@ function SitterBookingForm() {
                                     {/* 標題 */}
                                     <div className="d-flex align-items-center mb-3">
                                         <img
-                                            src="./src/images/icons/location_icon.png"
+                                            src={locationIcon}
                                             alt="location"
                                             width="20"
                                             height="20"
@@ -1777,7 +1785,7 @@ function SitterBookingForm() {
                                     {/* 標題 */}
                                     <div className="d-flex align-items-center mb-3">
                                         <img
-                                            src="./src/images/icons/info_icon.png"
+                                            src={infoIcon}
                                             alt="notes"
                                             width="20"
                                             height="20"

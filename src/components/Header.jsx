@@ -4,7 +4,7 @@ const Header=()=>{
         <nav className="navbar navbar-expand-lg py-2 px-3 mt-7 mb-6 bg-body-tertiary rounded-5 shadow">
           <div className="container-fluid">
             <a className="navbar-brand" href="/">
-              <img src="./src/images/logo.png" className="nav-logo" alt="logo" />
+              <img src="../../src/images/logo.png" className="nav-logo" alt="logo" />
             </a>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
@@ -12,22 +12,22 @@ const Header=()=>{
             <div className="collapse navbar-collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/feet_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/feet_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/flow_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/flow_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/search_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/search_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/become_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/become_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/shield_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/shield_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link d-flex align-items-center" href="#"><img src="./src/images/icons/faq_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></a>
+                  <a className="nav-link d-flex align-items-center" href="#"><img src="../../src/images/icons/faq_icon.png" className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></a>
                 </li>
                 <li className="nav-item dropdown">
                   <a className="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
