@@ -19,12 +19,12 @@ img {
   width: 100%;
   object-fit: cover;
   @media (max-width: 768px) {
-    width: 240px;
+    max-width: 240px;
     height: auto;
   }
 }
 
-.btn-gradint-primary {
+.btn.btn-gradient-primary {
   color: #fff;
   background: linear-gradient(
     90deg,
@@ -40,9 +40,14 @@ img {
     );
     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
   }
+  &:active {
+    color: #fff;
+    background-color: rgba(255, 84, 0, .5);
+    border-color: rgba(255, 84, 0, .5);
+  }
 }
 
-.btn-gradint-secondary {
+.btn.btn-gradient-secondary {
   color: #E54C00;
   background: linear-gradient(
     90deg,
@@ -57,5 +62,53 @@ img {
       rgba(255, 178, 44, .5) 100%
     );
     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+  &:active {
+    color: #E54C00;
+    background-color: rgba(255, 84, 0, .5);
+    border-color: rgba(255, 84, 0, .5);
+  }
+}
+
+.bg-box {
+  position: relative;
+  display: inline-block;
+  img {
+    position: relative;
+    z-index: 2;
+    display: block;
+  }
+  &::before{
+    content: "";
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: rgba(252, 215, 81, 0.5);
+    border-radius: 50%;
+    top: 70%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+}
+
+.card-comment {
+  max-width: 300px;
+  padding: 0;
+}
+
+.title-owner {
+  position: relative;
+  padding-left: 40px;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 28px;
+    height: 12px;
+    background-color: $info;
+    border-radius: 20px;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }

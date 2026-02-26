@@ -11,12 +11,15 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "@supabase/supabase-js": "^2.97.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "gh-pages": "^6.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hook-form": "^7.71.2",
+    "react-redux": "^9.2.0",
     "react-router": "^7.13.0"
   },
   "devDependencies": {
