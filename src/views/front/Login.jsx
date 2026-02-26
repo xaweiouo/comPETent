@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../store/slices/authSlice";
-
+import { handleLogout } from "../../utils/logout";
 
 function Login() {
   const dispatch = useDispatch();
@@ -60,7 +60,8 @@ function Login() {
           </button>
         </form>
 
-        {isAuthenticated?'已登入':'未登入'}
+        <p className="text-center">{isAuthenticated?'已登入':'未登入'}</p>
+        <button type="button" disabled={!isAuthenticated} onClick={()=>{handleLogout(dispatch)}}>登出</button>
       </div>
     </>
   )
