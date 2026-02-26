@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+
 /* 替換左箭頭 */
 .carousel-control-prev-icon {
   background-image: none;
@@ -66,3 +68,51 @@
 //     background-image: url('your-active-dot-icon.svg') ;
 //     opacity: 1;
 // }
+
+//RWD
+.carousel_sitter-service-detail {
+  height: 451px;
+
+  @media (max-width:375px) {
+    height: 260px;
+  }
+}
+
+.user_avatar {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+
+  @media (max-width:375px) {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+// .gradient-icon {
+//   width: 32px;
+//   height: 32px;
+  
+//   /* 1. 設定垂直漸層背景 */
+//   background: linear-gradient(to bottom, #FF5400,#FF5400, #FFB800);
+  
+//   /* 2. 使用 PNG 作為遮罩 (遮罩內有像素的地方才會顯示背景) */
+//   -webkit-mask-image: url('../../../images/icons/good_icon.png');
+//   mask-image: url('../../../images/icons/good_icon.png');
+  
+//   /* 3. 確保遮罩不重複且置中 */
+//   -webkit-mask-size: contain;
+//   mask-size: contain;
+//   -webkit-mask-repeat: no-repeat;
+//   mask-repeat: no-repeat;
+// }
+
+.gradient-fill {
+  /* 使用剛才在 SVG defs 裡設定的 ID */
+  fill: url(#gradient);
+}
+
+.good-icon{
+  width: 32px;
+  height: 32px;
+}
