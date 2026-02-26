@@ -1,0 +1,122 @@
+html, body {
+  background-color: rgba(254, 243, 226, 1);
+}
+
+// 全域 img 設定先不要，用各自的 class 控制
+// img {
+//   overflow: hidden;
+//   object-fit: cover;
+// }
+
+.nav-logo {
+  width: 68px;
+  height: 52px;
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 32px;
+  }
+}
+
+.banner-image {
+  width: 100%;
+  object-fit: cover;
+  @media (max-width: 768px) {
+    width: 240px;
+    height: auto;
+  }
+}
+
+.btn-gradint-primary {
+  color: #fff;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 84, 0, 1) 0%,
+    rgba(255, 178, 44, 1) 100%
+  );
+  &:hover {
+    color: #fff;
+    background: linear-gradient(
+      240deg,
+      rgba(255, 84, 0, 1) 0%,
+      rgba(255, 178, 44, 1) 100%
+    );
+    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+}
+
+.btn-gradint-secondary {
+  color: #E54C00;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 84, 0, .5) 0%,
+    rgba(255, 178, 44, .5) 100%
+  );
+  &:hover {
+    color: #E54C00;
+    background: linear-gradient(
+      240deg,
+      rgba(255, 84, 0, .5) 0%,
+      rgba(255, 178, 44, .5) 100%
+    );
+    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+  }
+}
+
+// 搜尋列區塊
+.lookfor-filter-group {
+  .input-group {
+    background-color: #fff;
+    min-height: 48px;
+  }
+
+  .form-label {
+    color: #7a5b34;
+    font-weight: 600;
+  }
+
+  .form-select,
+  .form-control {
+    font-size: 0.95rem;
+    color: #555;
+  }
+
+  .input-group-text img,
+  .input-group-text i {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// 保姆卡片整體高度（設計稿約 312px，高度統一）
+.sitter-card {
+  display: flex;
+  align-items: stretch;
+  min-height: 312px;
+
+  @media (max-width: 767.98px) {
+    min-height: auto;
+  }
+}
+
+// 正方形圖片框：維持 280x280 比例，不變形
+.sitter-card-img-wrapper {
+  width: 100%;
+  max-width: 280px;
+  height: 280px;
+  background-color: #f5f5f5;
+}
+
+.sitter-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 767.98px) {
+  .sitter-card-img-wrapper {
+    max-width: 200px;
+    height: 200px;
+    margin-bottom: 0.75rem;
+  }
+}
