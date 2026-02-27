@@ -1,418 +1,777 @@
-// import { useEffect, useState } from 'react'
-// import { supabase } from '../../lib/supabaseClient'
+//基本板型與完整功能差收藏
+// LookForPetSitter.jsx
+import React from "react";
+// import { supabase } from "./createClient";
+import { useState, useEffect } from "react";
+import { supabase } from "../../utils/supabaseClient";
+import feetIcon from "../../images/icons/feet_icon.png";
+import locationIcon from "../../images/icons/location_icon.png";
+import calendarIcon from "../../images/icons/calendar_icon.png";
+import workIcon from "../../images/icons/work_icon.png";
+import radarIcon from "../../images/icons/radar_icon.png";
 
 
-// const LookForPetSitter = () => {
-//     const [rows, setRows] = useState(null)
-//     const [loading, setLoading] = useState(true)
-//     const [error, setError] = useState(null)
 
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             setLoading(true)
-//             setError(null)
-//             try {
-//                 // 取得 全部保母服務清單
-//                 // const { data, error } = await supabase.from('sitter_service_with_rating').select('*')
+// export { supabase };
 
-//                 // 對 保母列表進行排序
-//                 const { data, error } = await supabase.from('sitter_service_with_rating').select('*').order('sitter_id', { ascending: false })
-//                 // const { data, error } = await supabase.from('sitter_service_with_rating').select('*').order('sitter_id', { ascending: true })
+function LookForPetSitter() {
+  const [filters, setFilters] = useState({
+    category: "",
+    species: "",
+    city: "",
+    district: "",
+    date: "",
+    // startTime: "",
+    // endTime: "",
+    sortBy: "",
+  });
 
-//                 // 取得篩選區的保母服務清單
+  const [cards, setCards] = useState([
+    {
+      serviceId: 1,
+      sitterName: "阿倫",
+      rating: 5,
+      isFavorite: false,
+      category: "陪伴散步",
+      species: "dog",
+      city: "台中市",
+      district: "中區",
+      distanceKm: 1,
+      description: "陪伴散步，會隨時注意狗狗的狀況與安全！",
+      pricePer30min: 200,
+      pricePerDay: null,
+      pricePerSession: null,
+      imageUrl: "...",
+    },
+  ]);
 
-                
-//                 if (error) throw error
-//                 setRows(data)
-//             } catch (err) {
-//                 setError(err?.message ?? String(err))
-//             } finally {
-//                 setLoading(false)
-//             }
-//         }
-//         fetchData()
-//     }, [])
-
-//     return (
-//         <div>s
-//             <h1>Supabase_【sitter_service_with_rating 資料讀取測試】</h1>
-//             {loading && <p>載入中...</p>}
-//             {error && <pre style={{ color: 'red' }}>{error}</pre>}
-//             {rows && <pre id="output">{JSON.stringify(rows, null, 2)}</pre>}
-//         </div>
-//     )
-// }
-
-// export default LookForPetSitter
+  const speciesLabelMap = {
+    dog: "狗",
+    cat: "貓",
+    bird: "鳥",
+    fish: "魚",
+    rabbit: "兔",
+    rodent: "鼠類",
+    reptiles: "爬蟲類",
+    others: "其他",
+  };
 
 
-// // AJ-Demo-Code
-// <!DOCTYPE html>
-// <html lang="zh-TW">
-// <head>
-//   <meta charset="UTF-8">
-//   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//   <title>comPETent - 寵物保姆搜尋平台</title>
-//   <script src="https://cdn.tailwindcss.com"></script>
-//   <style>
-//     * {
-//       margin: 0;
-//       padding: 0;
-//       box-sizing: border-box;
-//     }
 
-//     body {
-//       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-//         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-//         sans-serif;
-//       -webkit-font-smoothing: antialiased;
-//       -moz-osx-font-smoothing: grayscale;
-//     }
+  const [startHour, setStartHour] = useState("");
+  const [startMinute, setStartMinute] = useState("");
+  const [endHour, setEndHour] = useState("");
+  const [endMinute, setEndMinute] = useState("");
 
-//     .custom-select {
-//       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fb923c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-//       background-repeat: no-repeat;
-//       background-position: right 12px center;
-//       padding-right: 32px;
-//     }
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
-//     .heart-btn {
-//       transition: all 0.3s ease;
-//       cursor: pointer;
-//     }
+  const padTime = (value) =>
+    value === "" ? "" : value.toString().padStart(2, "0");
 
-//     .heart-btn:hover {
-//       transform: scale(1.1);
-//     }
+  const getStartTime = () =>
+    startHour && startMinute ? `${padTime(startHour)}:${padTime(startMinute)}` : "";
 
-//     .sitter-card {
-//       transition: all 0.3s ease;
-//     }
+  const getEndTime = () =>
+    endHour && endMinute ? `${padTime(endHour)}:${padTime(endMinute)}` : "";
 
-//     .sitter-card:hover {
-//       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-//       transform: translateY(-2px);
-//     }
 
-//     .float-btn {
-//       position: fixed;
-//       bottom: 2rem;
-//       right: 2rem;
-//       width: 4rem;
-//       height: 4rem;
-//       background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
-//       border-radius: 50%;
-//       border: 4px solid white;
-//       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-//       display: flex;
-//       align-items: center;
-//       justify-content: center;
-//       font-size: 1.5rem;
-//       font-weight: bold;
-//       color: white;
-//       cursor: pointer;
-//       transition: all 0.3s ease;
-//       z-index: 50;
-//     }
+  const hours = Array.from({ length: 24 }, (_, i) => i); // [0, 1, ..., 23]
 
-//     .float-btn:hover {
-//       box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4);
-//       transform: scale(1.1);
-//     }
-//   </style>
-// </head>
-// <body class="bg-gradient-to-b from-amber-100 via-amber-50 to-white">
-//   <div class="p-6">
-//     <div class="max-w-4xl mx-auto">
-//       <!-- 標題 -->
-//       <h1 class="text-center text-3xl font-bold text-orange-600 mb-8">我想尋找</h1>
+  const PAGE_SIZE = 3; // 先固定 3 筆一頁
 
-//       <!-- 搜尋表單容器 -->
-//       <div class="bg-gradient-to-b from-amber-50 to-white rounded-3xl p-8 shadow-lg mb-12">
-//         <!-- 第一行：4個下拉菜單 -->
-//         <div class="grid grid-cols-4 gap-4 mb-6">
-//           <!-- 寵物類別 -->
-//           <div>
-//             <label class="text-xs text-gray-600 block mb-2">寵物類別</label>
-//             <select id="petType" class="w-full bg-white border-2 border-orange-200 rounded-full px-4 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 focus:outline-none focus:border-orange-500 transition-colors custom-select">
-//               <option value="服務">服務</option>
-//               <option value="狗">狗</option>
-//               <option value="貓">貓</option>
-//               <option value="鳥">鳥</option>
-//             </select>
-//           </div>
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0); // 之後可以拿來顯示「共幾筆 / 共幾頁」
 
-//           <!-- 服務類別 -->
-//           <div>
-//             <label class="text-xs text-gray-600 block mb-2">服務類別</label>
-//             <select id="sitterType" class="w-full bg-white border-2 border-orange-200 rounded-full px-4 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 focus:outline-none focus:border-orange-500 transition-colors custom-select">
-//               <option value="寵物">寵物</option>
-//               <option value="肉球保姆">肉球保姆</option>
-//               <option value="寄宿">寄宿</option>
-//             </select>
-//           </div>
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
-//           <!-- 服務地區 -->
-//           <div>
-//             <label class="text-xs text-gray-600 block mb-2">服務地區</label>
-//             <select id="location" class="w-full bg-white border-2 border-orange-200 rounded-full px-4 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 focus:outline-none focus:border-orange-500 transition-colors custom-select">
-//               <option value="縣市">縣市</option>
-//               <option value="台中市">台中市</option>
-//               <option value="台北市">台北市</option>
-//             </select>
-//           </div>
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i += 1) {
+    pageNumbers.push(i);
+  }
 
-//           <!-- 地區 -->
-//           <div>
-//             <label class="text-xs text-gray-600 block mb-2">地區</label>
-//             <select id="neighborhood" class="w-full bg-white border-2 border-orange-200 rounded-full px-4 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 focus:outline-none focus:border-orange-500 transition-colors custom-select">
-//               <option value="地區">地區</option>
-//               <option value="中區">中區</option>
-//               <option value="西區">西區</option>
-//             </select>
-//           </div>
-//         </div>
 
-//         <!-- 第二行：日期時間 -->
-//         <div>
-//           <label class="text-xs text-gray-600 block mb-2">服務時間</label>
-//           <div class="flex items-center gap-3 flex-wrap">
-//             <!-- 日期 -->
-//             <input type="date" id="date" class="bg-white border-2 border-orange-200 rounded-full px-4 py-2.5 text-sm text-gray-700 hover:border-orange-300 focus:outline-none focus:border-orange-500 transition-colors">
 
-//             <!-- 開始時間 -->
-//             <div class="flex items-center gap-1">
-//               <select id="startHour" class="bg-white border-2 border-orange-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 w-16 custom-select">
-//                 <option value="00">00</option>
-//                 <option value="01">01</option>
-//                 <option value="02">02</option>
-//                 <option value="03">03</option>
-//                 <option value="04">04</option>
-//                 <option value="05">05</option>
-//                 <option value="06">06</option>
-//                 <option value="07">07</option>
-//                 <option value="08">08</option>
-//                 <option value="09">09</option>
-//                 <option value="10">10</option>
-//                 <option value="11">11</option>
-//                 <option value="12">12</option>
-//                 <option value="13">13</option>
-//                 <option value="14">14</option>
-//                 <option value="15">15</option>
-//                 <option value="16">16</option>
-//                 <option value="17">17</option>
-//                 <option value="18">18</option>
-//                 <option value="19">19</option>
-//                 <option value="20">20</option>
-//                 <option value="21">21</option>
-//                 <option value="22">22</option>
-//                 <option value="23">23</option>
-//               </select>
-//               <span class="text-gray-700 font-medium text-sm">時</span>
-//               <select id="startMin" class="bg-white border-2 border-orange-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 w-16 custom-select">
-//                 <option value="00">00</option>
-//                 <option value="15">15</option>
-//                 <option value="30">30</option>
-//                 <option value="45">45</option>
-//               </select>
-//               <span class="text-gray-700 font-medium text-sm">分</span>
-//             </div>
+  const getDowFromDate = (dateStr) => {
+    if (!dateStr) return '';
 
-//             <!-- 分隔線 -->
-//             <span class="text-gray-400 font-bold">—</span>
+    const date = new Date(dateStr); // 例如 '2026-03-01'
+    const jsDay = date.getDay();    // 0 ~ 6，0 = Sunday
 
-//             <!-- 結束時間 -->
-//             <div class="flex items-center gap-1">
-//               <select id="endHour" class="bg-white border-2 border-orange-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 w-16 custom-select">
-//                 <option value="00">00</option>
-//                 <option value="01">01</option>
-//                 <option value="02">02</option>
-//                 <option value="03">03</option>
-//                 <option value="04">04</option>
-//                 <option value="05">05</option>
-//                 <option value="06">06</option>
-//                 <option value="07">07</option>
-//                 <option value="08">08</option>
-//                 <option value="09">09</option>
-//                 <option value="10">10</option>
-//                 <option value="11">11</option>
-//                 <option value="12">12</option>
-//                 <option value="13">13</option>
-//                 <option value="14">14</option>
-//                 <option value="15">15</option>
-//                 <option value="16">16</option>
-//                 <option value="17">17</option>
-//                 <option value="18">18</option>
-//                 <option value="19">19</option>
-//                 <option value="20">20</option>
-//                 <option value="21">21</option>
-//                 <option value="22">22</option>
-//                 <option value="23">23</option>
-//               </select>
-//               <span class="text-gray-700 font-medium text-sm">時</span>
-//               <select id="endMin" class="bg-white border-2 border-orange-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 appearance-none cursor-pointer hover:border-orange-300 w-16 custom-select">
-//                 <option value="00">00</option>
-//                 <option value="15">15</option>
-//                 <option value="30">30</option>
-//                 <option value="45">45</option>
-//               </select>
-//               <span class="text-gray-700 font-medium text-sm">分</span>
-//             </div>
+    const map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
-//             <!-- 搜尋按鈕 -->
-//             <button onclick="handleSearch()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-8 rounded-full transition-colors ml-auto">
-//               搜尋
-//             </button>
-//           </div>
-//         </div>
-//       </div>
+    return map[jsDay] || '';
+  };
 
-//       <!-- 附近的保姆標題 -->
-//       <div class="flex items-center justify-between mb-6">
-//         <div class="flex items-center gap-2">
-//           <span class="text-3xl">🐾</span>
-//           <h2 class="text-2xl font-bold text-orange-600">附近的保姆</h2>
-//         </div>
-//         <select id="sortBy" class="bg-amber-100 border border-orange-300 text-orange-700 px-4 py-1.5 rounded-full text-sm font-medium appearance-none cursor-pointer hover:bg-amber-200 transition-colors custom-select">
-//           <option value="距離">距離</option>
-//           <option value="評分">評分</option>
-//           <option value="價格">價格</option>
-//         </select>
-//       </div>
+  // 點擊搜尋按鈕，將 filters 套進 Supabase 查詢
+  async function fetchServicesWithFilters(overrideSortBy, page = 1) {
+    const sortBy = overrideSortBy ?? filters.sortBy;
 
-//       <!-- 保姆卡片列表 -->
-//       <div id="sitterContainer" class="space-y-5"></div>
-//     </div>
-//   </div>
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
 
-//   <!-- 浮動聯絡按鈕 -->
-//   <button class="float-btn" onclick="alert('聯絡客服')">T</button>
+    // 1) 撈 favorites 的那段可以先跳過（你剛說還沒做登入，就先不加）
 
-//   <script>
-//     // 示範資料
-//     const sitters = [
-//       {
-//         id: 1,
-//         name: '阿倫',
-//         image: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22%3E%3Crect fill=%22%23e5b89f%22 width=%22128%22 height=%22128%22/%3E%3Ccircle cx=%2264%22 cy=%2240%22 r=%2220%22 fill=%22%23d4a574%22/%3E%3Cellipse cx=%2264%22 cy=%2280%22 rx=%2225%22 ry=%2230%22 fill=%22%23d4a574%22/%3E%3C/svg%3E',
-//         rating: 5,
-//         petTypes: ['狗'],
-//         serviceType: '肉球保姆',
-//         description: '陪伴散步・會國時注意狗狗的狀況與安全！',
-//         price: 'NT$ 200 / 30 分鐘',
-//         location: '台中市 中區',
-//         distance: '1km',
-//       },
-//       {
-//         id: 2,
-//         name: '雪莉',
-//         image: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22%3E%3Crect fill=%22%23a0826d%22 width=%22128%22 height=%22128%22/%3E%3Ccircle cx=%2264%22 cy=%2235%22 r=%2218%22 fill=%22%238b6f47%22/%3E%3Cellipse cx=%2264%22 cy=%2285%22 rx=%2228%22 ry=%2232%22 fill=%22%238b6f47%22/%3E%3C/svg%3E',
-//         rating: 4.8,
-//         petTypes: ['貓', '鳥', '鼠'],
-//         serviceType: '寶盒',
-//         description: '可伴舍置協助居家・清理籠子。',
-//         price: 'NT$ 600 / 一晚',
-//         location: '台中市 中區',
-//         distance: '2km',
-//       },
-//       {
-//         id: 3,
-//         name: 'John',
-//         image: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22%3E%3Crect fill=%22%23f4a460%22 width=%22128%22 height=%22128%22/%3E%3Ccircle cx=%2264%22 cy=%2238%22 r=%2219%22 fill=%22%23cd7f32%22/%3E%3Cellipse cx=%2264%22 cy=%2282%22 rx=%2226%22 ry=%2231%22 fill=%22%23cd7f32%22/%3E%3C/svg%3E',
-//         rating: 3.5,
-//         petTypes: ['鳥', '鳥', '爬蟲'],
-//         serviceType: '到府照顧',
-//         description: '到府協助照顧・清理籠子。',
-//         price: 'NT$ 200 / 30 分鐘',
-//         location: '台中市 中區',
-//         distance: '3km',
-//       },
-//     ];
+    let query = supabase
+      .from("services")
+      .select(
+        `
+      id,
+      sitter_id,
+      category,
+      species,
+      description,
+      rating,
+      price_per_30min,
+      price_per_day,
+      price_per_session,
+      photo_url,
+      users!inner (
+        name,
+        good_citizen_status
+      ),
+      loc:locations!inner (
+        city,
+        district
+      )
+    `,
+        { count: "exact" } // 順便拿到總筆數
+      )
+      .eq("users.good_citizen_status", "approved");
 
-//     let favorites = {};
+    // 日期 → 轉成 day_of_week
+    const dow = getDowFromDate(filters.date);
+    console.log("dow from date", filters.date, "=>", dow);
 
-//     function renderSitters() {
-//       const container = document.getElementById('sitterContainer');
-//       container.innerHTML = sitters.map(sitter => `
-//         <div class="bg-white rounded-2xl shadow-md overflow-hidden flex gap-5 p-6 border-l-4 border-orange-300 sitter-card">
-//           <!-- 圖片 -->
-//           <div class="flex-shrink-0">
-//             <img src="${sitter.image}" alt="${sitter.name}" class="w-32 h-32 object-cover rounded-lg">
-//           </div>
+    if (dow) {
+      query = query.eq("day_of_week", dow);
+    }
 
-//           <!-- 內容 -->
-//           <div class="flex-1">
-//             <!-- 名稱和星評 -->
-//             <div class="mb-2">
-//               <h3 class="text-xl font-bold text-gray-900">${sitter.name}</h3>
-//               <div class="flex items-center gap-1 mt-1">
-//                 <div class="flex gap-0.5">
-//                   ${[...Array(Math.floor(sitter.rating))].map(() => '<span class="text-yellow-400">★</span>').join('')}
-//                   ${sitter.rating % 1 !== 0 ? '<span class="text-yellow-300">★</span>' : ''}
-//                 </div>
-//                 <span class="text-sm text-gray-600 ml-1">${sitter.rating}</span>
-//               </div>
-//             </div>
+    // 由 startHour/startMinute/endHour/endMinute 推導出時間字串
+    const startTime = getStartTime();
+    const endTime = getEndTime();
 
-//             <!-- 服務資訊 -->
-//             <div class="flex gap-6 mb-2 text-sm">
-//               <div>
-//                 <span class="text-gray-500 text-xs">服務寵物</span>
-//                 <p class="font-medium text-gray-800">${sitter.petTypes.join('、')}</p>
-//               </div>
-//               <div>
-//                 <span class="text-gray-500 text-xs">服務項目</span>
-//                 <p class="font-medium text-gray-800">${sitter.serviceType}</p>
-//               </div>
-//             </div>
+    // 時間重疊：service_start < userEnd 且 service_end > userStart
+    if (startTime && endTime) {
+      query = query.lt("start_time", endTime).gt("end_time", startTime);
+    }
 
-//             <!-- 描述 -->
-//             <p class="text-gray-700 text-sm mb-3">${sitter.description}</p>
+    if (filters.category) query = query.eq("category", filters.category);
+    if (filters.species) query = query.eq("species", filters.species);
 
-//             <!-- 底部：價格、地點、按鈕 -->
-//             <div class="flex items-center justify-between">
-//               <div class="flex items-center gap-4">
-//                 <span class="font-bold text-gray-900">${sitter.price}</span>
-//                 <div class="flex items-center gap-1 text-gray-600 text-sm">
-//                   <span>📍</span>
-//                   <span>${sitter.location}</span>
-//                   <span class="text-gray-400 text-xs ml-1">${sitter.distance}</span>
-//                 </div>
-//               </div>
+    if (filters.city) {
+      query = query.eq("loc.city", filters.city).not("loc.city", "is", null);
+    }
 
-//               <!-- 按鈕 -->
-//               <div class="flex items-center gap-3">
-//                 <button onclick="toggleFavorite(${sitter.id})" class="heart-btn">
-//                   <span id="heart-${sitter.id}" class="text-2xl">${favorites[sitter.id] ? '❤️' : '🤍'}</span>
-//                 </button>
-//                 <button onclick="alert('查看詳情')" class="border-2 border-orange-400 text-orange-500 hover:bg-orange-50 px-5 py-1.5 rounded-full text-sm font-medium transition-colors">
-//                   詳情
-//                 </button>
-//                 <button onclick="alert('預約保姆')" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors">
-//                   預約
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       `).join('');
-//     }
+    if (filters.district) {
+      query = query.eq("loc.district", filters.district);
+    }
 
-//     function toggleFavorite(id) {
-//       favorites[id] = !favorites[id];
-//       document.getElementById(`heart-${id}`).textContent = favorites[id] ? '❤️' : '🤍';
-//     }
+    if (sortBy === "rating") {
+      console.log("ordering by rating desc");
+      query = query.order("rating", { ascending: false });
+    } else {
+      console.log("ordering by id asc");
+      query = query.order("id", { ascending: true });
+    }
 
-//     function handleSearch() {
-//       const petType = document.getElementById('petType').value;
-//       const sitterType = document.getElementById('sitterType').value;
-//       const location = document.getElementById('location').value;
-//       const date = document.getElementById('date').value;
-//       alert(`已搜尋: 寵物類別=${petType}, 服務類別=${sitterType}, 地區=${location}, 日期=${date || '未選擇'}`);
-//     }
+    // 分頁範圍：from ~ to
+    query = query.range(from, to);
 
-//     // 初始化
-//     renderSitters();
-//   </script>
-// </body>
-// </html>
+    // 一起解構 count
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.log("fetchServicesWithFilters error", error);
+      return;
+    }
+    if (!data) {
+      setCards([]);
+      setTotalCount(0);
+      return;
+    }
+
+    console.log("raw data from supabase", data);
+
+    // 更新 totalCount
+    setTotalCount(count ?? 0);
+
+    const mapped = data.map((row) => ({
+      serviceId: row.id,
+      sitterName: row.users.name,
+      rating: row.rating,
+      isFavorite: false,
+      category: row.category,
+      species: row.species,
+      city: row.loc?.city ?? "",
+      district: row.loc?.district ?? "",
+      distanceKm: null,
+      description: row.description,
+      pricePer30min: row.price_per_30min,
+      pricePerDay: row.price_per_day,
+      pricePerSession: row.price_per_session,
+      imageUrl: row.photo_url,
+    }));
+
+    setCards(mapped);
+    console.log("services with filters", mapped);
+  }
+
+
+
+
+  // 監聽 filters，專門用來 debug
+  useEffect(() => {
+    console.log("filters changed", filters.startTime, filters.endTime);
+  }, [filters.startTime, filters.endTime]);
+
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchServicesWithFilters(undefined, 1);//初次載入用第 1 頁
+  }, []);
+
+
+
+
+
+
+
+  const handleSearch = async () => {
+    setCurrentPage(1);
+    await fetchServicesWithFilters(undefined, 1);
+    // 如果目前排序選項是「價格」，搜尋完就重新依價格排序一次
+
+    if (filters.sortBy === "price") {
+      sortCardsByPrice();
+    }
+    // 如果是 rating，就交給 fetchServicesWithFilters 裡的 .order('rating')
+
+  };
+
+  const sortCardsByPrice = () => {
+    setCards(prev => {
+      const sorted = [...prev].sort((a, b) => {
+        const priceA =
+          a.pricePer30min ?? a.pricePerDay ?? a.pricePerSession ?? 0;
+        const priceB =
+          b.pricePer30min ?? b.pricePerDay ?? b.pricePerSession ?? 0;
+        return priceA - priceB; // 低到高
+      });
+      return sorted;
+    });
+  };
+
+  //把價錢三元運算子抽成一個小函式
+  const formatPrice = (card) => {
+    if (card.pricePer30min != null) return `NT$ ${card.pricePer30min} / 30分鐘`;
+    if (card.pricePerDay != null) return `NT$ ${card.pricePerDay} / 天`;
+    if (card.pricePerSession != null) return `NT$ ${card.pricePerSession} / 次`;
+    return "";
+  };
+
+  //卡片的愛心 icon 先用 local toggle 就好（還不串 favorites 表）
+  const toggleFavorite = (serviceId) => {
+    setCards((prev) =>
+      prev.map((card) =>
+        card.serviceId === serviceId
+          ? { ...card, isFavorite: !card.isFavorite }
+          : card
+      )
+    );
+  };
+
+  return (
+    <>
+      {/* 搜尋列 */}
+      <section className="lookfor-filter-group py-5">
+        <div className="container">
+          <h2 className="text-center fw-bold text-primary mb-5">我想尋找</h2>
+
+          <div className="row g-3 align-items-end">
+            {/* 服務類別 */}
+            <div className="col-12 col-md-3">
+              <label htmlFor="serviceType" className="form-label mb-2">
+                服務類別
+              </label>
+              <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                <span className="input-group-text border-0 bg-transparent">
+                  <img
+                    src={workIcon}
+                    alt="notes"
+                    width="20"
+                    height="20"
+                    className="me-2"
+                  />
+                </span>
+                <select
+                  className="form-select border-0 bg-transparent"
+                  id="serviceType"
+                  aria-label="服務類別"
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange("category", e.target.value)}
+                >
+                  <option value="">服務</option>
+                  <option value="陪伴散步">陪伴散步</option>
+                  <option value="寵物安親">寵物安親</option>
+                  <option value="洗澡美容">洗澡美容</option>
+                  <option value="到府照顧">到府照顧</option>
+                  <option value="寄宿">寄宿</option>
+                  <option value="訓練">訓練</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 寵物類別 */}
+            <div className="col-12 col-md-3">
+              <label htmlFor="petType" className="form-label mb-2">
+                寵物類別
+              </label>
+              <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                <span className="input-group-text border-0 bg-transparent">
+                  <img
+                    src={feetIcon}
+                    className="me-2"
+                    alt=""
+                    width="20"
+                    height="20"
+                  />
+                </span>
+                <select
+                  className="form-select border-0 bg-transparent"
+                  id="petType"
+                  aria-label="寵物類別"
+                  value={filters.species}
+                  onChange={(e) => handleFilterChange("species", e.target.value)}
+                >
+                  <option value="">寵物</option>
+                  <option value="dog">狗</option>
+                  <option value="cat">貓</option>
+                  <option value="bird">鳥</option>
+                  <option value="fish">魚</option>
+                  <option value="rabbit">兔</option>
+                  <option value="rodent">鼠類</option>
+                  <option value="reptiles">爬蟲類</option>
+                  <option value="others">其他</option>
+
+                </select>
+              </div>
+            </div>
+
+            {/* 服務地區：縣市 */}
+            <div className="col-12 col-md-3">
+              <label htmlFor="city" className="form-label mb-2">
+                服務地區
+              </label>
+              <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                <span className="input-group-text border-0 bg-transparent">
+                  <img
+                    src={locationIcon}
+                    alt="location"
+                    width="20"
+                    height="20"
+                    className="me-2"
+                  />
+                </span>
+                <select
+                  className="form-select border-0 bg-transparent"
+                  id="city"
+                  aria-label="服務縣市"
+                  value={filters.city}
+                  onChange={(e) => handleFilterChange("city", e.target.value)}
+                >
+                  <option value="">縣市</option>
+                  <option value="臺北市">臺北市</option>
+                  <option value="新北市">新北市</option>
+                  <option value="臺中市">臺中市</option>
+                  <option value="高雄市">高雄市</option>
+                  <option value="苗栗市">苗栗市</option>
+                  <option value="臺南市">臺南市</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 服務地區：地區 */}
+            <div className="col-12 col-md-3">
+              <label htmlFor="district" className="form-label mb-2">
+                服務地區
+              </label>
+              <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                <span className="input-group-text border-0 bg-transparent">
+                  {/* 地區 icon */}
+                </span>
+                <select
+                  className="form-select border-0 bg-transparent"
+                  id="district"
+                  aria-label="服務地區"
+                  value={filters.district}
+                  onChange={(e) => handleFilterChange("district", e.target.value)}
+                >
+                  <option value="">地區</option>
+                  <option value="中山區">中山區</option>
+                  <option value="信義區">信義區</option>
+                  <option value="西區">西區</option>
+                  <option value="萬華區">萬華區</option>
+                  <option value="西屯區">西屯區</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 服務時間：日期 */}
+            <div className="col-12 col-md-3">
+              <label htmlFor="serviceDate" className="form-label mb-2">
+                服務時間
+              </label>
+              <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                <span className="input-group-text border-0 bg-transparent">
+                  <img
+                    src={calendarIcon}
+                    alt="date"
+                    width="20"
+                    height="20"
+                  />
+                </span>
+                <input
+                  type="date"
+                  id="serviceDate"
+                  className="form-control border-0 bg-transparent"
+                  value={filters.date}
+                  onChange={(e) => handleFilterChange("date", e.target.value)}
+                  placeholder="DD/MM/YYYY"
+                />
+              </div>
+            </div>
+
+            {/* 開始時間：時分 */}
+            <div className="col-12 col-md-3">
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label mb-2">時</label>
+                  <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                    <select
+                      className="form-select border-0 bg-transparent"
+                      value={startHour}
+                      onChange={(e) => setStartHour(e.target.value)}
+                    >
+                      <option value="">00</option>
+                      {hours.map((h) => (
+                        <option key={h} value={h.toString().padStart(2, "0")}>
+                          {h.toString().padStart(2, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-6">
+                  <label className="form-label mb-2">分</label>
+                  <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                    <select
+                      className="form-select border-0 bg-transparent"
+                      value={startMinute}
+                      onChange={(e) => setStartMinute(e.target.value)}
+                    >
+                      <option value="">00</option>
+                      <option value="00">00</option>
+                      <option value="30">30</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 結束時間：時分 */}
+            <div className="col-12 col-md-3">
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label mb-2">時</label>
+                  <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                    <select
+                      className="form-select border-0 bg-transparent"
+                      value={endHour}
+                      onChange={(e) => setEndHour(e.target.value)}
+                    >
+                      <option value="">00</option>
+                      {hours.map((h) => (
+                        <option key={h} value={h.toString().padStart(2, "0")}>
+                          {h.toString().padStart(2, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-6">
+                  <label className="form-label mb-2">分</label>
+                  <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+                    <select
+                      className="form-select border-0 bg-transparent"
+                      value={endMinute}
+                      onChange={(e) => setEndMinute(e.target.value)}
+                    >
+                      <option value="">00</option>
+                      <option value="00">00</option>
+                      <option value="30">30</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 搜尋按鈕 */}
+            <div className="col-12 col-md-3 d-flex justify-content-md-end mt-3 mt-md-0">
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="btn btn-gradint-primary w-100 rounded-pill py-2"
+              >
+                搜尋
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 保姆卡片 */}
+      <section className="lookfor-sitter-list py-4">
+        <div className="container">
+          <div className="text-center mb-3">
+            <img
+              src={radarIcon}
+              alt="notes"
+              width="32"
+              height="32"
+              className="me-2 mb-3"
+            />
+            <h2 className="text-primary d-inline-block mb-0">附近的保姆</h2>
+          </div>
+
+          <div className="row mb-3">
+            <div className="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+              {/* 左側：總筆數文字 */}
+              <small className="text-muted mb-2 mb-md-0">
+                共 {totalCount} 位保姆符合條件
+              </small>
+              <div className="col-12 col-md-2">
+                {/* 排序 select */}
+                <select
+                  id="sortBy"
+                  className="form-select"
+                  value={filters.sortBy}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleFilterChange("sortBy", value);
+                    setCurrentPage(1);
+                    if (value === "price") {
+                      sortCardsByPrice();
+                    } else {
+                      fetchServicesWithFilters(value, 1);
+                    }
+                  }}
+                >
+                  <option value="">排序</option>
+                  <option value="price">價格（由低到高）</option>
+                  <option value="rating">評分（由高到低）</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 卡片輪播 */}
+          <div className="row">
+            {cards.map((card) => (
+              <div
+                key={card.serviceId}
+                className="col-12 mb-4"
+              >
+                <div className="card border-0 shadow-sm rounded-3 px-3 py-3 sitter-card h-100">
+                  <div className="row g-3 align-items-center">
+                    <div className="col-12 col-md-3 d-flex justify-content-center">
+                      <div className="sitter-card-img-wrapper rounded-3 overflow-hidden">
+                        <img
+                          src={card.imageUrl}
+                          className="sitter-card-img"
+                          alt="保姆"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-9 d-flex">
+                      <div className="card-body p-0 d-flex flex-column justify-content-between w-100">
+                        <div>
+                          <div className="card-header-row d-flex justify-content-between align-items-start mb-3">
+                            {/* <!-- 左邊 sitterName + 星等，右邊愛心 icon --> */}
+                            <div className="d-flex flex-column align-items-start">
+                              <h4 className="card-title mb-1 me-2">
+                                {card.sitterName}
+                              </h4>
+                              {/* 星星＋分數 */}
+                              {card.rating != null && (
+                                <span className="text-warning small">
+                                  {"★".repeat(Math.round(card.rating))}{" "}
+                                  <span className="text-muted">
+                                    ({card.rating.toFixed(1)})
+                                  </span>
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              className="btn p-0 border-0 bg-transparent"
+                              onClick={() => toggleFavorite(card.serviceId)}
+                            >
+                              <i
+                                className={
+                                  card.isFavorite
+                                    ? "bi bi-heart-fill text-danger"
+                                    : "bi bi-heart"
+                                }
+                              />
+                            </button>
+                          </div>
+
+                          {/* 服務寵物 + 地區 */}
+                          <div className="card-meta-row d-flex justify-content-between align-items-center mb-2">
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="card-label-title">服務寵物</span>
+                              <span className="border text-black badge rounded-pill card-chip">
+                                {speciesLabelMap[card.species] ?? card.species}
+                              </span>
+                            </div>
+                            <div className="d-flex align-items-center text-muted small gap-1">
+                              <img
+                                src={locationIcon}
+                                alt="location"
+                                width="16"
+                                height="16"
+                              />
+                              <span>{card.city}</span>
+                              <span>{card.district}</span>
+                            </div>
+                          </div>
+
+                          {/* 服務項目 + 距離 */}
+                          <div className="card-service-row d-flex justify-content-between align-items-center mb-3">
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="card-label-title">服務項目</span>
+                              <span className="border text-black badge rounded-pill card-chip">
+                                {card.category}
+                              </span>
+                            </div>
+                            <p className="mb-0 text-muted small">距離 1km</p>
+                          </div>
+
+                          <div className="card-description-row mb-3">
+                            {card.description}
+                          </div>
+                        </div>
+
+                        <div className="card-footer-row d-flex flex-wrap justify-content-between align-items-center pt-2">
+                          <p className="mb-2 mb-md-0 fw-bold">{formatPrice(card)}</p>
+                          <div>
+                            <button className="btn btn-outline-secondary btn-sm me-2 rounded-pill">
+                              詳情
+                            </button>
+                            <button className="btn btn-gradint-primary btn-sm rounded-pill">
+                              預約
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* <p className="card-text mt-2 mb-0">
+                <small className="text-body-secondary">
+                  Last updated 3 mins ago
+                </small>
+              </p> */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+
+
+
+
+          {/* 分頁按鈕 */}
+          <div className="d-flex justify-content-center align-items-center my-4">
+            {/* 左箭頭 */}
+            <button
+              type="button"
+              className="btn btn-link p-0 me-3"
+              disabled={currentPage === 1}
+              onClick={async () => {
+                if (currentPage === 1) return;
+                const newPage = currentPage - 1;
+                setCurrentPage(newPage);
+                await fetchServicesWithFilters(undefined, newPage);
+                if (filters.sortBy === "price") {
+                  sortCardsByPrice();
+                }
+              }}
+              style={{ color: currentPage === 1 ? "#ccc" : "#ff6600" }}
+            >
+              <i className="bi bi-chevron-left" style={{ fontSize: "1.4rem" }}></i>
+            </button>
+
+            {/* 中間頁碼 */}
+            {pageNumbers.map((page) => (
+              <button
+                key={page}
+                type="button"
+                className="btn mx-1"
+                onClick={async () => {
+                  if (page === currentPage) return;
+                  setCurrentPage(page);
+                  await fetchServicesWithFilters(undefined, page);
+                  if (filters.sortBy === "price") {
+                    sortCardsByPrice();
+                  }
+                }}
+                style={{
+                  borderRadius: "999px",
+                  minWidth: "36px",
+                  height: "36px",
+                  padding: 0,
+                  lineHeight: "36px",
+                  fontWeight: page === currentPage ? "600" : "400",
+                  backgroundColor:
+                    page === currentPage ? "#ff6600" : "transparent",
+                  color: page === currentPage ? "#fff" : "#333",
+                  border: "none",
+                }}
+              >
+                {page}
+              </button>
+            ))}
+
+            {/* 右箭頭 */}
+            <button
+              type="button"
+              className="btn btn-link p-0 ms-3"
+              disabled={currentPage === totalPages}
+              onClick={async () => {
+                if (currentPage === totalPages) return;
+                const newPage = currentPage + 1;
+                setCurrentPage(newPage);
+                await fetchServicesWithFilters(undefined, newPage);
+                if (filters.sortBy === "price") {
+                  sortCardsByPrice();
+                }
+              }}
+              style={{ color: currentPage === totalPages ? "#ccc" : "#ff6600" }}
+            >
+              <i className="bi bi-chevron-right" style={{ fontSize: "1.4rem" }}></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+
+}
+export default LookForPetSitter;
