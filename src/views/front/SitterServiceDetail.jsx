@@ -17,14 +17,15 @@ import location_icon from '../../images/icons/location_icon.png';
 const SitterServiceDetail = () => {
   const [users, setUsers] = useState([]);
   const [services, setServices] = useState([]);
-  const [detail, setDetail] = useState({});
-  const [testServices, setTestServices] = useState([]);
+  const [detail, setDetail] = useState([]);
+  // const [testServices, setTestServices] = useState([]);
 
   const params = useParams();
   const { id } = params;
 
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
+  const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   // const schedule = [
 
   //   { day: "週一", times: ["10:30 - 12:00", "18:30 - 21:00"] },
@@ -58,47 +59,51 @@ const SitterServiceDetail = () => {
     )
   `);
       if (error) throw error;
-      console.log(data)
+      console.log(data);
+      !data.find(service=> service.id==id)&&navigate('*',{replace:true});
+      
       setServices(data);
+      // console.log(services.find(service=>service.id==id))
+
       // setDetail(data[0]);
 
-      const sitterMap = new Map();
-      data.forEach(item => {
-        // 1. 處理 Sitter 層級
-        if (!sitterMap.has(item.sitter_id)) {
-          sitterMap.set(item.sitter_id, {
-            sitterId: item.sitter_id,
-            servicesMap: new Map() // 內部再用一個 Map 來存服務
-          });
-        }
+      // const sitterMap = new Map();
+      // data.forEach(item => {
+      //   // 1. 處理 Sitter 層級
+      //   if (!sitterMap.has(item.sitter_id)) {
+      //     sitterMap.set(item.sitter_id, {
+      //       sitterId: item.sitter_id,
+      //       servicesMap: new Map() // 內部再用一個 Map 來存服務
+      //     });
+      //   }
 
-        const sitterEntry = sitterMap.get(item.sitter_id);
+      //   const sitterEntry = sitterMap.get(item.sitter_id);
 
-        // 2. 處理 Service 層級
-        if (!sitterEntry.servicesMap.has(item.category)) {
-          sitterEntry.servicesMap.set(item.category, {
-            service: item.category,
-            day: []
-          });
-        }
+      //   // 2. 處理 Service 層級
+      //   if (!sitterEntry.servicesMap.has(item.category)) {
+      //     sitterEntry.servicesMap.set(item.category, {
+      //       service: item.category,
+      //       day: []
+      //     });
+      //   }
 
-        const serviceEntry = sitterEntry.servicesMap.get(item.category);
+      //   const serviceEntry = sitterEntry.servicesMap.get(item.category);
 
-        // 3. 插入時段資料
-        serviceEntry.day.push({
-          serviceId: item.id, // 建議帶上 ID，方便後續刪除或修改
-          day: item.day_of_week,
-          start: item.start_time,
-          end: item.end_time
-        });
-      });
-      let testServiceArr = Array.from(sitterMap.values()).map(sitter => ({
-        sitterId: sitter.sitterId,
-        services: Array.from(sitter.servicesMap.values())
-      }));
-      console.log(testServiceArr);
-      setTestServices(testServiceArr);
-      console.log(testServices);
+      //   // 3. 插入時段資料
+      //   serviceEntry.day.push({
+      //     serviceId: item.id, // 建議帶上 ID，方便後續刪除或修改
+      //     day: item.day_of_week,
+      //     start: item.start_time,
+      //     end: item.end_time
+      //   });
+      // });
+      // let testServiceArr = Array.from(sitterMap.values()).map(sitter => ({
+      //   sitterId: sitter.sitterId,
+      //   services: Array.from(sitter.servicesMap.values())
+      // }));
+      // console.log(testServiceArr);
+      // setTestServices(testServiceArr);
+      // console.log(testServices);
     } catch (err) {
       console.error('連線錯誤：', err);
     }
@@ -137,13 +142,39 @@ const SitterServiceDetail = () => {
   useEffect(() => {
     getAllService();
     getAllUsers();
+    // const firstService=services.find(service=>service.id==id);
+    // services.map(service=>
+    //   service.sitter_id==firstService.sitter_id&&service.category==firstService.category
+    //   &&setDetail([...detail],service));
+    // console.log(typeof(id))
     // setDetail(data[0]);
-  }, [detail]);
+  }, []);
+
+  // 當 services 資料回來後，進行篩選
+  useEffect(() => {
+    // 確保 services 已經有資料且 id 存在
+    if (services.length > 0 && id) {
+      // 找到當前 id 對應的那一筆
+      const firstService = services.find(s => s.id == id);
+
+      if (firstService) {
+        // 篩選出同保母且同類別的所有服務
+        const filteredServices = services.filter(s =>
+          s.sitter_id === firstService.sitter_id &&
+          s.category === firstService.category
+        ).reverse().sort((a, b) =>
+          weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week));
+
+        setDetail(filteredServices);
+      }
+    }
+  }, [services, id]); // 當服務列表或 ID 變動時重新篩選
 
 
 
   return (
     <>
+      {/* {JSON.stringify(detail.map(service=>service))} */}
       {/* {testServices.map((service, index) => index + ':' + service.services.map((service, index) => index + service.service)).join(',')} */}
       {/* <div className="container">
         <div className="row">
@@ -172,7 +203,7 @@ const SitterServiceDetail = () => {
         <div className="container">
           <div id="carouselExample" className=" carousel slide mb-4 position-relative">
 
-            <div class="carousel-indicators">
+            <div className="carousel-indicators">
               <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
               <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
               <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
@@ -213,18 +244,18 @@ const SitterServiceDetail = () => {
 
               <div className="d-flex align-items-center mb-10">
                 <img
-                  src={detail?.users?.avatar_url}
+                  src={detail[0]?.users?.avatar_url}
                   className="user_avatar rounded-circle border border-secondary border-2 me-4"
                   alt="User Avatar"
                   style={{}}
                 />
-                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{detail?.users?.nickname}</h2>
-                <span class="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
+                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{detail[0]?.users?.nickname}</h2>
+                <span className="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
               </div>
 
               <div className="d-flex align-items-center">
                 <p className="h5 me-2" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>NT$</p>
-                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{detail.price_per_30min != null ? `${detail.price_per_30min} / 30分鐘` : detail.price_per_day != null ? `${detail.price_per_day} / 天` : `${detail.price_per_session} / 次`}</p>
+                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{detail[0]?.price_per_30min != null ? `${detail[0]?.price_per_30min} / 30分鐘` : detail[0]?.price_per_day != null ? `${detail[0]?.price_per_day} / 天` : `${detail[0]?.price_per_session} / 次`}</p>
               </div>
 
 
@@ -246,9 +277,9 @@ const SitterServiceDetail = () => {
               <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
 
                 <div className="d-flex align-items-center mb-7">
-                  {starRating(detail.rating)}
+                  {starRating(detail[0]?.rating)}
                   <p style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, marginBottom: 0 }}>
-                    {detail.rating}
+                    {detail[0]?.rating}
                   </p>
                 </div>
                 <div>
@@ -264,19 +295,19 @@ const SitterServiceDetail = () => {
                   <p className="mb-3" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務項目
                     <span class="badge rounded-pill text-bg-light border ms-10">
-                      {detail.category}
+                      {detail[0]?.category}
                     </span>
                   </p>
 
                   <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
                     <span class="badge rounded-pill text-bg-light border ms-10">
-                      {detail.species}
+                      {detail[0]?.species}
                     </span>
                   </p>
                 </div>
 
-                <p>{detail.description}</p>
+                <p>{detail[0]?.description}</p>
               </div>
             </div>
 
@@ -293,12 +324,14 @@ const SitterServiceDetail = () => {
             {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
             <div className="row row-cols-7 g-7">
               {/* {testServiceArr} */}
-              {testServices[1]?.services[0].day.map(day => (
+              {/* {detail.sort((a,b)=>
+              weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week))} */}
+              {detail.map(service => (
                 <div className="col">
                   <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
                     <div className="fw-bold mb-3 text-dark">
-                      {mandarinWeekDay(day.day)}
+                      {mandarinWeekDay(service.day_of_week)}
                     </div>
 
                     <div
@@ -306,7 +339,7 @@ const SitterServiceDetail = () => {
                       className="small py-1 mb-2 text-white fw-medium"
                       style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
                     >
-                      {day.start.slice(0, -3)} ~ {day.end.slice(0, -3)}
+                      {service.start_time.slice(0, -3)} ~ {service.end_time.slice(0, -3)}
                     </div>
 
                   </div>
@@ -378,8 +411,8 @@ const SitterServiceDetail = () => {
                   if (isAuthenticated) {
                     navigate('booking', {
                       state: {
-                        serviceId: detail.id,
-                        sitterId: detail.sitter_id,
+                        serviceId: detail[0].id,
+                        sitterId: detail[0].sitter_id,
                       },
                     });
                   } else {
@@ -427,7 +460,7 @@ const SitterServiceDetail = () => {
 
               {/* 單一評論卡片 */}
               {
-                detail?.reviews?.reviews.map(review =>
+                detail[0]?.reviews?.reviews.map(review =>
                   <div className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start">
