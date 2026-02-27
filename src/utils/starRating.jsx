@@ -20,7 +20,7 @@ export const starRating = (rating,height) => {
     }
   });
 
-  return stars.map(star => (
-    <img src={star} alt="" className='me-1' style={{height:height}}/>
+    return stars.map((star, index) => (
+    <img key={index} src={star} alt="" className='me-1' style={{height:height}}/>
   ));
 };

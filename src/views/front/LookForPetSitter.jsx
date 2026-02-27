@@ -11,6 +11,8 @@ import workIcon from "../../images/icons/work_icon.png";
 import radarIcon from "../../images/icons/radar_icon.png";
 import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import { FavoriteButton } from "../../utils/FavoriteButton";
 
 
 
@@ -18,6 +20,7 @@ import { useSelector } from "react-redux";
 // export { supabase };
 
 function LookForPetSitter() {
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [ownerId, setOwnerId] = useState(null);
 
@@ -204,13 +207,27 @@ function LookForPetSitter() {
     // 更新 totalCount
     setTotalCount(count ?? 0);
 
-    // 先把 services map 成卡片基本資料（含 sitterId）
-    const baseCards = data.map((row) => ({
+    //先依 sitter_id + category 去重，只保留一筆代表 service
+    const uniqueMap = new Map();
+
+    // 這裡的策略是「第一次遇到就保留」，之後遇到同 key 的就略過
+    for (const row of data) {
+      const key = `${row.sitter_id}__${row.category}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, row);
+      }
+    }
+
+    // 得到只含唯一組合的陣列
+    const uniqueRows = Array.from(uniqueMap.values());
+
+    // 再把 uniqueRows map 成卡片
+    const baseCards = uniqueRows.map((row) => ({
       serviceId: row.id,
       sitterId: row.sitter_id,
       sitterName: row.users.name,
       rating: row.rating,
-      isFavorite: false, // 等一下再根據 favorites 更新
+      isFavorite: false,
       category: row.category,
       species: row.species,
       city: row.loc?.city ?? "",
@@ -223,6 +240,7 @@ function LookForPetSitter() {
       imageUrl: row.photo_url,
     }));
 
+
     // 如果還沒登入，就不用查 favorites，直接 setCards
     if (!isAuthenticated || !user) {
       setCards(baseCards);
@@ -231,18 +249,18 @@ function LookForPetSitter() {
     }
 
     // 🔸 已登入：去 favorites 查這個 owner 收藏了哪些 sitter
-// 如果 ownerId 還沒準備好，就先顯示沒有收藏狀態
-if (!ownerId) {
-  setCards(baseCards);
-  console.log("services with filters (login but no ownerId)", baseCards);
-  return;
-}
+    // 如果 ownerId 還沒準備好，就先顯示沒有收藏狀態
+    if (!ownerId) {
+      setCards(baseCards);
+      console.log("services with filters (login but no ownerId)", baseCards);
+      return;
+    }
 
 
-const { data: favRows, error: favError } = await supabase
-  .from("favorites")
-  .select("sitter_id")
-  .eq("owner_id", ownerId);
+    const { data: favRows, error: favError } = await supabase
+      .from("favorites")
+      .select("sitter_id")
+      .eq("owner_id", ownerId);
 
     if (favError) {
       console.log("fetch favorites error", favError);
@@ -265,37 +283,37 @@ const { data: favRows, error: favError } = await supabase
   }
 
 
-//監聽登入狀態和 user.email 的變化，去查對應的 users.id，存到 ownerId state 裡，給 favorites.owner_id 用
-useEffect(() => {
-  // 有登入而且有 email 才去查 users.id
-  const fetchOwnerId = async () => {
-    //又是可選鏈 
-    //如果 user 是 null 或 undefined，整個 user?.email 直接變成 undefined，不會因為去讀 user.email 而噴錯
-    // 如果還沒登入，或是雖然說登入了但 user 上沒有 email，就不要去查 users.id，直接當作 ownerId 無效，避免不必要的查詢和錯誤
-    if (!isAuthenticated || !user?.email) {
-      setOwnerId(null);
-      return;
-    }
+  //監聽登入狀態和 user.email 的變化，去查對應的 users.id，存到 ownerId state 裡，給 favorites.owner_id 用
+  useEffect(() => {
+    // 有登入而且有 email 才去查 users.id
+    const fetchOwnerId = async () => {
+      //又是可選鏈 
+      //如果 user 是 null 或 undefined，整個 user?.email 直接變成 undefined，不會因為去讀 user.email 而噴錯
+      // 如果還沒登入，或是雖然說登入了但 user 上沒有 email，就不要去查 users.id，直接當作 ownerId 無效，避免不必要的查詢和錯誤
+      if (!isAuthenticated || !user?.email) {
+        setOwnerId(null);
+        return;
+      }
 
-    const { data: userRow, error: userError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", user.email)
-      .single();
+      const { data: userRow, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", user.email)
+        .single();
 
-    if (userError || !userRow) {
-      console.error("找不到對應的 users 資料", userError);
-      setOwnerId(null);
-      return;
-    }
+      if (userError || !userRow) {
+        console.error("找不到對應的 users 資料", userError);
+        setOwnerId(null);
+        return;
+      }
 
-    setOwnerId(userRow.id); // ✅ 這個就是 favorites.owner_id 要用的 int
-  };
+      setOwnerId(userRow.id); // ✅ 這個就是 favorites.owner_id 要用的 int
+    };
 
-  fetchOwnerId();
-}, [isAuthenticated, user?.email]);
+    fetchOwnerId();
+  }, [isAuthenticated, user?.email]);
 
-useEffect(() => {
+  useEffect(() => {
     if (!ownerId) return;
     // 用目前的排序 / 頁碼抓
     fetchServicesWithFilters(undefined, currentPage);
@@ -352,69 +370,7 @@ useEffect(() => {
     return "";
   };
 
-// 卡片的愛心 icon：登入後串 favorites 表，未登入就只做 local toggle
-const toggleFavorite = async (serviceId) => {
-  // 先找出這張卡片
-  const targetCard = cards.find((c) => c.serviceId === serviceId);
-  if (!targetCard) return;
-
-  // 如果沒登入：只做前端效果（你也可以改成 alert「請先登入」）
-  if (!isAuthenticated || !user) {
-    setCards((prev) =>
-      prev.map((card) =>
-        card.serviceId === serviceId
-          ? { ...card, isFavorite: !card.isFavorite }
-          : card
-      )
-    );
-    return;
-  }
-
-if (!ownerId) {
-  alert("找不到對應使用者資料，請重新登入再試一次");
-  return;
-}
-  const sitterId = targetCard.sitterId;
-  const willFavorite = !targetCard.isFavorite;
-
-  if (willFavorite) {
-    // 要變成「收藏」→ insert 一筆到 favorites
-    const { error } = await supabase.from("favorites").insert({
-      owner_id: ownerId,
-      sitter_id: sitterId,
-    });
-
-    if (error) {
-      console.error("insert favorite error", error);
-      alert("收藏失敗，請稍後再試");
-      return;
-    }
-  } else {
-    // 要取消收藏 → 從 favorites 刪掉
-    const { error } = await supabase
-      .from("favorites")
-      .delete()
-      .eq("owner_id", ownerId)
-      .eq("sitter_id", sitterId);
-
-    if (error) {
-      console.error("delete favorite error", error);
-      alert("取消收藏失敗，請稍後再試");
-      return;
-    }
-  }
-
-  // 後端成功後，再更新前端 state
-  setCards((prev) =>
-    prev.map((card) =>
-      card.serviceId === serviceId
-        ? { ...card, isFavorite: willFavorite }
-        : card
-    )
-  );
-};
-
-
+ 
   return (
     <>
       {/* 搜尋列 */}
@@ -749,19 +705,25 @@ if (!ownerId) {
                                 </span>
                               )}
                             </div>
-                            <button
-                              type="button"
-                              className="btn p-0 border-0 bg-transparent"
-                              onClick={() => toggleFavorite(card.serviceId)}
-                            >
-                              <i
-                                className={
-                                  card.isFavorite
-                                    ? "bi bi-heart-fill text-danger"
-                                    : "bi bi-heart"
-                                }
-                              />
-                            </button>
+                            <FavoriteButton
+  serviceId={card.serviceId}
+  sitterId={card.sitterId}
+  ownerId={ownerId}
+  isFavorite={card.isFavorite}
+  isAuthenticated={isAuthenticated}
+  user={user}
+  onToggleDone={(willFavorite) => {
+    // 負責更新 cards 的 isFavorite
+    setCards((prev) =>
+      prev.map((c) =>
+        c.serviceId === card.serviceId
+          ? { ...c, isFavorite: willFavorite }
+          : c
+      )
+    );
+  }}
+/>
+
                           </div>
 
                           {/* 服務寵物 + 地區 */}
@@ -803,7 +765,12 @@ if (!ownerId) {
                         <div className="card-footer-row d-flex flex-wrap justify-content-between align-items-center pt-2">
                           <p className="mb-2 mb-md-0 fw-bold">{formatPrice(card)}</p>
                           <div>
-                            <button className="btn btn-outline-secondary btn-sm me-2 rounded-pill">
+                            <button className="btn btn-outline-secondary btn-sm me-2 rounded-pill"
+                              onClick={() => {
+                                // card.serviceId 就是 services.id
+                                navigate(`/lookforpetsitter/${card.serviceId}`);
+                              }}
+                            >
                               詳情
                             </button>
                             <button className="btn btn-gradint-primary btn-sm rounded-pill">
