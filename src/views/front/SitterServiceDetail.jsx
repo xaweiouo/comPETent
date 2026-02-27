@@ -212,15 +212,15 @@ const SitterServiceDetail = () => {
 
             <div className="carousel-inner rounded-4 carousel_sitter-service-detail" style={{}}>
               <div className="carousel-item h-100 active">
-                <img src={allen_carousel01} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
+                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
               </div>
 
               <div className="carousel-item h-100">
-                <img src='./src/images/Allen.png' className="d-block w-100 h-100" alt="..." />
+                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" alt="..." />
               </div>
 
               <div className="carousel-item h-100">
-                <img src='./src/images/Allen.png' className="d-block w-100 h-100" alt="..." />
+                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" alt="..." />
               </div>
 
             </div>
@@ -322,7 +322,7 @@ const SitterServiceDetail = () => {
             <h5 className="text-primary text-center mb-4 fw-bold" >服務時間</h5>
 
             {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
-            <div className="row row-cols-7 g-7">
+            <div className="row row-cols-7 g-7 flex-sm-row flex-column">
               {/* {testServiceArr} */}
               {/* {detail.sort((a,b)=>
               weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week))} */}
