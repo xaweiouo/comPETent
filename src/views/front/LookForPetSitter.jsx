@@ -12,7 +12,6 @@ import radarIcon from "../../images/icons/radar_icon.png";
 import { starRating } from "../../utils/starRating";
 
 
-// {starRating(detail.rating)}
 
 // export { supabase };
 
