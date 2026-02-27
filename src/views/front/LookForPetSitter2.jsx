@@ -19,7 +19,7 @@ try {
  * - 左側 (col-lg-3): 藍框設計的進階篩選面板
  * - 右側 (col-lg-9): 紫框設計的保母資料列表
  */
-const LookForPetSitter = () => {
+const LookForPetSitter2 = () => {
   const [allRows, setAllRows] = useState([])
   const [filteredRows, setFilteredRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -286,4 +286,4 @@ const LookForPetSitter = () => {
   )
 }
 
-export default LookForPetSitter
+export default LookForPetSitter2

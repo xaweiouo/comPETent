@@ -1,10 +1,11 @@
 import { supabase } from "../../utils/supabaseClient";
 // import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
+
 import { useSelector } from "react-redux";
 
 import allen_carousel01 from '../../images/Allen_carousel01.jpg';
@@ -14,9 +15,14 @@ import location_icon from '../../images/icons/location_icon.png';
 
 
 const SitterServiceDetail = () => {
-  const[users,setUsers]=useState([]);
+  const [users, setUsers] = useState([]);
   const [services, setServices] = useState([]);
   const [detail, setDetail] = useState({});
+  const [testServices, setTestServices] = useState([]);
+
+  const params = useParams();
+  const { id } = params;
+
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
   // const schedule = [
@@ -54,15 +60,53 @@ const SitterServiceDetail = () => {
       if (error) throw error;
       console.log(data)
       setServices(data);
-      setDetail(data[0]);
+      // setDetail(data[0]);
+
+      const sitterMap = new Map();
+      data.forEach(item => {
+        // 1. 處理 Sitter 層級
+        if (!sitterMap.has(item.sitter_id)) {
+          sitterMap.set(item.sitter_id, {
+            sitterId: item.sitter_id,
+            servicesMap: new Map() // 內部再用一個 Map 來存服務
+          });
+        }
+
+        const sitterEntry = sitterMap.get(item.sitter_id);
+
+        // 2. 處理 Service 層級
+        if (!sitterEntry.servicesMap.has(item.category)) {
+          sitterEntry.servicesMap.set(item.category, {
+            service: item.category,
+            day: []
+          });
+        }
+
+        const serviceEntry = sitterEntry.servicesMap.get(item.category);
+
+        // 3. 插入時段資料
+        serviceEntry.day.push({
+          serviceId: item.id, // 建議帶上 ID，方便後續刪除或修改
+          day: item.day_of_week,
+          start: item.start_time,
+          end: item.end_time
+        });
+      });
+      let testServiceArr = Array.from(sitterMap.values()).map(sitter => ({
+        sitterId: sitter.sitterId,
+        services: Array.from(sitter.servicesMap.values())
+      }));
+      console.log(testServiceArr);
+      setTestServices(testServiceArr);
+      console.log(testServices);
     } catch (err) {
       console.error('連線錯誤：', err);
     }
   };
 
-  const getAllUsers=async()=>{
+  const getAllUsers = async () => {
     try {
-      const{data,error}=await supabase.from('users').select('*');
+      const { data, error } = await supabase.from('users').select('*');
       setUsers(data);
       console.log(data);
     } catch (error) {
@@ -70,30 +114,57 @@ const SitterServiceDetail = () => {
     }
   }
 
+  // const gotoServiceDetail = async (id) => {
+
+  //   try {
+  //     const { data, error } = await supabase.from('services').select(`
+  //   *,
+  //   users!sitter_id (*), 
+  //   reviews:users!sitter_id (
+  //     reviews!sitter_id (*) 
+  //   )
+  // `).eq('id', id).single();// 因為 id 通常是唯一的，用 .single() 直接回傳物件而非陣列
+  //     console.log(data);
+  //     console.log(id);
+  //     navigate(`/lookforpetsitter/${id}`);
+  //     setDetail(data)
+  //   } catch (error) {
+  //     console.error('連線錯誤：', err);
+  //   }
+
+  // }
+
   useEffect(() => {
     getAllService();
     getAllUsers();
     // setDetail(data[0]);
-  }, []);
+  }, [detail]);
+
+
 
   return (
     <>
-
-
-      <div className="container">
+      {/* {testServices.map((service, index) => index + ':' + service.services.map((service, index) => index + service.service)).join(',')} */}
+      {/* <div className="container">
         <div className="row">
           <div className="">
             {services.map(service =>
-              <button type="button" className="btn btn-primary" onClick={() => setDetail(service)}>{service.users.nickname}保母詳情</button>
+              <button type="button" className="btn btn-primary" onClick={() => gotoServiceDetail(service.id)}>{service.users.nickname}保母詳情old</button>
             )}
           </div>
+          <div className="">
+            {testServices.flatMap((sitter, index) => sitter.services.map((service, index) =>
+              <button type="button" className="btn btn-primary" onClick={() => gotoServiceDetail(sitter.sitterId)}>保母名稱:{sitter.sitterId},服務名稱:{service.service}</button>
+            ))
+            }
+          </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
-          <Link to='/home' className="ms-2 text-decoration-none">返回</Link>
+          <Link to='/' className="ms-2 text-decoration-none">返回</Link>
         </div>
 
 
@@ -176,7 +247,7 @@ const SitterServiceDetail = () => {
 
                 <div className="d-flex align-items-center mb-7">
                   {starRating(detail.rating)}
-                  <p style={{fontFamily: '"Noto Sans TC",sans-serif',fontWeight:700,marginBottom:0}}>
+                  <p style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, marginBottom: 0 }}>
                     {detail.rating}
                   </p>
                 </div>
@@ -190,14 +261,14 @@ const SitterServiceDetail = () => {
             <div className="col">
               <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{}}>
                 <div className="d-flex flex-column flex-sm-row">
-                  <p className="mb-3" style={{fontFamily: '"Noto Sans TC",sans-serif',fontWeight:700}}>
+                  <p className="mb-3" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務項目
                     <span class="badge rounded-pill text-bg-light border ms-10">
                       {detail.category}
                     </span>
                   </p>
 
-                  <p className="mb-7 ms-sm-4" style={{fontFamily: '"Noto Sans TC",sans-serif',fontWeight:700}}>
+                  <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
                     <span class="badge rounded-pill text-bg-light border ms-10">
                       {detail.species}
@@ -221,7 +292,28 @@ const SitterServiceDetail = () => {
 
             {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
             <div className="row row-cols-7 g-7">
-              <div className="col">
+              {/* {testServiceArr} */}
+              {testServices[1]?.services[0].day.map(day => (
+                <div className="col">
+                  <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
+
+                    <div className="fw-bold mb-3 text-dark">
+                      {mandarinWeekDay(day.day)}
+                    </div>
+
+                    <div
+                      // key={idx}
+                      className="small py-1 mb-2 text-white fw-medium"
+                      style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
+                    >
+                      {day.start.slice(0, -3)} ~ {day.end.slice(0, -3)}
+                    </div>
+
+                  </div>
+                </div>
+              ))}
+
+              {/* <div className="col">
                 <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
                   <div className="fw-bold mb-3 text-dark">
@@ -238,6 +330,24 @@ const SitterServiceDetail = () => {
 
                 </div>
               </div>
+
+              <div className="col">
+                <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
+
+                  <div className="fw-bold mb-3 text-dark">
+                    {mandarinWeekDay(detail.day_of_week)}
+                  </div>
+
+                  <div
+                    // key={idx}
+                    className="small py-1 mb-2 text-white fw-medium"
+                    style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
+                  >
+                    {detail?.start_time?.slice(0, -3)} ~ {detail?.end_time?.slice(0, -3)}
+                  </div>
+
+                </div>
+              </div> */}
             </div>
           </div>
 
@@ -324,13 +434,13 @@ const SitterServiceDetail = () => {
                         <div className="d-flex align-items-center mb-2">
 
                           <img
-                            src={users.find(user=>user.id===review.owner_id).avatar_url}
+                            src={users.find(user => user.id === review.owner_id)?.avatar_url}
                             className="rounded-circle me-3"
                             alt="Avatar"
                             style={{ width: '48px', height: '48px', objectFit: 'cover' }}
                           />
                           <div>
-                            <h6 className="mb-0 fw-bold">{users.find(user=>user.id===review.owner_id).nickname}</h6>
+                            <h6 className="mb-0 fw-bold">{users.find(user => user.id === review.owner_id)?.nickname}</h6>
                             <div className="text-warning">
                               {starRating(review.rating)}
                               {/* ★★★★★ */}
@@ -350,151 +460,6 @@ const SitterServiceDetail = () => {
         </div>
 
 
-      </div>
-
-            <div className="container mt-4">
-        <button type="button" className="btn btn-primary text-white"
-          onClick={() => {
-            // 1. 複製一份新陣列，避免直接修改原狀態
-            const sortedData = [...services].sort((a, b) => {
-              // 2. 取得 a 和 b 的有效價格 (取這三個欄位中第一個不為 null 的值)
-              const priceA = a.price_per_30min ?? a.price_per_day ?? a.price_per_session ?? 0;
-              const priceB = b.price_per_30min ?? b.price_per_day ?? b.price_per_session ?? 0;
-
-              return priceA - priceB;
-            });
-
-            // 3. 更新狀態，觸發重新渲染
-            setServices(sortedData);
-          }}>
-          價格低到高
-        </button>
-
-        <button type="button" className="btn btn-primary text-white"
-          onClick={() => {
-            // 1. 複製一份新陣列，避免直接修改原狀態
-            const sortedData = [...services].sort((a, b) => {
-              // 2. 取得 a 和 b 的有效價格 (取這三個欄位中第一個不為 null 的值)
-              const priceA = a.price_per_30min ?? a.price_per_day ?? a.price_per_session ?? 0;
-              const priceB = b.price_per_30min ?? b.price_per_day ?? b.price_per_session ?? 0;
-
-              return priceB - priceA;
-            });
-
-            // 3. 更新狀態，觸發重新渲染
-            setServices(sortedData);
-          }}>
-          價格高到低
-        </button>
-
-        <button type="button" className="btn btn-primary text-white"
-          onClick={() => {
-            // 1. 複製一份新陣列，避免直接修改原狀態
-            const sortedData = [...services].sort((a, b) => {
-              // // 2. 取得 a 和 b 的有效價格 (取這三個欄位中第一個不為 null 的值)
-              // const priceA = a.price_per_30min ?? a.price_per_day ?? a.price_per_session ?? 0;
-              // const priceB = b.price_per_30min ?? b.price_per_day ?? b.price_per_session ?? 0;
-
-              return b.rating - a.rating;
-            });
-
-            // 3. 更新狀態，觸發重新渲染
-            setServices(sortedData);
-          }}>
-          星級高到低
-        </button>
-
-        {
-          services.map(service => (
-
-            <div className="d-flex  align-items-center shadow-sm border-0 p-3 my-3" style={{ backgroundColor: 'white', borderRadius: '12px' }}>
-
-              {/* 左側圖片區 (md-4 代表在桌面版佔 4/12 寬度) */}
-              <div className="">
-                <div className="" style={{}}>
-                  <img
-                    src={service.photo_url}
-                    alt="服務者照片"
-                    className=""
-                    style={{ width: '280px', height: '280px', objectFit: 'cover' }}
-                  />
-                </div>
-              </div>
-
-              <div className="p-4 d-flex h-100">
-                <div>
-                  {/* 頂部：姓名、星等與愛心 */}
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h3 className="h4 fw-bold mb-1">{service.users.nickname}</h3>
-                      <div className="d-flex align-items-center text-warning">
-                        <span className="me-1">★★★★★</span>
-                        <span className="text-dark fw-bold small">{service.rating}</span>
-                      </div>
-                    </div>
-                    <button className="btn p-0 border-0 text-danger shadow-none" style={{ fontSize: '1.5rem' }}>
-                      ♡
-                    </button>
-                  </div>
-
-                  {/* 中間：服務標籤 */}
-                  <div className="mb-3">
-                    <div className="d-flex align-items-center mb-2">
-                      <span className="text-muted me-3 small" style={{ width: '70px' }}>服務寵物</span>
-                      <div className="px-3 py-1 border rounded-pill small bg-white text-dark">狗</div>
-                    </div>
-                    <div className="d-flex align-items-center">
-                      <span className="text-muted me-3 small" style={{ width: '70px' }}>服務項目</span>
-                      <div className="px-3 py-1 border rounded-pill small bg-white text-dark">陪伴散步</div>
-                    </div>
-                  </div>
-
-                  {/* 描述文字 */}
-                  <p className="text-secondary mb-4">
-                    陪伴散步，會隨時注意狗狗的狀況與安全！
-                  </p>
-
-                  {/* 底部：價格、距離與按鈕組 */}
-                  {/* <div className="mt-auto pt-3 border-top d-flex flex-wrap align-items-center justify-content-between"> */}
-
-                  {/* 價格資訊 */}
-                  <div className="d-flex align-items-baseline">
-                    <p className="h5 me-2" style={{ color: '#FF5400' }}>NT$</p>
-                    <p className="h5" style={{ color: '#FF5400' }}>{service.price_per_30min != null ? `${service.price_per_30min} / 30分鐘` : service.price_per_day != null ? `${service.price_per_day} / 天` : `${service.price_per_session} / 次`}</p>
-                    {/* <span className="text-muted small me-1">NT$</span>
-                <span className="h3 fw-bold mb-0">200</span>
-                <span className="text-muted small ms-1">/ 30 分鐘</span> */}
-                  </div>
-                </div>
-
-                <div>
-                  {/* 地點與距離 (桌面版靠右對齊) */}
-                  <div className="d-none d-lg-block">
-                    <div className="small text-dark fw-medium">
-                      📍 台中市 中區
-                    </div>
-                    <div className="text-muted" style={{ fontSize: '0.8rem' }}>距離 1km</div>
-                  </div>
-
-                  {/* 按鈕組 */}
-                  <div className="d-flex gap-2 ms-auto">
-                    <button className="btn btn-outline-secondary rounded-pill px-4 btn-sm fw-medium">
-                      詳情
-                    </button>
-                    <button
-                      className="btn rounded-pill px-4 btn-sm fw-bold text-white"
-                      style={{ backgroundColor: '#E65100' }}
-                    >
-                      預約
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          )
-          )
-        }
       </div>
     </>
   )
