@@ -148,7 +148,7 @@ const SitterServiceDetail = () => {
     //   &&setDetail([...detail],service));
     // console.log(typeof(id))
     // setDetail(data[0]);
-  }, []);
+  }, [id]);
 
   // 當 services 資料回來後，進行篩選
   useEffect(() => {
