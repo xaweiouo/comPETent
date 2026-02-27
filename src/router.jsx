@@ -1,7 +1,7 @@
 import { createHashRouter } from "react-router";
 import FrontendLayout from "./layout/FrontendLayout";
 import Home from "./views/front/Home";
-// import LookForPetSitter from "./views/front/LookForPetSitter";
+import LookForPetSitter from "./views/front/LookForPetSitter";
 import SitterServiceDetail from "./views/front/SitterServiceDetail";
 import SitterBookingForm from "./views/front/SitterBookingForm";
 import NotFound from "./views/front/NotFound";
@@ -20,7 +20,7 @@ export const router = createHashRouter([
       },
       {
         path: "lookforpetsitter",
-        // element: <LookForPetSitter />,
+        element: <LookForPetSitter />,
       },
       {
         path: "lookforpetsitter/:id", // 動態參數
