@@ -9,8 +9,10 @@ import locationIcon from "../../images/icons/location_icon.png";
 import calendarIcon from "../../images/icons/calendar_icon.png";
 import workIcon from "../../images/icons/work_icon.png";
 import radarIcon from "../../images/icons/radar_icon.png";
+import { starRating } from "../../utils/starRating";
 
 
+// {starRating(detail.rating)}
 
 // export { supabase };
 
@@ -608,9 +610,11 @@ function LookForPetSitter() {
                                 {card.sitterName}
                               </h4>
                               {/* 星星＋分數 */}
+                              
                               {card.rating != null && (
                                 <span className="text-warning small">
-                                  {"★".repeat(Math.round(card.rating))}{" "}
+                                  {/* {"★".repeat(Math.round(card.rating))}{" "} */}
+                                  {starRating(card.rating)}
                                   <span className="text-muted">
                                     ({card.rating.toFixed(1)})
                                   </span>
