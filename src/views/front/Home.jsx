@@ -1,7 +1,24 @@
 import { useState } from 'react';
+import bannerImg from "../../images/banner_img.png"
+import feetIcon from "../../images/icons/feet_icon.png"
+import fireIcon from "../../images/icons/fire_icon.png"
+import starFull from "../../images/icons/star_full_icon.png"
+import flowIcon from "../../images/icons/flow_icon.png"
+import ownerIcon from "../../images/icons/owner_icon.png"
+import sitterIcon from "../../images/icons/sitter_icon.png"
+import loveIcon from "../../images/icons/love_icon.png"
+import faqIcon from "../../images/icons/faq_icon.png"
+import { useNavigate } from 'react-router';
+// import { createClient } from "@supabase/supabase-js";
+
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// const supabase = createClient(supabaseUrl, supabaseKey);
+
 const Home = () => {
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(null);
+    const navigate = useNavigate()
     const faqList = [
         {
             question: '我可以使用現金付款嗎？',
@@ -26,17 +43,17 @@ const Home = () => {
                         <h1 className="mt-4 mb-10 mb-md-7 fw-bold text-primary">comPETent 我能寵</h1>
                         <h3 className="mb-8 fw-bold">從不認識到放心託付，comPETent 幫您把關每一步！</h3>
                         <button type="button" className="fw-bold me-3 btn btn-gradient-secondary py-3 px-4">當保母</button>
-                        <button type="button" className="fw-bold btn btn-primary btn-gradient-primary py-3 px-4">找保母</button>
+                        <button type="button" className="fw-bold btn btn-primary btn-gradient-primary py-3 px-4" onClick={navigate("/lookforpetsitter")}>找保母</button>
                     </div>
                     <div className="col-md-5 text-center">
-                        <img className="banner-image" src="../../src/images/banner_img.png" alt="主圖" />
+                        <img className="banner-image" src={bannerImg} alt="主圖" />
                     </div>
                 </div>
             </section>
             <section className="container mb-9">
                 <div className="row justify-content-center text-center mb-5">
                     <div className="col-md-6">
-                        <h2 className="mb-8 text-primary fw-bold"><img src="../../src/images/icons/feet_icon.png" className="me-3" alt="" width="32" />關於 comPETent 我能寵</h2>
+                        <h2 className="mb-8 text-primary fw-bold"><img src={feetIcon} className="me-3" alt="" width="32" />關於 comPETent 我能寵</h2>
                         <p className="h5 mb-2">comPETent 是協助媒合飼主與物保母的平台。</p>
                         <p className="h5 mb-2">competent 有形容“能勝任的”意思，裡面包含了 PET 這三個字母，</p>
                         <p className="h5 mb-2">以此為名，傳達出與我們合作的保母能給寵物無微不至的照顧！</p>
@@ -67,7 +84,7 @@ const Home = () => {
                 </div>
             </section>
             <section className="container mb-9">
-                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src="./src/images/icons/fire_icon.png" className="me-3" alt="" width="32" />熱門保母</h2>
+                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={fireIcon} className="me-3" alt="" width="32" />熱門保母</h2>
                 <div className="row">
                     <div className="col-md-4 mb-6 mb-md-0">
                         <div className="card rounded-4">
@@ -85,11 +102,11 @@ const Home = () => {
                                 <div className="card-text d-flex flex-column justify-content-center align-items-center">
                                     <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="" />台北市 信義區</p>
                                     <p className="mb-3">
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
                                         <span className="fs-6 ms-2 fw-bold">4.8</span>
                                     </p>
                                     <div className="border border-secondary w-75 mb-3"></div>
@@ -114,11 +131,11 @@ const Home = () => {
                                 <div className="card-text d-flex flex-column justify-content-center align-items-center">
                                     <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="" />台中市 中區</p>
                                     <p className="mb-3">
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
                                         <span className="fs-6 ms-2 fw-bold">4.7</span>
                                     </p>
                                     <div className="border border-secondary w-75 mb-3"></div>
@@ -143,11 +160,11 @@ const Home = () => {
                                 <div className="card-text d-flex flex-column justify-content-center align-items-center">
                                     <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="" />高雄市 新興區</p>
                                     <p className="mb-3">
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                        <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
+                                        <img className="me-1" src={starFull} alt="" />
                                         <span className="fs-6 ms-2 fw-bold">4.6</span>
                                     </p>
                                     <div className="border border-secondary w-75 mb-3"></div>
@@ -162,12 +179,12 @@ const Home = () => {
                 </div>
             </section>
             <section className="container mb-9">
-                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src="./src/images/icons/flow_icon.png" className="me-3" alt="" width="32" />服務流程</h2>
+                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={flowIcon} className="me-3" alt="" width="32" />服務流程</h2>
                 <div className="row">
                     <div className="col-6">
                         <div className="d-flex flex-column flex-md-row align-items-center">
                             <div className="bg-box mb-3 mb-md-0">
-                                <img src="./src/images/icons/owner_icon.png" className="flex-shrink-0" alt="" width="92" />
+                                <img src={ownerIcon} className="flex-shrink-0" alt="" width="92" />
                             </div>
                             <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">篩選需要的保姆服務</div>
                             <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
@@ -178,7 +195,7 @@ const Home = () => {
                     <div className="d-block d-md-none col-6">
                         <div className="d-flex flex-column flex-md-row align-items-center">
                             <div className="bg-box mb-3 mb-md-0">
-                                <img src="./src/images/icons/sitter_icon.png" className="flex-shrink-0" alt="" width="92" />
+                                <img src={sitterIcon} className="flex-shrink-0" alt="" width="92" />
                             </div>
                             <div className="fs-6 fs-lg-1 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">上傳良民證審核</div>
                             <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
@@ -223,7 +240,7 @@ const Home = () => {
                 </div>
             </section>
             <section className="container mb-9">
-                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src="./src/images/icons/love_icon.png" className="me-3" alt="" width="32" />毛孩父母一致好評</h2>
+                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={loveIcon} className="me-3" alt="" width="32" />毛孩父母一致好評</h2>
                 <div className="row overflow-x-auto flex-nowrap gap-3 px-3">
                     <div className="card rounded-4 card-comment">
                         <div className="position-relative">
@@ -237,11 +254,11 @@ const Home = () => {
                             <div className="card-text">
                                 <p className="fs-6 fw-bold mb-10">給<span className="rounded-pill border border-2 border-secondary px-2 py-1 mx-1">保母</span>王小明</p>
                                 <p className="mb-2">
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
                                 </p>
                                 <p className="fs-6 fw-bold">出門散步會傳照片記錄，讓我感到非常放心。</p>
                             </div>
@@ -259,11 +276,11 @@ const Home = () => {
                             <div className="card-text">
                                 <p className="fs-6 fw-bold mb-10">給<span className="rounded-pill border border-2 border-secondary px-2 py-1 mx-1">保母</span>愛爾莎</p>
                                 <p className="mb-2">
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
                                 </p>
                                 <p className="fs-6 fw-bold">讓狗狗去洗澡美容，新造型很好看！</p>
                             </div>
@@ -281,11 +298,11 @@ const Home = () => {
                             <div className="card-text">
                                 <p className="fs-6 fw-bold mb-10">給<span className="rounded-pill border border-2 border-secondary px-2 py-1 mx-1">保母</span>阿倫</p>
                                 <p className="mb-2">
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
                                 </p>
                                 <p className="fs-6 fw-bold">很有耐心的訓練狗狗，狗狗的進步非常迅速。</p>
                             </div>
@@ -303,11 +320,11 @@ const Home = () => {
                             <div className="card-text">
                                 <p className="fs-6 fw-bold mb-10">給<span className="rounded-pill border border-2 border-secondary px-2 py-1 mx-1">保母</span>Kitty</p>
                                 <p className="mb-2">
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
                                 </p>
                                 <p className="fs-6 fw-bold">寄宿了貓咪三天，要接回去的時候牠還依依不捨，看起來適應得不錯。</p>
                             </div>
@@ -325,11 +342,11 @@ const Home = () => {
                             <div className="card-text">
                                 <p className="fs-6 fw-bold mb-10">給<span className="rounded-pill border border-2 border-secondary px-2 py-1 mx-1">保母</span>王小明</p>
                                 <p className="mb-2">
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
-                                    <img className="me-1" src="./src/images/icons/star_full_icon.png" alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
+                                    <img className="me-1" src={starFull} alt="" />
                                 </p>
                                 <p className="fs-6 fw-bold">出門散步會傳照片記錄，讓我感到非常放心。</p>
                             </div>
@@ -338,7 +355,7 @@ const Home = () => {
                 </div>
             </section >
             <section className="container mb-9">
-                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src="./src/images/icons/faq_icon.png" className="me-3" alt="" width="32" />FAQ</h2>
+                <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={faqIcon} className="me-3" alt="" width="32" />FAQ</h2>
                 <div className="row mb-7">
                     <h4 className="text-info fw-bold title-owner mb-10">我是飼主</h4>
                     {faqList.map((item, index) => (
