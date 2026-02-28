@@ -226,7 +226,7 @@ const Home = () => {
                     <div className="col-md-7">
                         <div className="d-flex flex-column flex-md-row align-items-center">
                             <div className="bg-box mb-3 mb-md-0">
-                                <img src="./src/images/icons/sitter_icon.png" className="flex-shrink-0" alt="" width="92" />
+                                <img src={sitterIcon} className="flex-shrink-0" alt="" width="92" />
                             </div>
                             <div className="fs-6 fs-lg-1 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">上傳良民證審核</div>
                             <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
