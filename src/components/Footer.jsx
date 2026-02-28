@@ -3,7 +3,7 @@ import logo from "../../src/images/logo.png"
 function footer() {
     return (
         <footer className="container text-center my-8">
-          <img src={logo} alt="comPETent Logo" className="mb-6" style={{maxWidth: "150px"}}/>
+          <img src={logo} alt="comPETent Logo" className="mb-6 logo-size"/>
           <ul className="mb-6 d-flex justify-content-center p-0">
             <a href="#" className="text-decoration-none text-dark">
               <li className="me-3 fw-bold">使用者條款</li>

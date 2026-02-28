@@ -1,65 +1,65 @@
 // _sitterBooking.scss
-html, body {
-  background-color: rgba(254, 243, 226, 1);
-}
-img {
-  overflow: hidden;
-  object-fit: cover;
-}
-.nav-logo {
-  width: 68px;
-  height: 52px;
-  @media (max-width: 768px) {
-    width: 40px;
-    height: 32px;
+// html, body {
+//   background-color: rgba(254, 243, 226, 1);
+// }
+// img {
+//   overflow: hidden;
+//   object-fit: cover;
+// }
+// .nav-logo {
+//   width: 68px;
+//   height: 52px;
+//   @media (max-width: 768px) {
+//     width: 40px;
+//     height: 32px;
     
-  }
-}
+//   }
+// }
 
-.banner-image {
-  width: 100%;
-  object-fit: cover;
-  @media (max-width: 768px) {
-    width: 240px;
-    height: auto;
-  }
-}
+// .banner-image {
+//   width: 100%;
+//   object-fit: cover;
+//   @media (max-width: 768px) {
+//     width: 240px;
+//     height: auto;
+//   }
+// }
 
-.btn-gradint-primary {
-  color: #fff;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 84, 0, 1) 0%,
-    rgba(255, 178, 44, 1) 100%
-  );
-  &:hover {
-    color: #fff;
-    background: linear-gradient(
-      240deg,
-      rgba(255, 84, 0, 1) 0%,
-      rgba(255, 178, 44, 1) 100%
-    );
-    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
-  }
-}
+// .btn-gradint-primary {
+//   color: #fff;
+//   background: linear-gradient(
+//     90deg,
+//     rgba(255, 84, 0, 1) 0%,
+//     rgba(255, 178, 44, 1) 100%
+//   );
+//   &:hover {
+//     color: #fff;
+//     background: linear-gradient(
+//       240deg,
+//       rgba(255, 84, 0, 1) 0%,
+//       rgba(255, 178, 44, 1) 100%
+//     );
+//     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+//   }
+// }
 
-.btn-gradint-secondary {
-  color: #E54C00;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 84, 0, .5) 0%,
-    rgba(255, 178, 44, .5) 100%
-  );
-  &:hover {
-    color: #E54C00;
-    background: linear-gradient(
-      240deg,
-      rgba(255, 84, 0, .5) 0%,
-      rgba(255, 178, 44, .5) 100%
-    );
-    box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
-  }
-}
+// .btn-gradint-secondary {
+//   color: #E54C00;
+//   background: linear-gradient(
+//     90deg,
+//     rgba(255, 84, 0, .5) 0%,
+//     rgba(255, 178, 44, .5) 100%
+//   );
+//   &:hover {
+//     color: #E54C00;
+//     background: linear-gradient(
+//       240deg,
+//       rgba(255, 84, 0, .5) 0%,
+//       rgba(255, 178, 44, .5) 100%
+//     );
+//     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+//   }
+// }
 
 // 定義顏色
 $black-800: #353535;
