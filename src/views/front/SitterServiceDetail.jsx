@@ -8,22 +8,30 @@ import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
 
 import { useSelector } from "react-redux";
 
-import allen_carousel01 from '../../images/Allen_carousel01.jpg';
+// import allen_carousel01 from '../../images/Allen_carousel01.jpg';
 import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
+import love_icon from '../../images/icons/love_icon.png';
 import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
 import location_icon from '../../images/icons/location_icon.png';
-
+// import { FavoriteButton } from "../../utils/FavoriteButton";
 
 const SitterServiceDetail = () => {
   const [users, setUsers] = useState([]);
   const [services, setServices] = useState([]);
   const [detail, setDetail] = useState([]);
-  // const [testServices, setTestServices] = useState([]);
+  const [favorite, setFavorite] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+  // const willFavorite = !isFavorite;
+  const [userId, setUserId] = useState(null);
+  const [ownerId, setOwnerId] = useState(null);
+  // const [loading, setLoading] = useState(true);
 
   const params = useParams();
   const { id } = params;
 
   const { user, isAuthenticated } = useSelector(state => state.auth);
+  // let ownerId='';
+  // const ownerId=users.find(use=>use.email===user.email)?.id
 
   const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   // const schedule = [
@@ -60,50 +68,10 @@ const SitterServiceDetail = () => {
   `);
       if (error) throw error;
       console.log(data);
-      !data.find(service=> service.id==id)&&navigate('*',{replace:true});
-      
+      !data.find(service => service.id == id) && navigate('*', { replace: true });
+
       setServices(data);
-      // console.log(services.find(service=>service.id==id))
 
-      // setDetail(data[0]);
-
-      // const sitterMap = new Map();
-      // data.forEach(item => {
-      //   // 1. 處理 Sitter 層級
-      //   if (!sitterMap.has(item.sitter_id)) {
-      //     sitterMap.set(item.sitter_id, {
-      //       sitterId: item.sitter_id,
-      //       servicesMap: new Map() // 內部再用一個 Map 來存服務
-      //     });
-      //   }
-
-      //   const sitterEntry = sitterMap.get(item.sitter_id);
-
-      //   // 2. 處理 Service 層級
-      //   if (!sitterEntry.servicesMap.has(item.category)) {
-      //     sitterEntry.servicesMap.set(item.category, {
-      //       service: item.category,
-      //       day: []
-      //     });
-      //   }
-
-      //   const serviceEntry = sitterEntry.servicesMap.get(item.category);
-
-      //   // 3. 插入時段資料
-      //   serviceEntry.day.push({
-      //     serviceId: item.id, // 建議帶上 ID，方便後續刪除或修改
-      //     day: item.day_of_week,
-      //     start: item.start_time,
-      //     end: item.end_time
-      //   });
-      // });
-      // let testServiceArr = Array.from(sitterMap.values()).map(sitter => ({
-      //   sitterId: sitter.sitterId,
-      //   services: Array.from(sitter.servicesMap.values())
-      // }));
-      // console.log(testServiceArr);
-      // setTestServices(testServiceArr);
-      // console.log(testServices);
     } catch (err) {
       console.error('連線錯誤：', err);
     }
@@ -115,41 +83,15 @@ const SitterServiceDetail = () => {
       setUsers(data);
       console.log(data);
     } catch (error) {
-      console.error('連線錯誤：', err);
+      console.error('連線錯誤：', error);
     }
   }
-
-  // const gotoServiceDetail = async (id) => {
-
-  //   try {
-  //     const { data, error } = await supabase.from('services').select(`
-  //   *,
-  //   users!sitter_id (*), 
-  //   reviews:users!sitter_id (
-  //     reviews!sitter_id (*) 
-  //   )
-  // `).eq('id', id).single();// 因為 id 通常是唯一的，用 .single() 直接回傳物件而非陣列
-  //     console.log(data);
-  //     console.log(id);
-  //     navigate(`/lookforpetsitter/${id}`);
-  //     setDetail(data)
-  //   } catch (error) {
-  //     console.error('連線錯誤：', err);
-  //   }
-
-  // }
 
   useEffect(() => {
     getAllService();
     getAllUsers();
-    // const firstService=services.find(service=>service.id==id);
-    // services.map(service=>
-    //   service.sitter_id==firstService.sitter_id&&service.category==firstService.category
-    //   &&setDetail([...detail],service));
-    // console.log(typeof(id))
-    // setDetail(data[0]);
   }, [id]);
-
+  
   // 當 services 資料回來後，進行篩選
   useEffect(() => {
     // 確保 services 已經有資料且 id 存在
@@ -167,31 +109,77 @@ const SitterServiceDetail = () => {
 
         setDetail(filteredServices);
       }
-    }
+    };
+    // getFavorite();
   }, [services, id]); // 當服務列表或 ID 變動時重新篩選
 
+  // 1. 初始化：檢查登入狀態與收藏狀態
+  useEffect(() => {
+    const checkStatus = async () => {
+      // const { data: { user } } = await supabase.auth.getUser();
+     
+      if (user) {
+        setUserId(users.find(use=>use.email===user.email)?.id);
+        // 查詢資料庫是否存在該收藏
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('owner_id', userId)
+          .eq('sitter_id', detail[0].sitter_id)
+          .maybeSingle();
 
+        if (data) setIsFavorite(true);
+      }
+      // setLoading(false);
+    };
+    
+    checkStatus();
+  }, [detail]);
+  
+  // 2. 處理點擊邏輯
+  const toggleFavorite = async () => {
+    // 未登入處理
+    if (!userId) {
+      alert('請先登入後再進行收藏！');
+      return;
+    }
+
+    // 樂觀更新 UI (先改畫面，再跑 API)
+    const previousState = isFavorite;
+    setIsFavorite(!previousState);
+
+    if (previousState) {
+      // 取消收藏 (Delete)
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('owner_id', userId)
+        .eq('sitter_id', detail[0].sitter_id);
+
+      if (error) {
+       setIsFavorite(previousState); // 失敗則回滾
+       console.log(error)
+      }
+    } else {
+      // 新增收藏 (Insert)
+      const { error } = await supabase
+        .from('favorites')
+        .insert([{ owner_id: userId, sitter_id: detail[0].sitter_id }]);
+
+      if (error) {
+        setIsFavorite(previousState); // 失敗則回滾
+        console.log(error)
+      }
+    }
+  };
 
   return (
     <>
-      {/* {JSON.stringify(detail.map(service=>service))} */}
-      {/* {testServices.map((service, index) => index + ':' + service.services.map((service, index) => index + service.service)).join(',')} */}
-      {/* <div className="container">
-        <div className="row">
-          <div className="">
-            {services.map(service =>
-              <button type="button" className="btn btn-primary" onClick={() => gotoServiceDetail(service.id)}>{service.users.nickname}保母詳情old</button>
-            )}
-          </div>
-          <div className="">
-            {testServices.flatMap((sitter, index) => sitter.services.map((service, index) =>
-              <button type="button" className="btn btn-primary" onClick={() => gotoServiceDetail(sitter.sitterId)}>保母名稱:{sitter.sitterId},服務名稱:{service.service}</button>
-            ))
-            }
-          </div>
-        </div>
-      </div> */}
-
+      {/* {detail[0]?.sitter_id}
+    <br />
+    {JSON.stringify(user)}
+    <br /> */}
+      {/* {users.find(use=>use.email===user.email)?.id} */}
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
@@ -268,6 +256,29 @@ const SitterServiceDetail = () => {
               <img src={empt_heart_icon} alt="" />
             </div>
 
+            {/* <button
+              onClick={toggleFavorite}
+              className="transition duration-200 transform hover:scale-110"
+            > */}
+              {isFavorite ? (
+                <div
+                  className="ms-8 me-3 mb-7"
+                  style={{ cursor: 'pointer' }}
+                  onClick={toggleFavorite}
+                >
+                  <img src={love_icon} alt="" />
+                </div>
+              ) : (
+                <div
+                  className="ms-8 me-3 mb-7"
+                  style={{ cursor: 'pointer' }}
+                  onClick={toggleFavorite}
+                >
+                  <img src={empt_heart_icon} alt="" />
+                </div>
+              )}
+            {/* </button> */}
+
 
           </div>
 
@@ -294,14 +305,14 @@ const SitterServiceDetail = () => {
                 <div className="d-flex flex-column flex-sm-row">
                   <p className="mb-3" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務項目
-                    <span class="badge rounded-pill text-bg-light border ms-10">
+                    <span className="badge rounded-pill text-bg-light border ms-10">
                       {detail[0]?.category}
                     </span>
                   </p>
 
                   <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
-                    <span class="badge rounded-pill text-bg-light border ms-10">
+                    <span className="badge rounded-pill text-bg-light border ms-10">
                       {detail[0]?.species}
                     </span>
                   </p>
@@ -444,8 +455,8 @@ const SitterServiceDetail = () => {
                     <stop offset="100%" style={{ stopColor: '#FF5400', stopOpacity: 1 }} />
                   </linearGradient>
                 </defs>
-                <path d="M11 4.66048e-09C11.7652 -4.26217e-05 12.5015 0.292325 13.0583 0.817284C13.615 1.34224 13.9501 2.06011 13.995 2.824L14 3V7H16C16.7351 6.99988 17.4447 7.26968 17.994 7.75819C18.5434 8.24669 18.8942 8.91989 18.98 9.65L18.995 9.824L19 10L18.98 10.196L17.974 15.228C17.593 16.854 16.472 18.024 15.164 18.008L15 18H7C6.75507 18 6.51866 17.91 6.33563 17.7473C6.15259 17.5845 6.03566 17.3603 6.007 17.117L6 17L6.001 7.464C6.00118 7.28864 6.04747 7.11641 6.13523 6.96458C6.22299 6.81276 6.34913 6.68668 6.501 6.599C6.92742 6.35272 7.28662 6.00519 7.54684 5.58713C7.80706 5.16907 7.96029 4.69335 7.993 4.202L8 4V3C8 2.20435 8.31607 1.44129 8.87868 0.87868C9.44129 0.316071 10.2044 4.66048e-09 11 4.66048e-09Z" fill="#FF5400" class="gradient-fill" />
-                <path d="M3 7C3.24493 7.00003 3.48134 7.08996 3.66437 7.25272C3.84741 7.41547 3.96434 7.63975 3.993 7.883L4 8V17C3.99997 17.2449 3.91004 17.4813 3.74728 17.6644C3.58453 17.8474 3.36025 17.9643 3.117 17.993L3 18H2C1.49542 18.0002 1.00943 17.8096 0.639452 17.4665C0.269471 17.1234 0.0428434 16.6532 0.00500021 16.15L1.00272e-07 16V9C-0.000159579 8.49542 0.190406 8.00943 0.533497 7.63945C0.876588 7.26947 1.34684 7.04284 1.85 7.005L2 7H3Z" fill="#FF5400" class="gradient-fill" />
+                <path d="M11 4.66048e-09C11.7652 -4.26217e-05 12.5015 0.292325 13.0583 0.817284C13.615 1.34224 13.9501 2.06011 13.995 2.824L14 3V7H16C16.7351 6.99988 17.4447 7.26968 17.994 7.75819C18.5434 8.24669 18.8942 8.91989 18.98 9.65L18.995 9.824L19 10L18.98 10.196L17.974 15.228C17.593 16.854 16.472 18.024 15.164 18.008L15 18H7C6.75507 18 6.51866 17.91 6.33563 17.7473C6.15259 17.5845 6.03566 17.3603 6.007 17.117L6 17L6.001 7.464C6.00118 7.28864 6.04747 7.11641 6.13523 6.96458C6.22299 6.81276 6.34913 6.68668 6.501 6.599C6.92742 6.35272 7.28662 6.00519 7.54684 5.58713C7.80706 5.16907 7.96029 4.69335 7.993 4.202L8 4V3C8 2.20435 8.31607 1.44129 8.87868 0.87868C9.44129 0.316071 10.2044 4.66048e-09 11 4.66048e-09Z" fill="#FF5400" className="gradient-fill" />
+                <path d="M3 7C3.24493 7.00003 3.48134 7.08996 3.66437 7.25272C3.84741 7.41547 3.96434 7.63975 3.993 7.883L4 8V17C3.99997 17.2449 3.91004 17.4813 3.74728 17.6644C3.58453 17.8474 3.36025 17.9643 3.117 17.993L3 18H2C1.49542 18.0002 1.00943 17.8096 0.639452 17.4665C0.269471 17.1234 0.0428434 16.6532 0.00500021 16.15L1.00272e-07 16V9C-0.000159579 8.49542 0.190406 8.00943 0.533497 7.63945C0.876588 7.26947 1.34684 7.04284 1.85 7.005L2 7H3Z" fill="#FF5400" className="gradient-fill" />
               </svg>
 
 
