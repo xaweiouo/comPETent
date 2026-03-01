@@ -1,4 +1,5 @@
-import { NavLink } from "react-router";
+import { NavLink } from "react-router"
+import logo from "../../src/images/logo.png"
 import feetIcon from "../../src/images/icons/feet_icon.png"
 import flowIcon from "../../src/images/icons/flow_icon.png"
 import searchIcon from "../../src/images/icons/search_icon.png"
@@ -11,7 +12,7 @@ const Header=()=>{
         <nav className="navbar navbar-expand-lg py-2 px-3 mt-7 mb-6 bg-body-tertiary rounded-5 shadow">
           <div className="container-fluid">
             <NavLink className="navbar-brand" to="/">
-              <img src="../../src/images/logo.png" className="nav-logo" alt="logo" />
+              <img src={logo} className="nav-logo" alt="logo" />
             </NavLink>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
