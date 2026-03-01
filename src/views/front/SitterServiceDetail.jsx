@@ -334,15 +334,15 @@ const SitterServiceDetail = () => {
 
             <div className="carousel-inner rounded-4 carousel_sitter-service-detail" style={{}}>
               <div className="carousel-item h-100 active">
-                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
+                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
               </div>
 
               <div className="carousel-item h-100">
-                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" alt="..." />
+                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
               </div>
 
               <div className="carousel-item h-100">
-                <img src={detail[0]?.photo_url} className="d-block w-100 h-100" alt="..." />
+                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
               </div>
 
             </div>
@@ -366,18 +366,18 @@ const SitterServiceDetail = () => {
 
               <div className="d-flex align-items-center mb-10">
                 <img
-                  src={detail[0]?.users?.avatar_url}
+                  src={serviceDetail?.users?.avatar_url}
                   className="user_avatar rounded-circle border border-secondary border-2 me-4"
                   alt="User Avatar"
                   style={{}}
                 />
-                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{detail[0]?.users?.nickname}</h2>
+                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{serviceDetail?.users?.nickname}</h2>
                 <span className="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
               </div>
 
               <div className="d-flex align-items-center">
                 <p className="h5 me-2" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>NT$</p>
-                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{detail[0]?.price_per_30min != null ? `${detail[0]?.price_per_30min} / 30分鐘` : detail[0]?.price_per_day != null ? `${detail[0]?.price_per_day} / 天` : `${detail[0]?.price_per_session} / 次`}</p>
+                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
               </div>
 
 
@@ -422,14 +422,14 @@ const SitterServiceDetail = () => {
               <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
 
                 <div className="d-flex align-items-center mb-7">
-                  {starRating(detail[0]?.rating)}
+                  {starRating(serviceDetail?.rating)}
                   <p style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, marginBottom: 0 }}>
-                    {detail[0]?.rating}
+                    {serviceDetail?.rating}
                   </p>
                 </div>
                 <div>
                   <img src={location_icon} alt="" />
-                  台中市 中區
+                  {serviceDetail?.locations.city+' '+serviceDetail?.locations.district}
                 </div>
               </div>
             </div>
@@ -471,12 +471,12 @@ const SitterServiceDetail = () => {
               {/* {testServiceArr} */}
               {/* {detail.sort((a,b)=>
               weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week))} */}
-              {detail.map(service => (
+              {allSchedules.map(day => (
                 <div className="col">
                   <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
                     <div className="fw-bold mb-3 text-dark">
-                      {mandarinWeekDay(service.day_of_week)}
+                      {mandarinWeekDay(day.day_of_week)}
                     </div>
 
                     <div
@@ -484,7 +484,7 @@ const SitterServiceDetail = () => {
                       className="small py-1 mb-2 text-white fw-medium"
                       style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
                     >
-                      {service.start_time.slice(0, -3)} ~ {service.end_time.slice(0, -3)}
+                      {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
                     </div>
 
                   </div>
