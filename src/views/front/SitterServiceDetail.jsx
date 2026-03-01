@@ -1,7 +1,7 @@
 import { supabase } from "../../utils/supabaseClient";
 // import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { data, Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
@@ -19,11 +19,15 @@ const SitterServiceDetail = () => {
   const [users, setUsers] = useState([]);
   const [services, setServices] = useState([]);
   const [detail, setDetail] = useState([]);
-  const [favorite, setFavorite] = useState('');
-  const [isFavorite, setIsFavorite] = useState(false);
+  // const [favorite, setFavorite] = useState('');
   // const willFavorite = !isFavorite;
   const [userId, setUserId] = useState(null);
   const [ownerId, setOwnerId] = useState(null);
+  const [serviceDetail, setServiceDetail] = useState(null); // 基礎資訊
+  const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
+  const [reviews, setReviews] = useState([]); // 評論列表
+  const [isFavorite, setIsFavorite] = useState(false);
+
   // const [loading, setLoading] = useState(true);
 
   const params = useParams();
@@ -55,131 +59,261 @@ const SitterServiceDetail = () => {
 
   const navigate = useNavigate();
 
-  const getAllService = async () => {
+  //重寫一段initial fetchData--------------------
+  // useEffect(() => {
+  //   // 1. 基礎資料下載 (只要有 id 就能跑)
+  //   const fetchBaseData = async () => {
+  //     try {
+  //       const { data: baseService } = await supabase
+  //         .from('services')
+  //         .select(`*, users!services_sitter_id_fkey(nickname, avatar_url), locations(*)`)
+  //         .eq('id', id)
+  //         .single();
+
+  //       if (baseService) {
+  //         setServiceDetail(baseService);
+  //         // 取得該保母的其他時段
+  //         fetchSchedules(baseService.sitter_id, baseService.category);
+  //       }
+  //     } catch (err) { console.error(err); }
+  //   };
+
+  //   // 2. 收藏狀態檢查 (必須同時有 serviceDetail 和 user 才能跑)
+  //   const checkFavorite = async () => {
+  //     // 關鍵守護條件：沒登入或還沒拿到保母 ID 就直接跳出
+  //     if (!user || !serviceDetail) return;
+
+  //     const { data } = await supabase
+  //       .from('favorites')
+  //       .select('id')
+  //       .eq('owner_id', user.id)
+  //       .eq('sitter_id', serviceDetail.sitter_id)
+  //       .maybeSingle(); // 使用 maybeSingle 避免找不到資料時報 406 錯誤
+
+  //     setIsFavorite(!!data);
+  //   };
+
+  //   fetchBaseData();
+  //   checkFavorite();
+
+  // // 依賴項加入 id 和 user 是正確的，但裡面要判斷 null
+  // }, [id, user, serviceDetail?.sitter_id]);
+
+
+  //---------------------------------
+  useEffect(() => {
+    fetchData();
+
+  }, [id, user]);
+
+  const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      // 1. 取得該服務的基本資訊與保母資訊
+      const { data: baseService, error: baseError } = await supabase
         .from('services')
         .select(`
-    *,
-    users!sitter_id (*), 
-    reviews:users!sitter_id (
-      reviews!sitter_id (*) 
-    )
-  `);
-      if (error) throw error;
-      console.log(data);
-      !data.find(service => service.id == id) && navigate('*', { replace: true });
+          *,
+          users!services_sitter_id_fkey (id, nickname, avatar_url),
+          locations (city, district),
+          service_photos (photo_url, sort_order)
+        `)
+        .eq('id', id)
+        .maybeSingle();
+      setServiceDetail(baseService);
+      console.log('servicedetail:', baseService);
+      if (baseError) throw baseError;
 
-      setServices(data);
+      // 2. 根據保母 ID 和 類別，抓取所有相關時段
+      const { data: schedules, error: scheduleError } = await supabase
+        .from('services')
+        .select('id, day_of_week, start_time, end_time')
+        .eq('sitter_id', baseService.sitter_id)
+        .eq('category', baseService.category);
+      setAllSchedules(schedules);
+      console.log('schedules:', schedules);
+      if (scheduleError) throw scheduleError;
 
-    } catch (err) {
-      console.error('連線錯誤：', err);
-    }
-  };
+      // 3. 取得該保母的所有評論
+      const { data: reviewData, error: reviewError } = await supabase
+        .from('reviews')
+        .select(`
+          id, rating, comment,
+          users!reviews_owner_id_fkey (nickname, avatar_url)
+        `)
+        .eq('sitter_id', baseService.sitter_id);
+      setReviews(reviewData);
+      console.log('reviews:', reviewData);
+      if (reviewError) throw reviewError;
 
-  const getAllUsers = async () => {
-    try {
-      const { data, error } = await supabase.from('users').select('*');
-      setUsers(data);
-      console.log(data);
-    } catch (error) {
-      console.error('連線錯誤：', error);
-    }
-  }
-
-  useEffect(() => {
-    getAllService();
-    getAllUsers();
-  }, [id]);
-  
-  // 當 services 資料回來後，進行篩選
-  useEffect(() => {
-    // 確保 services 已經有資料且 id 存在
-    if (services.length > 0 && id) {
-      // 找到當前 id 對應的那一筆
-      const firstService = services.find(s => s.id == id);
-
-      if (firstService) {
-        // 篩選出同保母且同類別的所有服務
-        const filteredServices = services.filter(s =>
-          s.sitter_id === firstService.sitter_id &&
-          s.category === firstService.category
-        ).reverse().sort((a, b) =>
-          weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week));
-
-        setDetail(filteredServices);
-      }
-    };
-    // getFavorite();
-  }, [services, id]); // 當服務列表或 ID 變動時重新篩選
-
-  // 1. 初始化：檢查登入狀態與收藏狀態
-  useEffect(() => {
-    const checkStatus = async () => {
-      // const { data: { user } } = await supabase.auth.getUser();
-     
+      // 4. 檢查收藏狀態 (若已登入)
       if (user) {
-        setUserId(users.find(use=>use.email===user.email)?.id);
-        // 查詢資料庫是否存在該收藏
-        const { data, error } = await supabase
+        //         console.log('Checking IDs:', { 
+        //   owner_id: user.id, 
+        //   sitter_id: baseService?.sitter_id 
+        // });
+        const { data:userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', user.email)
+        .maybeSingle();
+        
+        const { data: favData, error: favError } = await supabase
           .from('favorites')
-          .select('*')
-          .eq('owner_id', userId)
-          .eq('sitter_id', detail[0].sitter_id)
+          .select('id')
+          // .eq('owner_id', user.id)
+          .eq('owner_id', userData.id)
+          .eq('sitter_id', baseService.sitter_id)
           .maybeSingle();
-
-        if (data) setIsFavorite(true);
+        setIsFavorite(!!favData);
+        console.log('favorite:', favData);
+        console.log('faveError:', favError);
+        // console.log('internalId',internalId);
+        console.log('user:',user)
       }
-      // setLoading(false);
-    };
-    
-    checkStatus();
-  }, [detail]);
-  
-  // 2. 處理點擊邏輯
-  const toggleFavorite = async () => {
-    // 未登入處理
-    if (!userId) {
-      alert('請先登入後再進行收藏！');
-      return;
-    }
-
-    // 樂觀更新 UI (先改畫面，再跑 API)
-    const previousState = isFavorite;
-    setIsFavorite(!previousState);
-
-    if (previousState) {
-      // 取消收藏 (Delete)
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('owner_id', userId)
-        .eq('sitter_id', detail[0].sitter_id);
-
-      if (error) {
-       setIsFavorite(previousState); // 失敗則回滾
-       console.log(error)
-      }
-    } else {
-      // 新增收藏 (Insert)
-      const { error } = await supabase
-        .from('favorites')
-        .insert([{ owner_id: userId, sitter_id: detail[0].sitter_id }]);
-
-      if (error) {
-        setIsFavorite(previousState); // 失敗則回滾
-        console.log(error)
-      }
+    } catch (error) {
+      console.log('Error fetching details:', error.message);
     }
   };
+
+  // const handleToggleFavorite = async () => {
+  //   if (!isAuthenticated) {
+  //     alert('請先登入再使用收藏功能');
+  //     return;
+  //   }
+
+  //   if (isFavorite) {
+  //     // 取消收藏
+  //     await supabase.from('favorites').delete().eq('owner_id', user.id).eq('sitter_id', serviceDetail.sitter_id);
+  //     setIsFavorite(false);
+  //   } else {
+  //     // 新增收藏
+  //     await supabase.from('favorites').insert({ owner_id: user.id, sitter_id: serviceDetail.sitter_id });
+  //     setIsFavorite(true);
+  //   }
+  // };
+  //----------------------------------------------
+
+  // const getAllService = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('services')
+  //       .select(`
+  //   *,
+  //   users!sitter_id (*), 
+  //   reviews:users!sitter_id (
+  //     reviews!sitter_id (*) 
+  //   )
+  // `);
+  //     if (error) throw error;
+  //     console.log(data);
+  //     !data.find(service => service.id == id) && navigate('*', { replace: true });
+
+  //     setServices(data);
+
+  //   } catch (err) {
+  //     console.error('連線錯誤：', err);
+  //   }
+  // };
+
+  // const getAllUsers = async () => {
+  //   try {
+  //     const { data, error } = await supabase.from('users').select('*');
+  //     setUsers(data);
+  //     console.log(data);
+  //   } catch (error) {
+  //     console.error('連線錯誤：', error);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getAllService();
+  //   getAllUsers();
+  // }, [id]);
+
+  // // 當 services 資料回來後，進行篩選
+  // useEffect(() => {
+  //   // 確保 services 已經有資料且 id 存在
+  //   if (services.length > 0 && id) {
+  //     // 找到當前 id 對應的那一筆
+  //     const firstService = services.find(s => s.id == id);
+
+  //     if (firstService) {
+  //       // 篩選出同保母且同類別的所有服務
+  //       const filteredServices = services.filter(s =>
+  //         s.sitter_id === firstService.sitter_id &&
+  //         s.category === firstService.category
+  //       ).reverse().sort((a, b) =>
+  //         weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week));
+
+  //       setDetail(filteredServices);
+  //     }
+  //   };
+  //   // getFavorite();
+  // }, [services, id]); // 當服務列表或 ID 變動時重新篩選
+
+  // // 1. 初始化：檢查登入狀態與收藏狀態
+  // useEffect(() => {
+  //   const checkStatus = async () => {
+  //     // const { data: { user } } = await supabase.auth.getUser();
+
+  //     if (user) {
+  //       setUserId(users.find(use => use.email === user.email)?.id);
+  //       // 查詢資料庫是否存在該收藏
+  //       const { data, error } = await supabase
+  //         .from('favorites')
+  //         .select('*')
+  //         .eq('owner_id', userId)
+  //         .eq('sitter_id', detail[0].sitter_id)
+  //         .maybeSingle();
+
+  //       setIsFavorite(!!data);
+  //     }
+  //     // setLoading(false);
+  //   };
+
+  //   checkStatus();
+  // }, [detail]);
+
+  // // 2. 處理點擊邏輯
+  // const toggleFavorite = async () => {
+  //   // 未登入處理
+  //   if (!userId) {
+  //     alert('請先登入後再進行收藏！');
+  //     return;
+  //   }
+
+  //   // 樂觀更新 UI (先改畫面，再跑 API)
+  //   const previousState = isFavorite;
+  //   setIsFavorite(!previousState);
+
+  //   if (previousState) {
+  //     // 取消收藏 (Delete)
+  //     const { error } = await supabase
+  //       .from('favorites')
+  //       .delete()
+  //       .eq('owner_id', userId)
+  //       .eq('sitter_id', detail[0].sitter_id);
+
+  //     if (error) {
+  //       setIsFavorite(previousState); // 失敗則回滾
+  //       console.log(error)
+  //     }
+  //   } else {
+  //     // 新增收藏 (Insert)
+  //     const { error } = await supabase
+  //       .from('favorites')
+  //       .insert([{ owner_id: userId, sitter_id: detail[0].sitter_id }]);
+
+  //     if (error) {
+  //       setIsFavorite(previousState); // 失敗則回滾
+  //       console.log(error)
+  //     }
+  //   }
+  // };
 
   return (
     <>
-      {/* {detail[0]?.sitter_id}
-    <br />
-    {JSON.stringify(user)}
-    <br /> */}
-      {/* {users.find(use=>use.email===user.email)?.id} */}
+      {JSON.stringify(user)}
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
@@ -260,23 +394,23 @@ const SitterServiceDetail = () => {
               onClick={toggleFavorite}
               className="transition duration-200 transform hover:scale-110"
             > */}
-              {isFavorite ? (
-                <div
-                  className="ms-8 me-3 mb-7"
-                  style={{ cursor: 'pointer' }}
-                  onClick={toggleFavorite}
-                >
-                  <img src={love_icon} alt="" />
-                </div>
-              ) : (
-                <div
-                  className="ms-8 me-3 mb-7"
-                  style={{ cursor: 'pointer' }}
-                  onClick={toggleFavorite}
-                >
-                  <img src={empt_heart_icon} alt="" />
-                </div>
-              )}
+            {isFavorite ? (
+              <div
+                className="ms-8 me-3 mb-7"
+                style={{ cursor: 'pointer' }}
+              // onClick={toggleFavorite}
+              >
+                <img src={love_icon} alt="" />
+              </div>
+            ) : (
+              <div
+                className="ms-8 me-3 mb-7"
+                style={{ cursor: 'pointer' }}
+              // onClick={toggleFavorite}
+              >
+                <img src={empt_heart_icon} alt="" />
+              </div>
+            )}
             {/* </button> */}
 
 
@@ -356,42 +490,6 @@ const SitterServiceDetail = () => {
                   </div>
                 </div>
               ))}
-
-              {/* <div className="col">
-                <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
-
-                  <div className="fw-bold mb-3 text-dark">
-                    {mandarinWeekDay(detail.day_of_week)}
-                  </div>
-
-                  <div
-                    // key={idx}
-                    className="small py-1 mb-2 text-white fw-medium"
-                    style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
-                  >
-                    {detail?.start_time?.slice(0, -3)} ~ {detail?.end_time?.slice(0, -3)}
-                  </div>
-
-                </div>
-              </div>
-
-              <div className="col">
-                <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
-
-                  <div className="fw-bold mb-3 text-dark">
-                    {mandarinWeekDay(detail.day_of_week)}
-                  </div>
-
-                  <div
-                    // key={idx}
-                    className="small py-1 mb-2 text-white fw-medium"
-                    style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
-                  >
-                    {detail?.start_time?.slice(0, -3)} ~ {detail?.end_time?.slice(0, -3)}
-                  </div>
-
-                </div>
-              </div> */}
             </div>
           </div>
 
@@ -508,4 +606,4 @@ const SitterServiceDetail = () => {
     </>
   )
 }
-export default SitterServiceDetail
+export default SitterServiceDetail;
