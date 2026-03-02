@@ -8,7 +8,6 @@ import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
 
 import { useSelector } from "react-redux";
 
-// import allen_carousel01 from '../../images/Allen_carousel01.jpg';
 import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
 import love_icon from '../../images/icons/love_icon.png';
 import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
@@ -16,13 +15,7 @@ import location_icon from '../../images/icons/location_icon.png';
 // import { FavoriteButton } from "../../utils/FavoriteButton";
 
 const SitterServiceDetail = () => {
-  const [users, setUsers] = useState([]);
-  const [services, setServices] = useState([]);
-  const [detail, setDetail] = useState([]);
-  // const [favorite, setFavorite] = useState('');
-  // const willFavorite = !isFavorite;
   const [userId, setUserId] = useState(null);
-  const [ownerId, setOwnerId] = useState(null);
   const [serviceDetail, setServiceDetail] = useState(null); // 基礎資訊
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
@@ -34,20 +27,8 @@ const SitterServiceDetail = () => {
   const { id } = params;
 
   const { user, isAuthenticated } = useSelector(state => state.auth);
-  // let ownerId='';
-  // const ownerId=users.find(use=>use.email===user.email)?.id
 
   const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-  // const schedule = [
-
-  //   { day: "週一", times: ["10:30 - 12:00", "18:30 - 21:00"] },
-  //   { day: "週二", times: ["11:00 - 14:00", "18:30 - 21:00"] },
-  //   { day: "週三", times: ["18:30 - 21:00", "18:30 - 21:00"] },
-  //   { day: "週四", times: ["18:30 - 21:00"] },
-  //   { day: "週五", times: ["14:30 - 17:00", "18:30 - 21:00"] },
-  //   { day: "週六", times: ["13:30 - 16:00", "18:30 - 21:00"] },
-  //   { day: "週日", times: ["18:30 - 21:00"] },
-  // ];
 
   // 自定義顏色變數
   const colors = {
@@ -59,48 +40,6 @@ const SitterServiceDetail = () => {
 
   const navigate = useNavigate();
 
-  //重寫一段initial fetchData--------------------
-  // useEffect(() => {
-  //   // 1. 基礎資料下載 (只要有 id 就能跑)
-  //   const fetchBaseData = async () => {
-  //     try {
-  //       const { data: baseService } = await supabase
-  //         .from('services')
-  //         .select(`*, users!services_sitter_id_fkey(nickname, avatar_url), locations(*)`)
-  //         .eq('id', id)
-  //         .single();
-
-  //       if (baseService) {
-  //         setServiceDetail(baseService);
-  //         // 取得該保母的其他時段
-  //         fetchSchedules(baseService.sitter_id, baseService.category);
-  //       }
-  //     } catch (err) { console.error(err); }
-  //   };
-
-  //   // 2. 收藏狀態檢查 (必須同時有 serviceDetail 和 user 才能跑)
-  //   const checkFavorite = async () => {
-  //     // 關鍵守護條件：沒登入或還沒拿到保母 ID 就直接跳出
-  //     if (!user || !serviceDetail) return;
-
-  //     const { data } = await supabase
-  //       .from('favorites')
-  //       .select('id')
-  //       .eq('owner_id', user.id)
-  //       .eq('sitter_id', serviceDetail.sitter_id)
-  //       .maybeSingle(); // 使用 maybeSingle 避免找不到資料時報 406 錯誤
-
-  //     setIsFavorite(!!data);
-  //   };
-
-  //   fetchBaseData();
-  //   checkFavorite();
-
-  // // 依賴項加入 id 和 user 是正確的，但裡面要判斷 null
-  // }, [id, user, serviceDetail?.sitter_id]);
-
-
-  //---------------------------------
   useEffect(() => {
     fetchData();
 
@@ -147,179 +86,58 @@ const SitterServiceDetail = () => {
 
       // 4. 檢查收藏狀態 (若已登入)
       if (user) {
-        //         console.log('Checking IDs:', { 
-        //   owner_id: user.id, 
-        //   sitter_id: baseService?.sitter_id 
-        // });
-        const { data:userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', user.email)
-        .maybeSingle();
-        
+        const { data: userData } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', user.email)
+          .maybeSingle();
+
         const { data: favData, error: favError } = await supabase
           .from('favorites')
           .select('id')
-          // .eq('owner_id', user.id)
           .eq('owner_id', userData.id)
           .eq('sitter_id', baseService.sitter_id)
           .maybeSingle();
+        setUserId(userData.id);
         setIsFavorite(!!favData);
         console.log('favorite:', favData);
         console.log('faveError:', favError);
-        // console.log('internalId',internalId);
-        console.log('user:',user)
+        console.log('user:', user)
       }
     } catch (error) {
       console.log('Error fetching details:', error.message);
     }
   };
 
-  // const handleToggleFavorite = async () => {
-  //   if (!isAuthenticated) {
-  //     alert('請先登入再使用收藏功能');
-  //     return;
-  //   }
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated) {
+      alert('請先登入再使用收藏功能');
+      return;
+    };
 
-  //   if (isFavorite) {
-  //     // 取消收藏
-  //     await supabase.from('favorites').delete().eq('owner_id', user.id).eq('sitter_id', serviceDetail.sitter_id);
-  //     setIsFavorite(false);
-  //   } else {
-  //     // 新增收藏
-  //     await supabase.from('favorites').insert({ owner_id: user.id, sitter_id: serviceDetail.sitter_id });
-  //     setIsFavorite(true);
-  //   }
-  // };
+    if (isFavorite) {
+      // 取消收藏
+      await supabase.from('favorites').delete().eq('owner_id', userId).eq('sitter_id', serviceDetail.sitter_id);
+      setIsFavorite(false);
+      alert('已取消收藏');
+    } else {
+      // 新增收藏
+      await supabase.from('favorites').insert({ owner_id: userId, sitter_id: serviceDetail.sitter_id });
+      setIsFavorite(true);
+      alert('已加入收藏');
+
+    }
+  };
   //----------------------------------------------
-
-  // const getAllService = async () => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('services')
-  //       .select(`
-  //   *,
-  //   users!sitter_id (*), 
-  //   reviews:users!sitter_id (
-  //     reviews!sitter_id (*) 
-  //   )
-  // `);
-  //     if (error) throw error;
-  //     console.log(data);
-  //     !data.find(service => service.id == id) && navigate('*', { replace: true });
-
-  //     setServices(data);
-
-  //   } catch (err) {
-  //     console.error('連線錯誤：', err);
-  //   }
-  // };
-
-  // const getAllUsers = async () => {
-  //   try {
-  //     const { data, error } = await supabase.from('users').select('*');
-  //     setUsers(data);
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error('連線錯誤：', error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getAllService();
-  //   getAllUsers();
-  // }, [id]);
-
-  // // 當 services 資料回來後，進行篩選
-  // useEffect(() => {
-  //   // 確保 services 已經有資料且 id 存在
-  //   if (services.length > 0 && id) {
-  //     // 找到當前 id 對應的那一筆
-  //     const firstService = services.find(s => s.id == id);
-
-  //     if (firstService) {
-  //       // 篩選出同保母且同類別的所有服務
-  //       const filteredServices = services.filter(s =>
-  //         s.sitter_id === firstService.sitter_id &&
-  //         s.category === firstService.category
-  //       ).reverse().sort((a, b) =>
-  //         weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week));
-
-  //       setDetail(filteredServices);
-  //     }
-  //   };
-  //   // getFavorite();
-  // }, [services, id]); // 當服務列表或 ID 變動時重新篩選
-
-  // // 1. 初始化：檢查登入狀態與收藏狀態
-  // useEffect(() => {
-  //   const checkStatus = async () => {
-  //     // const { data: { user } } = await supabase.auth.getUser();
-
-  //     if (user) {
-  //       setUserId(users.find(use => use.email === user.email)?.id);
-  //       // 查詢資料庫是否存在該收藏
-  //       const { data, error } = await supabase
-  //         .from('favorites')
-  //         .select('*')
-  //         .eq('owner_id', userId)
-  //         .eq('sitter_id', detail[0].sitter_id)
-  //         .maybeSingle();
-
-  //       setIsFavorite(!!data);
-  //     }
-  //     // setLoading(false);
-  //   };
-
-  //   checkStatus();
-  // }, [detail]);
-
-  // // 2. 處理點擊邏輯
-  // const toggleFavorite = async () => {
-  //   // 未登入處理
-  //   if (!userId) {
-  //     alert('請先登入後再進行收藏！');
-  //     return;
-  //   }
-
-  //   // 樂觀更新 UI (先改畫面，再跑 API)
-  //   const previousState = isFavorite;
-  //   setIsFavorite(!previousState);
-
-  //   if (previousState) {
-  //     // 取消收藏 (Delete)
-  //     const { error } = await supabase
-  //       .from('favorites')
-  //       .delete()
-  //       .eq('owner_id', userId)
-  //       .eq('sitter_id', detail[0].sitter_id);
-
-  //     if (error) {
-  //       setIsFavorite(previousState); // 失敗則回滾
-  //       console.log(error)
-  //     }
-  //   } else {
-  //     // 新增收藏 (Insert)
-  //     const { error } = await supabase
-  //       .from('favorites')
-  //       .insert([{ owner_id: userId, sitter_id: detail[0].sitter_id }]);
-
-  //     if (error) {
-  //       setIsFavorite(previousState); // 失敗則回滾
-  //       console.log(error)
-  //     }
-  //   }
-  // };
 
   return (
     <>
-      {JSON.stringify(user)}
+      {/* {JSON.stringify(user)} */}
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
-          <Link to='/' className="ms-2 text-decoration-none">返回</Link>
+          <Link to='/lookforpetsitter' className="ms-2 text-decoration-none">返回</Link>
         </div>
-
 
         {/* 輪播 */}
         <div className="container">
@@ -390,15 +208,11 @@ const SitterServiceDetail = () => {
               <img src={empt_heart_icon} alt="" />
             </div>
 
-            {/* <button
-              onClick={toggleFavorite}
-              className="transition duration-200 transform hover:scale-110"
-            > */}
             {isFavorite ? (
               <div
                 className="ms-8 me-3 mb-7"
                 style={{ cursor: 'pointer' }}
-              // onClick={toggleFavorite}
+              onClick={handleToggleFavorite}
               >
                 <img src={love_icon} alt="" />
               </div>
@@ -406,13 +220,11 @@ const SitterServiceDetail = () => {
               <div
                 className="ms-8 me-3 mb-7"
                 style={{ cursor: 'pointer' }}
-              // onClick={toggleFavorite}
+              onClick={handleToggleFavorite}
               >
                 <img src={empt_heart_icon} alt="" />
               </div>
             )}
-            {/* </button> */}
-
 
           </div>
 
@@ -429,7 +241,7 @@ const SitterServiceDetail = () => {
                 </div>
                 <div>
                   <img src={location_icon} alt="" />
-                  {serviceDetail?.locations.city+' '+serviceDetail?.locations.district}
+                  {serviceDetail?.locations.city + ' ' + serviceDetail?.locations.district}
                 </div>
               </div>
             </div>
@@ -440,19 +252,19 @@ const SitterServiceDetail = () => {
                   <p className="mb-3" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務項目
                     <span className="badge rounded-pill text-bg-light border ms-10">
-                      {detail[0]?.category}
+                      {serviceDetail?.category}
                     </span>
                   </p>
 
                   <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
                     <span className="badge rounded-pill text-bg-light border ms-10">
-                      {detail[0]?.species}
+                      {serviceDetail?.species}
                     </span>
                   </p>
                 </div>
 
-                <p>{detail[0]?.description}</p>
+                <p>{serviceDetail?.description}</p>
               </div>
             </div>
 
@@ -468,28 +280,26 @@ const SitterServiceDetail = () => {
 
             {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
             <div className="row row-cols-7 g-7 flex-sm-row flex-column">
-              {/* {testServiceArr} */}
-              {/* {detail.sort((a,b)=>
-              weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week))} */}
-              {allSchedules.map(day => (
-                <div className="col">
-                  <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
+              {allSchedules.sort((a, b) =>
+                weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week)).map(day => (
+                  <div className="col">
+                    <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
-                    <div className="fw-bold mb-3 text-dark">
-                      {mandarinWeekDay(day.day_of_week)}
+                      <div className="fw-bold mb-3 text-dark">
+                        {mandarinWeekDay(day.day_of_week)}
+                      </div>
+
+                      <div
+                        // key={idx}
+                        className="small py-1 mb-2 text-white fw-medium"
+                        style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
+                      >
+                        {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
+                      </div>
+
                     </div>
-
-                    <div
-                      // key={idx}
-                      className="small py-1 mb-2 text-white fw-medium"
-                      style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
-                    >
-                      {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
-                    </div>
-
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -520,8 +330,8 @@ const SitterServiceDetail = () => {
                   if (isAuthenticated) {
                     navigate('booking', {
                       state: {
-                        serviceId: detail[0].id,
-                        sitterId: detail[0].sitter_id,
+                        serviceId: serviceDetail.id,
+                        sitterId: serviceDetail.sitter_id,
                       },
                     });
                   } else {
@@ -569,23 +379,22 @@ const SitterServiceDetail = () => {
 
               {/* 單一評論卡片 */}
               {
-                detail[0]?.reviews?.reviews.map(review =>
+                reviews.map(review =>
                   <div className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
                       <div className="d-flex justify-content-between align-items-start">
                         <div className="d-flex align-items-center mb-2">
 
                           <img
-                            src={users.find(user => user.id === review.owner_id)?.avatar_url}
+                            src={review.users.avatar_url}
                             className="rounded-circle me-3"
                             alt="Avatar"
                             style={{ width: '48px', height: '48px', objectFit: 'cover' }}
                           />
                           <div>
-                            <h6 className="mb-0 fw-bold">{users.find(user => user.id === review.owner_id)?.nickname}</h6>
+                            <h6 className="mb-0 fw-bold">{review.users.nickname}</h6>
                             <div className="text-warning">
                               {starRating(review.rating)}
-                              {/* ★★★★★ */}
                             </div>
                           </div>
                         </div>
