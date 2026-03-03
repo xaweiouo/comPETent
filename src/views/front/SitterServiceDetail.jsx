@@ -1,5 +1,5 @@
 import { supabase } from "../../utils/supabaseClient";
-// import { createClient } from "@supabase/supabase-js";
+
 import { useEffect, useState } from "react";
 import { data, Link, useNavigate, useParams } from "react-router";
 
@@ -12,16 +12,17 @@ import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
 import love_icon from '../../images/icons/love_icon.png';
 import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
 import location_icon from '../../images/icons/location_icon.png';
-// import { FavoriteButton } from "../../utils/FavoriteButton";
+
 
 const SitterServiceDetail = () => {
+  const [isChecking, setIsChecking] = useState(true);
+  const [notFound, setNotFound] = useState(false);   // 是否確認資料不存在
+
   const [userId, setUserId] = useState(null);
   const [serviceDetail, setServiceDetail] = useState(null); // 基礎資訊
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
-
-  // const [loading, setLoading] = useState(true);
 
   const params = useParams();
   const { id } = params;
@@ -41,8 +42,43 @@ const SitterServiceDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
+    const checkServiceExistence = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select('id')
+          .eq('id', id)
+          .maybeSingle();
 
+        if (error || !data) {
+          // 情況 A: 報錯或找不到資料
+          setNotFound(true);
+          setIsChecking(false);
+
+          // 開啟倒數 3 秒後跳轉
+          setTimeout(() => {
+            navigate('/lookforpetsitter', { replace: true });
+          }, 3000);
+
+          return;
+        }
+
+        // 情況 B: 資料存在
+        setIsChecking(false);
+      } catch (err) {
+        setNotFound(true);
+        setIsChecking(false);
+        setTimeout(() => navigate('/lookforpetsitter', { replace: true }), 3000);
+      }
+    };
+
+    if (id) {
+      checkServiceExistence();
+    }
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchData();
   }, [id, user]);
 
   const fetchData = async () => {
@@ -128,7 +164,26 @@ const SitterServiceDetail = () => {
 
     }
   };
-  //----------------------------------------------
+
+  // 1. 第一層守門員：正在與資料庫通訊中
+  if (isChecking) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-center">正在載入服務詳情...</p>
+      </div>
+    );
+  }
+
+  // 2. 第二層守門員：確認資料不存在，顯示提示訊息
+  if (notFound) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-center mb-4">
+        <h1 className="text-2xl font-bold text-red-500 mb-2">404 - 該服務不存在</h1>
+        <p className="text-gray-600">抱歉，我們找不到您要求的保母服務。</p>
+        <p className="mt-2 text-blue-500 font-medium">3 秒後將自動回到尋找保母列表...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -205,7 +260,7 @@ const SitterServiceDetail = () => {
               <div
                 className="ms-8 me-3 mb-7"
                 style={{ cursor: 'pointer' }}
-              onClick={handleToggleFavorite}
+                onClick={handleToggleFavorite}
               >
                 <img src={love_icon} alt="" />
               </div>
@@ -213,7 +268,7 @@ const SitterServiceDetail = () => {
               <div
                 className="ms-8 me-3 mb-7"
                 style={{ cursor: 'pointer' }}
-              onClick={handleToggleFavorite}
+                onClick={handleToggleFavorite}
               >
                 <img src={empt_heart_icon} alt="" />
               </div>
