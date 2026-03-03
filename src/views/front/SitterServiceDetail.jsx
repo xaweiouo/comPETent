@@ -201,13 +201,6 @@ const SitterServiceDetail = () => {
 
             </div>
 
-            <div
-              className="ms-8 me-3 mb-7"
-              style={{ cursor: 'pointer' }}
-            >
-              <img src={empt_heart_icon} alt="" />
-            </div>
-
             {isFavorite ? (
               <div
                 className="ms-8 me-3 mb-7"
