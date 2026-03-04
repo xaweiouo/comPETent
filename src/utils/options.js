@@ -19,3 +19,23 @@ export const PET_SPECIES_OPTIONS = [
   { value: 'others', label: '其他' },
 ]
 
+export const WEEKDAY_OPTIONS=[
+  {value:'mon',label:'星期一'},
+  {value:'tue',label:'星期二'},
+  {value:'wed',label:'星期三'},
+  {value:'thu',label:'星期四'},
+  {value:'fri',label:'星期五'},
+  {value:'sat',label:'星期六'},
+  {value:'sun',label:'星期日'},
+]
+
+export const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => {
+  const formatted = i.toString().padStart(2, "0");
+  return { value: formatted, label: formatted };
+});
+
+export const MINUTE_OPTIONS = [
+  { value: '00', label: '00' },
+  { value: '30', label: '30' },
+]
+
