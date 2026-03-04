@@ -1,5 +1,6 @@
 // SitterBookingForm.jsx
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabaseClient";
 import { useEffect, useState } from "react";
 import sitterLogo from "../../images/booking_img/阿倫保姆logo_預約表單.png";
 import { useLocation, useNavigate } from "react-router";
@@ -16,9 +17,9 @@ import feetIcon from "../../images/icons/feet_icon.png";
 
 
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 //把calculateTimeDiff和 calculatePriceForService 寫在 component 外面，當成純工具函式，讓 component 裡的邏輯比較清楚

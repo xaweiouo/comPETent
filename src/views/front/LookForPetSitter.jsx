@@ -3,7 +3,7 @@
 import React from "react";
 // import { supabase } from "./createClient";
 import { useState, useEffect } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import feetIcon from "../../images/icons/feet_icon.png";
 import locationIcon from "../../images/icons/location_icon.png";
 import calendarIcon from "../../images/icons/calendar_icon.png";

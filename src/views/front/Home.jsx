@@ -9,6 +9,7 @@ import sitterIcon from "../../images/icons/sitter_icon.png"
 import loveIcon from "../../images/icons/love_icon.png"
 import faqIcon from "../../images/icons/faq_icon.png"
 import { useNavigate } from 'react-router';
+import { supabase } from "../../lib/supabaseClient";
 // import { createClient } from "@supabase/supabase-js";
 
 // const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
