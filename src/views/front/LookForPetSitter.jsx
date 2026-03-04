@@ -14,9 +14,6 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { FavoriteButton } from "../../utils/FavoriteButton";
 
-
-
-
 // export { supabase };
 
 function LookForPetSitter() {
