@@ -1,5 +1,5 @@
-import { supabase } from "./supabaseClient";
-import { clearUser } from "../store/slices/authSlice";
+import { supabase } from "../lib/supabaseClient";
+import { clearUser } from "../slices/authSlice";
 // import { useDispatch, useSelector } from "react-redux";
 
 // const { user, isAuthenticated } = useSelector((state) => state.auth);
