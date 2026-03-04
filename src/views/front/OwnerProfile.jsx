@@ -1,7 +1,7 @@
 function OwnerProfile() {
   return (
     <>
-      aaa
+      我是飼主
       <img
         // src={detail?.users?.avatar_url}
         className="user_avatar rounded-circle border border-secondary border-2 me-4"
