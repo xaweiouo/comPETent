@@ -1,3 +1,5 @@
+import * as bootstrap from 'bootstrap'
+// import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { NavLink } from "react-router"
 import logo from "../../src/images/logo.png"
 import feetIcon from "../../src/images/icons/feet_icon.png"
@@ -6,9 +8,33 @@ import searchIcon from "../../src/images/icons/search_icon.png"
 import becomeIcon from "../../src/images/icons/become_icon.png"
 import shieldIcon from "../../src/images/icons/shield_icon.png"
 import faqIcon from "../../src/images/icons/faq_icon.png"
-const Header=()=>{
-  return(
-    <section className="container">
+import LogInModal from "../../src/components/LogInModal"
+import { useEffect, useRef } from "react"
+
+const Header = () => {
+  const loginModalRef = useRef(null);
+
+  useEffect(() => {
+    loginModalRef.current = new bootstrap.Modal('#loginModal', {
+      keyboard: false
+    });
+    // modal 關閉移除焦點
+    document.querySelector("#loginModal").addEventListener("hidden.bs.modal", () => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
+  }, []);
+
+  // const showModal = () => {
+  //   loginModalRef.current.show();
+  // };
+  // const hideModal = () => {
+  //   loginModalRef.current.hide();
+  // };
+  return (
+    <>
+      <section className="container">
         <nav className="navbar navbar-expand-lg py-2 px-3 mt-7 mb-6 bg-body-tertiary rounded-5 shadow">
           <div className="container-fluid">
             <NavLink className="navbar-brand" to="/">
@@ -17,7 +43,7 @@ const Header=()=>{
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
-            <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <div className="navbar-collapse collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li className="nav-item">
                   <NavLink className="nav-link d-flex align-items-center" to="/"><img src={feetIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
@@ -38,6 +64,9 @@ const Header=()=>{
                   <NavLink className="nav-link d-flex align-items-center" to="/"><img src={faqIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
                 </li>
                 <li className="nav-item">
+                  {/* <button type="button" className="nav-link d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#loginModal" onClick={() => showModal()}>
+                    登入
+                  </button> */}
                   <NavLink className="nav-link d-flex align-items-center" to="/login"><span className="fw-bold h5 mb-0">登入/註冊</span></NavLink>
                 </li>
                 {/* <li className="nav-item dropdown">
@@ -56,6 +85,8 @@ const Header=()=>{
           </div>
         </nav>
       </section>
+      <LogInModal />
+    </>
   )
 };
 export default Header;
