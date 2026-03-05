@@ -8,6 +8,10 @@ import NotFound from "./views/front/NotFound";
 import OwnerProfile from "./views/front/OwnerProfile";
 import Login from "./views/front/Login";
 import ServiceDeployForm from "./views/front/ServiceDeployForm";
+import AdminLayout from "./layout/AdminLayout";
+import AdminBookings from "./views/admin/AdminBookings";
+import AdminUsers from "./views/admin/AdminUsers";
+import AdminLogin from "./views/admin/AdminLogin";
 // import LookForPetSitter2 from "./views/front/LookForPetSitter2";
 
 export const router = createHashRouter([
@@ -44,6 +48,24 @@ export const router = createHashRouter([
         element: <Login />,
       },
     ],
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        path: "adminlogin", 
+        element: <AdminLogin />,
+      },
+      {
+        path: "adminbookings", 
+        element: <AdminBookings />,
+      },
+      {
+        path: "adminusers", 
+        element: <AdminUsers />,
+      },
+    ]
   },
   {
     path: "*", // 404 頁面
