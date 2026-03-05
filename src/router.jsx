@@ -7,6 +7,7 @@ import SitterBookingForm from "./views/front/SitterBookingForm";
 import NotFound from "./views/front/NotFound";
 import OwnerProfile from "./views/front/OwnerProfile";
 import Login from "./views/front/Login";
+import ServiceDeployForm from "./views/front/ServiceDeployForm";
 // import LookForPetSitter2 from "./views/front/LookForPetSitter2";
 
 export const router = createHashRouter([
@@ -33,6 +34,10 @@ export const router = createHashRouter([
       {
         path: "ownerprofile",
         element: <OwnerProfile />,
+      },
+      {
+        path: "servicedeploy",
+        element: <ServiceDeployForm />,
       },
       {
         path: "login",
