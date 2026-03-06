@@ -35,7 +35,6 @@ function OwnerProfile() {
     // 登入後，只在初始化時跑這一次
     fetchInitialData();
 
-    // 依賴陣列移除 ownerProfile，徹底切斷無限迴圈
   }, [isAuthenticated, isAuthLoading]);
 
   const fetchInitialData = async () => {
@@ -97,14 +96,14 @@ function OwnerProfile() {
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80"
               alt="Hero Background"
               className="w-100 object-fit-cover rounded-4 shadow-sm"
-              style={{ height: '280px' }}
+              style={{ height: '451px' }}
             />
 
             {/* 大頭貼 (利用 left: 50% 與 translateX(-50%) 達到完美水平置中) */}
             <img
               src={ownerProfile?.avatar_url}
               alt="Profile Avatar"
-              className="position-absolute rounded-circle border border-5 border-white shadow"
+              className="position-absolute rounded-circle border border-2 border-white shadow"
               style={{
                 width: '120px',
                 height: '120px',
@@ -119,13 +118,16 @@ function OwnerProfile() {
           {/* 3. 居中顯示的基本資料 */}
           <div className="text-center mt-5 pt-3 mb-4">
             <h2 className="fw-bold mb-1" style={{ color: theme.textDark }}>{ownerProfile?.nickname}</h2>
+            <p className="text-muted mb-2">姓名:{ownerProfile?.name}</p>
             <p className="text-muted mb-2">臺北市 信義區</p>
-            <span
+            <p className="text-muted mb-2">{ownerProfile?.phone}</p>
+            <p className="text-muted mb-2">{ownerProfile?.email}</p>
+            {/* <span
               className="badge rounded-pill bg-transparent border px-3 py-1"
               style={{ borderColor: theme.orange, color: theme.orange, fontSize: '0.9rem' }}
             >
               認證飼主
-            </span>
+            </span> */}
           </div>
 
           {/* 4. Tab 切換導航列 (置中) */}
@@ -203,10 +205,10 @@ function OwnerProfile() {
                       <div>
                         <span className="badge bg-success rounded-pill mb-2">即將到來</span>
                         <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                        <p className="text-muted mb-0">2023/11/15 (三) 14:00 - 15:00 ｜ 服務對象：咪咪</p>
+                        <p className="text-muted mb-0">{b.arrival_date+' '+b.arrival_time+'~'+b.departure_time}  ｜ 服務對象：</p>
                       </div>
                       <div className="text-end">
-                        <h5 className="fw-bold mb-2" style={{ color: theme.orange }}>NT$ 500</h5>
+                        <h5 className="fw-bold mb-2" style={{ color: theme.orange }}>NT$ {b.total_price}</h5>
                         {/* <button className="btn btn-sm btn-outline-secondary rounded-pill">查看詳情</button> */}
                       </div>
                     </div>
