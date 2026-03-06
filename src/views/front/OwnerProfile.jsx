@@ -80,8 +80,8 @@ function OwnerProfile() {
 
   return (
     <>
-      {JSON.stringify(ownerProfile)}
-      {ownerBooking?.map(b=><p>{b}</p>)}
+      {/* {JSON.stringify(ownerProfile)}
+      {ownerBooking?.map(b=><p>{b}</p>)} */}
       <div style={{ backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: '50px' }}>
         <div className="container pt-3">
 
