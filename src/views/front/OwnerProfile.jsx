@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import PetCard from "../../components/PetCard";
 
 function OwnerProfile() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
@@ -11,6 +12,7 @@ function OwnerProfile() {
   const [activeTab, setActiveTab] = useState('pets');
   const [userId, setUserId] = useState(null);
   const [ownerProfile, setOwnerProfile] = useState(null);
+  const [ownerPets, setOwnerPets] = useState([]);
   const [ownerBooking, setOwnerBooking] = useState(null);
 
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ function OwnerProfile() {
         .from('users')
         .select(`
         *,
+        pets (*),
         bookings!bookings_owner_id_fkey (
           *,
           services (
@@ -59,7 +62,9 @@ function OwnerProfile() {
       if (data) {
         // 拆分資料存入不同的 State
         setOwnerProfile(data);
+        setOwnerPets(data.pets || []);
         setOwnerBooking(data.bookings || []);
+
 
         console.log("✅ 資料同步完成：", data);
       }
@@ -154,42 +159,14 @@ function OwnerProfile() {
               /* -------- [標籤 A] 我的寵物 內容 -------- */
               <div className="col-12">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="fw-bold mb-0">毛孩家族 (2)</h5>
-                  <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button>
+                  {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
+                  {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
                 </div>
 
                 <div className="row g-3">
-                  {/* 寵物卡片 1 */}
-                  <div className="col-md-6">
-                    <div className="card border-0 rounded-4 shadow-sm h-100 p-3 d-flex flex-row align-items-center gap-3">
-                      <img
-                        src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=100&q=80"
-                        alt="阿金"
-                        className="rounded-circle object-fit-cover"
-                        style={{ width: '80px', height: '80px' }}
-                      />
-                      <div>
-                        <h5 className="fw-bold mb-1">阿金</h5>
-                        <p className="text-muted mb-0 small">黃金獵犬 • 3歲 • 公 (已結紮)</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 寵物卡片 2 */}
-                  <div className="col-md-6">
-                    <div className="card border-0 rounded-4 shadow-sm h-100 p-3 d-flex flex-row align-items-center gap-3">
-                      <img
-                        src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=100&q=80"
-                        alt="咪咪"
-                        className="rounded-circle object-fit-cover"
-                        style={{ width: '80px', height: '80px' }}
-                      />
-                      <div>
-                        <h5 className="fw-bold mb-1">咪咪</h5>
-                        <p className="text-muted mb-0 small">米克斯貓 • 1歲 • 母 (未結紮)</p>
-                      </div>
-                    </div>
-                  </div>
+                  {ownerPets?.map(pet=>(
+                    <PetCard key={pet.id} pet={pet} divClassName={'col-3'} cardClassName={'card background-color:white'}/>
+                  ))}
                 </div>
               </div>
             ) : (
