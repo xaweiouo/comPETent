@@ -234,23 +234,22 @@ const SitterServiceDetail = () => {
         </div>
 
         <div className="container">
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-7" style={{ width: '93.83%' }}>
+          <div className="d-flex justify-content-between align-items-center mb-7">
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center" style={{ width: '93.83%' }}>
 
-              <div className="d-flex align-items-center mb-10">
+              <div className="d-flex align-items-center">
                 <img
                   src={serviceDetail?.users?.avatar_url}
                   className="user_avatar rounded-circle border border-secondary border-2 me-4"
                   alt="User Avatar"
-                  style={{}}
                 />
-                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{serviceDetail?.users?.nickname}</h2>
-                <span className="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
+                <p className="fs-2 fw-bold me-10 mb-0" style={{marginBottom:0 }}>{serviceDetail?.users?.nickname}</p>
+                <span className="badge border border-2 border-info rounded-pill bg-transparent text-dark fs-5 px-2 py-2">保母</span>
               </div>
 
               <div className="d-flex align-items-center">
-                <p className="h5 me-2" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>NT$</p>
-                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
+                <p className="me-2 text-primary fw-bold fs-5 mb-0" style={{marginBottom:0   }}>NT$</p>
+                <p className="text-primary fw-bold fs-3 mb-0" style={{marginBottom:0   }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
               </div>
 
 
@@ -258,7 +257,7 @@ const SitterServiceDetail = () => {
 
             {isFavorite ? (
               <div
-                className="ms-8 me-3 mb-7"
+                className="ms-8 me-3 align-self-center"
                 style={{ cursor: 'pointer' }}
                 onClick={handleToggleFavorite}
               >
@@ -266,7 +265,7 @@ const SitterServiceDetail = () => {
               </div>
             ) : (
               <div
-                className="ms-8 me-3 mb-7"
+                className="ms-8 me-3 align-self-centers"
                 style={{ cursor: 'pointer' }}
                 onClick={handleToggleFavorite}
               >
