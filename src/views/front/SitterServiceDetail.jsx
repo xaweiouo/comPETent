@@ -5,6 +5,7 @@ import { data, Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
+import { mandarinPetSpecies } from "../../utils/mandarinPetSpecies";
 
 import { useSelector } from "react-redux";
 
@@ -19,7 +20,9 @@ const SitterServiceDetail = () => {
   const [notFound, setNotFound] = useState(false);   // 是否確認資料不存在
 
   const [userId, setUserId] = useState(null);
-  const [serviceDetail, setServiceDetail] = useState(null); // 基礎資訊
+  const [serviceDetail, setServiceDetail] = useState([]); // 基礎資訊
+  // const[hasMultiplePhotos,setHasMultiplePhotos]
+  // const hasMultiplePhotos = allPhotos.length > 1;
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
@@ -30,14 +33,6 @@ const SitterServiceDetail = () => {
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
   const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-
-  // 自定義顏色變數
-  const colors = {
-    bgLight: "#fcf6e9",
-    containerBg: "#f9e4c8",
-    orangeMain: "#e66b15",
-    timeBg: "#e68a39"
-  };
 
   const navigate = useNavigate();
 
@@ -94,6 +89,11 @@ const SitterServiceDetail = () => {
         `)
         .eq('id', id)
         .maybeSingle();
+
+      if (baseService && baseService.service_photos) {
+        // 💡 在這裡手動排序：由小到大 (1, 2, 3...)
+        baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
+      }
       setServiceDetail(baseService);
       console.log('servicedetail:', baseService);
       if (baseError) throw baseError;
@@ -196,6 +196,77 @@ const SitterServiceDetail = () => {
 
         {/* 輪播 */}
         <div className="container">
+          <div id="carouselExample" className="carousel slide mb-4 position-relative">
+
+            {/* --- 指示點 (Indicators) --- */}
+            {/* 無論單張或多張都渲染，單張時 Bootstrap 預設會顯示為單一個長條 */}
+            <div className="carousel-indicators">
+              {serviceDetail.service_photos.map((_, index) => (
+                <button
+                  key={`indicator-${index}`}
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide-to={index}
+                  className={index === 0 ? "active" : ""} // 第一個預設 active
+                  aria-current={index === 0 ? "true" : undefined}
+                  aria-label={`Slide ${index + 1}`}
+                ></button>
+              ))}
+            </div>
+
+            {/* --- 輪播圖片 (Carousel Items) --- */}
+            <div className="carousel-inner rounded-4 carousel_sitter-service-detail">
+              {serviceDetail.service_photos.length > 0 ? (
+                serviceDetail.service_photos.map((photo, index) => (
+                  <div
+                    key={`photo-${index}`}
+                    className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+                  >
+                    <img
+                      src={photo.photo_url}
+                      className="d-block w-100 h-100"
+                      style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      alt={`服務照片 ${index + 1}`}
+                    />
+                  </div>
+                ))
+              ) : (
+                // 若連主圖都沒有的防呆處理 (可選)
+                <div className="carousel-item h-100 active bg-light d-flex justify-content-center align-items-center">
+                  <span className="text-muted">尚無照片</span>
+                </div>
+              )}
+            </div>
+
+            {/* --- 左右箭頭控制 (Controls) --- */}
+            {/* 💡 條件渲染：只有當 hasMultiplePhotos 為 true 時才顯示 */}
+            {serviceDetail.service_photos.length > 0 && (
+              <>
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="prev"
+                >
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
+                </button>
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="next"
+                >
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
+                </button>
+              </>
+            )}
+
+          </div>
+        </div>
+
+        {/* <div className="container">
           <div id="carouselExample" className=" carousel slide mb-4 position-relative">
 
             <div className="carousel-indicators">
@@ -231,7 +302,7 @@ const SitterServiceDetail = () => {
             </button>
 
           </div>
-        </div>
+        </div> */}
 
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-7">
@@ -243,13 +314,13 @@ const SitterServiceDetail = () => {
                   className="user_avatar rounded-circle border border-secondary border-2 me-4"
                   alt="User Avatar"
                 />
-                <p className="fs-2 fw-bold me-10 mb-0" style={{marginBottom:0 }}>{serviceDetail?.users?.nickname}</p>
+                <p className="fs-2 fw-bold me-10 mb-0" style={{ marginBottom: 0 }}>{serviceDetail?.users?.nickname}</p>
                 <span className="badge border border-2 border-info rounded-pill bg-transparent text-dark fs-5 px-2 py-2">保母</span>
               </div>
 
               <div className="d-flex align-items-center">
-                <p className="me-2 text-primary fw-bold fs-5 mb-0" style={{marginBottom:0   }}>NT$</p>
-                <p className="text-primary fw-bold fs-3 mb-0" style={{marginBottom:0   }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
+                <p className="me-2 text-primary fw-bold fs-5 mb-0" style={{ marginBottom: 0 }}>NT$</p>
+                <p className="text-primary fw-bold fs-3 mb-0" style={{ marginBottom: 0 }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
               </div>
 
 
@@ -306,7 +377,7 @@ const SitterServiceDetail = () => {
                   <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
                     <span className="badge rounded-pill text-bg-light border ms-10">
-                      {serviceDetail?.species}
+                      {mandarinPetSpecies(serviceDetail?.species)}
                     </span>
                   </p>
                 </div>
