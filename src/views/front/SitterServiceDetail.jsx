@@ -201,7 +201,7 @@ const SitterServiceDetail = () => {
             {/* --- 指示點 (Indicators) --- */}
             {/* 無論單張或多張都渲染，單張時 Bootstrap 預設會顯示為單一個長條 */}
             <div className="carousel-indicators">
-              {serviceDetail.service_photos.map((_, index) => (
+              {serviceDetail?.service_photos?.map((_, index) => (
                 <button
                   key={`indicator-${index}`}
                   type="button"
@@ -216,8 +216,8 @@ const SitterServiceDetail = () => {
 
             {/* --- 輪播圖片 (Carousel Items) --- */}
             <div className="carousel-inner rounded-4 carousel_sitter-service-detail">
-              {serviceDetail.service_photos.length > 0 ? (
-                serviceDetail.service_photos.map((photo, index) => (
+              {serviceDetail?.service_photos?.length > 0 ? (
+                serviceDetail?.service_photos?.map((photo, index) => (
                   <div
                     key={`photo-${index}`}
                     className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
@@ -240,7 +240,7 @@ const SitterServiceDetail = () => {
 
             {/* --- 左右箭頭控制 (Controls) --- */}
             {/* 💡 條件渲染：只有當 hasMultiplePhotos 為 true 時才顯示 */}
-            {serviceDetail.service_photos.length > 0 && (
+            {serviceDetail?.service_photos?.length > 0 && (
               <>
                 <button
                   className="carousel-control-prev"
@@ -359,7 +359,7 @@ const SitterServiceDetail = () => {
                 </div>
                 <div>
                   <img src={location_icon} alt="" />
-                  {serviceDetail?.locations.city + ' ' + serviceDetail?.locations.district}
+                  {serviceDetail?.locations?.city + ' ' + serviceDetail?.locations?.district}
                 </div>
               </div>
             </div>
@@ -393,7 +393,7 @@ const SitterServiceDetail = () => {
 
         <div className="container">
           {/* 服務時間區塊 */}
-          <div className="p-4 p-md-5 shadow-sm mt-8" style={{ backgroundColor: '#FA812F33', borderRadius: "30px" }}>
+          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2 , borderRadius: "30px" }}>
             <h5 className="text-primary text-center mb-4 fw-bold" >服務時間</h5>
 
             {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
@@ -409,8 +409,8 @@ const SitterServiceDetail = () => {
 
                       <div
                         // key={idx}
-                        className="small py-1 mb-2 text-white fw-medium"
-                        style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
+                        className="small py-1 mb-2 text-white fw-medium bg-info"
+                        style={{  borderRadius: "10px" }}
                       >
                         {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
                       </div>
@@ -425,25 +425,15 @@ const SitterServiceDetail = () => {
           <div className="row mt-4 g-3">
             <div className="col-6">
               <button
-                className="btn w-100 py-2 fw-bold shadow-sm"
-                style={{
-                  color: '#FF5400',
-                  border: `2px solid #FF5400`,
-                  borderRadius: "50px",
-                  backgroundColor: "transparent"
-                }}
+                className="btn btn-border-radius border border-2 border-primary bg-transparent w-100 py-2 fw-bold text-primary shadow-sm"
               >
                 聯絡保母
               </button>
             </div>
             <div className="col-6">
               <button
-                className="btn w-100 py-2 fw-bold text-white shadow-sm"
-                style={{
-                  backgroundColor: '#FF5400',
-                  borderRadius: "50px",
-                  border: "none"
-                }}
+                className="btn btn-border-radius w-100 py-2 fw-bold bg-primary text-white shadow-sm"
+                
                 onClick={() => {
                   if (isAuthenticated) {
                     navigate('booking', {
@@ -486,7 +476,7 @@ const SitterServiceDetail = () => {
               </svg>
 
 
-              <h2 className="ms-3" style={{ color: '#FF5400' }}>好評推薦</h2>
+              <h2 className="ms-3 text-primary" >好評推薦</h2>
             </div>
 
             {/* 評論區容器：設定固定高度與溢出捲動 */}
@@ -500,25 +490,27 @@ const SitterServiceDetail = () => {
                 reviews.map(review =>
                   <div className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div className="d-flex align-items-center mb-2">
-
-                          <img
-                            src={review.users.avatar_url}
-                            className="rounded-circle me-3"
-                            alt="Avatar"
-                            style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-                          />
-                          <div>
-                            <h6 className="mb-0 fw-bold">{review.users.nickname}</h6>
-                            <div className="text-warning">
+                      <div className="d-flex flex-column">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="d-flex flex-column align-items-start mb-2">
+                            <div className="d-flex align-items-center mb-10">
+                              <img
+                                src={review.users.avatar_url}
+                                className="rounded-circle me-3"
+                                alt="Avatar"
+                                style={{ width: '48px', height: '48px', objectFit: 'cover' }}
+                              />
+                              <h6 className="mb-0 fw-bold">{review.users.nickname}</h6>
+                            </div>
+                            <div>
                               {starRating(review.rating)}
                             </div>
                           </div>
+
+                          <small className="text-muted">2026/01/02</small>
                         </div>
-                        <small className="text-muted">2026/01/02</small>
+                        <p className="card-text mt-2">{review.comment}</p>
                       </div>
-                      <p className="card-text mt-2">{review.comment}</p>
                     </div>
                   </div>
                 )
