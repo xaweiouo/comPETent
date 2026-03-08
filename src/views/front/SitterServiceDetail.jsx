@@ -5,6 +5,7 @@ import { data, Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
+import { weekSorter } from "../../utils/mandarinWeekDay";
 import { mandarinPetSpecies } from "../../utils/mandarinPetSpecies";
 
 import { useSelector } from "react-redux";
@@ -17,12 +18,11 @@ import location_icon from '../../images/icons/location_icon.png';
 
 const SitterServiceDetail = () => {
   const [isChecking, setIsChecking] = useState(true);
-  const [notFound, setNotFound] = useState(false);   // 是否確認資料不存在
+  const [notFound, setNotFound] = useState(false);   // 確認資料是否存在
 
   const [userId, setUserId] = useState(null);
   const [serviceDetail, setServiceDetail] = useState([]); // 基礎資訊
-  // const[hasMultiplePhotos,setHasMultiplePhotos]
-  // const hasMultiplePhotos = allPhotos.length > 1;
+
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
@@ -31,8 +31,6 @@ const SitterServiceDetail = () => {
   const { id } = params;
 
   const { user, isAuthenticated } = useSelector(state => state.auth);
-
-  const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
   const navigate = useNavigate();
 
@@ -91,7 +89,7 @@ const SitterServiceDetail = () => {
         .maybeSingle();
 
       if (baseService && baseService.service_photos) {
-        // 💡 在這裡手動排序：由小到大 (1, 2, 3...)
+        // 排序：由小到大 (1, 2, 3...)
         baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
       }
       setServiceDetail(baseService);
@@ -187,7 +185,6 @@ const SitterServiceDetail = () => {
 
   return (
     <>
-      {/* {JSON.stringify(user)} */}
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
@@ -198,7 +195,6 @@ const SitterServiceDetail = () => {
         <div className="container">
           <div id="carouselExample" className="carousel slide mb-4 position-relative">
 
-            {/* --- 指示點 (Indicators) --- */}
             {/* 無論單張或多張都渲染，單張時 Bootstrap 預設會顯示為單一個長條 */}
             <div className="carousel-indicators">
               {serviceDetail?.service_photos?.map((_, index) => (
@@ -231,7 +227,7 @@ const SitterServiceDetail = () => {
                   </div>
                 ))
               ) : (
-                // 若連主圖都沒有的防呆處理 (可選)
+                // 若連主圖都沒有的防呆處理
                 <div className="carousel-item h-100 active bg-light d-flex justify-content-center align-items-center">
                   <span className="text-muted">尚無照片</span>
                 </div>
@@ -239,7 +235,7 @@ const SitterServiceDetail = () => {
             </div>
 
             {/* --- 左右箭頭控制 (Controls) --- */}
-            {/* 💡 條件渲染：只有當 hasMultiplePhotos 為 true 時才顯示 */}
+            {/*條件渲染：只有當 hasMultiplePhotos 為 true 時才顯示 */}
             {serviceDetail?.service_photos?.length > 0 && (
               <>
                 <button
@@ -265,44 +261,6 @@ const SitterServiceDetail = () => {
 
           </div>
         </div>
-
-        {/* <div className="container">
-          <div id="carouselExample" className=" carousel slide mb-4 position-relative">
-
-            <div className="carousel-indicators">
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
-            </div>
-
-
-            <div className="carousel-inner rounded-4 carousel_sitter-service-detail" style={{}}>
-              <div className="carousel-item h-100 active">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
-              </div>
-
-              <div className="carousel-item h-100">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
-              </div>
-
-              <div className="carousel-item h-100">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
-              </div>
-
-            </div>
-
-            <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-              <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span className="visually-hidden">Previous</span>
-            </button>
-
-            <button className="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-              <span className="carousel-control-next-icon" aria-hidden="true"></span>
-              <span className="visually-hidden">Next</span>
-            </button>
-
-          </div>
-        </div> */}
 
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-7">
@@ -393,10 +351,9 @@ const SitterServiceDetail = () => {
 
         <div className="container">
           {/* 服務時間區塊 */}
-          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2 , borderRadius: "30px" }}>
+          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2 , borderRadius: "20px" }}>
             <h5 className="text-primary text-center mb-4 fw-bold" >服務時間</h5>
 
-            {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
             <div className="row row-cols-7 g-7 flex-sm-row flex-column">
               {allSchedules.sort((a, b) =>
                 weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week)).map(day => (
@@ -458,8 +415,8 @@ const SitterServiceDetail = () => {
           </div>
         </div>
 
-        <div className="mt-5" style={{
-          backgroundColor: '#FFB22C33'
+        <div className="mt-5 bg-secondary" style={{
+          '--bs-bg-opacity': .2
         }}>
           <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
             <div className="d-flex justify-content-center align-items-center">
@@ -481,8 +438,8 @@ const SitterServiceDetail = () => {
 
             {/* 評論區容器：設定固定高度與溢出捲動 */}
             <div
-              className="px-3 py-2 mt-8 rounded"
-              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee', backgroundColor: '#FEF3E2' }}
+              className="px-3 py-2 mt-8 rounded bg-primary-01"
+              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee',  }}
             >
 
               {/* 單一評論卡片 */}
