@@ -1,4 +1,4 @@
-import * as bootstrap from 'bootstrap'
+// import * as bootstrap from 'bootstrap'
 // import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { NavLink } from "react-router"
 import logo from "../../src/images/logo.png"
@@ -9,22 +9,21 @@ import becomeIcon from "../../src/images/icons/become_icon.png"
 import shieldIcon from "../../src/images/icons/shield_icon.png"
 import faqIcon from "../../src/images/icons/faq_icon.png"
 import LogInModal from "../../src/components/LogInModal"
-import { useEffect, useRef } from "react"
+// import { useEffect, useState } from "react"
 
 const Header = () => {
-  const loginModalRef = useRef(null);
-
-  useEffect(() => {
-    loginModalRef.current = new bootstrap.Modal('#loginModal', {
-      keyboard: false
-    });
-    // modal 關閉移除焦點
-    document.querySelector("#loginModal").addEventListener("hidden.bs.modal", () => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    });
-  }, []);
+  // const loginModalRef = useRef(null);
+  // useEffect(() => {
+  //   loginModalRef.current = new bootstrap.Modal('#loginModal', {
+  //     keyboard: false
+  //   });
+  //   // modal 關閉移除焦點
+  //   document.querySelector("#loginModal").addEventListener("hidden.bs.modal", () => {
+  //     if (document.activeElement instanceof HTMLElement) {
+  //       document.activeElement.blur();
+  //     }
+  //   });
+  // }, []);
 
   // const showModal = () => {
   //   loginModalRef.current.show();
