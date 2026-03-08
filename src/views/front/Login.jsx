@@ -66,10 +66,7 @@ function Login() {
               <div className="mb-3">
                 <label htmlFor="password" className="form-label">密碼</label>
                 <input id="password" type="password" className="form-control" name="password"
-                  {...register("password", {
-                    required: "請輸入密碼",
-                    // minLength: { value: 6, message: "密碼至少 6 位元" }
-                  })} />
+                  {...register("password", {required: "請輸入密碼",})} />
                 {errors.password && <p className="text-danger">{errors.password.message}</p>}
               </div>
 

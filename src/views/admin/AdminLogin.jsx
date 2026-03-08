@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { setAdminLogin } from "../../slices/adminAuthSlice";
+import { supabase } from "../../lib/supabaseClient";
 
 function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -9,20 +12,37 @@ function AdminLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+  const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting, isValid }
+    } = useForm({
+      mode: "onChange",
+    });
+
+  
+
+  const handleLogin = async (loginInfo) => {
+    console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       // 1. 執行 Supabase 登入
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email:loginInfo.email,
+        password:loginInfo.password,
       });
 
       if (authError) throw authError;
 
-      const userId = authData.user.id; // 這裡假設你的 users 表 id 跟 auth.uid 有關聯或相同
+      const { data: userData } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', authData.user.email)
+          .maybeSingle();
+
+      const userId = userData.id; 
+
+
 
       // 2. 檢查是否為 admin 角色
       const { data: roleData, error: roleError } = await supabase
@@ -40,7 +60,7 @@ function AdminLogin() {
 
       // 3. 驗證成功，寫入 Redux 並跳轉
       dispatch(setAdminLogin(authData.user));
-      navigate('/admin/orders');
+      navigate('/admin/adminbookings');
 
     } catch (err) {
       setError(err.message || '登入失敗，請檢查帳號密碼');
@@ -56,14 +76,18 @@ function AdminLogin() {
               <div className="card-body">
                 <h3 className="card-title text-center mb-4">後台管理登入</h3>
                 {error && <div className="alert alert-danger">{error}</div>}
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSubmit(handleLogin)}>
                   <div className="mb-3">
                     <label className="form-label">Email</label>
-                    <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <input id="email" type="email" name="email" className="form-control"
+                    {...register("email", { required: "請輸入 Email" })}/>
+                    {errors.email && <p className="text-danger">{errors.email.message}</p>}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">密碼</label>
-                    <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <input id="password" type="password" name="password" className="form-control"
+                    {...register("password", {required: "請輸入密碼",})}/>
+                    {errors.password && <p className="text-danger">{errors.password.message}</p>}
                   </div>
                   <button type="submit" className="btn btn-primary w-100">登入</button>
                 </form>

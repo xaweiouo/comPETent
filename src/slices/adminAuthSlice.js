@@ -1,13 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-  isAdminAuthenticated: false,
-  adminUser: null,
-};
-
 const adminAuthSlice = createSlice({
   name: 'adminAuth',
-  initialState,
+  initialState: {
+    isAdminAuthenticated: false,
+    adminUser: null,
+  },
   reducers: {
     setAdminLogin: (state, action) => {
       state.isAdminAuthenticated = true;

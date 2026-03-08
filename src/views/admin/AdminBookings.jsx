@@ -55,6 +55,11 @@ function AdminBookings() {
 
   if (loading) return <div className="text-center mt-5">載入中...</div>;
 
+  // 如果未登入，導向後台登入頁
+  // if (!isAdminAuthenticated) {
+  //   navigate('/admin/adminlogin');
+  // }
+
   return (
     <>
       <div className="card shadow-sm">
