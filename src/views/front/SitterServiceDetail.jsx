@@ -14,6 +14,10 @@ import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
 import love_icon from '../../images/icons/love_icon.png';
 import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
 import location_icon from '../../images/icons/location_icon.png';
+import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
+import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
+import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
+import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
 
 
 const SitterServiceDetail = () => {
@@ -26,6 +30,7 @@ const SitterServiceDetail = () => {
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
 
   const params = useParams();
   const { id } = params;
@@ -93,7 +98,7 @@ const SitterServiceDetail = () => {
         baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
       }
       setServiceDetail(baseService);
-      console.log('servicedetail:', baseService);
+
       if (baseError) throw baseError;
 
       // 2. 根據保母 ID 和 類別，抓取所有相關時段
@@ -103,7 +108,7 @@ const SitterServiceDetail = () => {
         .eq('sitter_id', baseService.sitter_id)
         .eq('category', baseService.category);
       setAllSchedules(schedules);
-      console.log('schedules:', schedules);
+
       if (scheduleError) throw scheduleError;
 
       // 3. 取得該保母的所有評論
@@ -115,7 +120,6 @@ const SitterServiceDetail = () => {
         `)
         .eq('sitter_id', baseService.sitter_id);
       setReviews(reviewData);
-      console.log('reviews:', reviewData);
       if (reviewError) throw reviewError;
 
       // 4. 檢查收藏狀態 (若已登入)
@@ -132,11 +136,23 @@ const SitterServiceDetail = () => {
           .eq('owner_id', userData.id)
           .eq('sitter_id', baseService.sitter_id)
           .maybeSingle();
+
+        // 判斷是否已經預約過此服務 (且訂單仍在進行中)
+        const { data: bookingData } = await supabase
+          .from('bookings')
+          .select('id') // 只需要拿 id 判斷是否存在即可
+          .eq('owner_id', userData.id)
+          .eq('service_id', baseService.id) // 比對目前的服務 ID
+          .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
+          .order('created_at', { ascending: false }) // 若有多筆，拿最新的
+          .limit(1)
+          .maybeSingle();
+
         setUserId(userData.id);
         setIsFavorite(!!favData);
-        console.log('favorite:', favData);
-        console.log('faveError:', favError);
-        console.log('user:', user)
+
+        // 如果有查到訂單資料，isBooking 就會是 true
+        setIsBooking(!!bookingData);
       }
     } catch (error) {
       console.log('Error fetching details:', error.message);
@@ -304,7 +320,7 @@ const SitterServiceDetail = () => {
 
           </div>
 
-          <div className="row row-cols-1 row-cols-sm-2 g-4">
+          <div className="row row-cols-1 row-cols-md-2 g-4">
 
             <div className="col">
               <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
@@ -349,15 +365,15 @@ const SitterServiceDetail = () => {
 
 
 
-        <div className="container">
+        <div className="container pb-7">
           {/* 服務時間區塊 */}
-          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2 , borderRadius: "20px" }}>
+          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2, borderRadius: "20px" }}>
             <h5 className="text-primary text-center mb-4 fw-bold" >服務時間</h5>
 
             <div className="row row-cols-7 g-7 flex-sm-row flex-column">
               {allSchedules.sort((a, b) =>
                 weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week)).map(day => (
-                  <div className="col">
+                  <div key={day.day_of_week} className="col">
                     <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
                       <div className="fw-bold mb-3 text-dark">
@@ -365,9 +381,8 @@ const SitterServiceDetail = () => {
                       </div>
 
                       <div
-                        // key={idx}
                         className="small py-1 mb-2 text-white fw-medium bg-info"
-                        style={{  borderRadius: "10px" }}
+                        style={{ borderRadius: "10px" }}
                       >
                         {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
                       </div>
@@ -379,7 +394,7 @@ const SitterServiceDetail = () => {
           </div>
 
           {/* 下方按鈕區塊 */}
-          <div className="row mt-4 g-3">
+          <div className="row mt-4 g-3 align-items-center">
             <div className="col-6">
               <button
                 className="btn btn-border-radius border border-2 border-primary bg-transparent w-100 py-2 fw-bold text-primary shadow-sm"
@@ -390,34 +405,50 @@ const SitterServiceDetail = () => {
             <div className="col-6">
               <button
                 className="btn btn-border-radius w-100 py-2 fw-bold bg-primary text-white shadow-sm"
-                
+
                 onClick={() => {
-                  if (isAuthenticated) {
+                  if (!isAuthenticated) {
+                    alert('請先登入');
+                    return
+
+
+                    // navigate('booking', {
+                    //   state: {
+                    //     serviceId: serviceDetail.id,
+                    //     sitterId: serviceDetail.sitter_id,
+                    //   },
+                    // });
+                  }
+
+                  // 已經登入後，判斷是否有預約
+                  if (isBooking) {
+                    // 若已預約 -> 導向訂單詳情頁
+                    navigate('/');
+                  } else {
+                    // 若未預約 -> 導向預約流程頁
                     navigate('booking', {
                       state: {
                         serviceId: serviceDetail.id,
                         sitterId: serviceDetail.sitter_id,
                       },
                     });
-                  } else {
-                    alert('請先登入')
                   }
 
-                  // if (!detail.id || !detail.sitter_id) {
-                  //   alert('請先選擇一個保母服務');
-                  //   return;
-                  // }             
                 }}
               >
-                開始預約
+                {isBooking ? '已預約，查看訂單詳情' : '開始預約'}
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-5 bg-secondary" style={{
+
+
+        <div className=" bg-secondary" style={{
           '--bs-bg-opacity': .2
         }}>
+          <img src={top_dec} alt="" className="w-100 d-none d-sm-block"/>
+          <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none"/>
           <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
             <div className="d-flex justify-content-center align-items-center">
 
@@ -439,13 +470,13 @@ const SitterServiceDetail = () => {
             {/* 評論區容器：設定固定高度與溢出捲動 */}
             <div
               className="px-3 py-2 mt-8 rounded bg-primary-01"
-              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee',  }}
+              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee', }}
             >
 
               {/* 單一評論卡片 */}
               {
                 reviews.map(review =>
-                  <div className="card border-0 shadow-sm mb-3">
+                  <div key={review.id} className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
                       <div className="d-flex flex-column">
                         <div className="d-flex justify-content-between align-items-center">
@@ -475,6 +506,8 @@ const SitterServiceDetail = () => {
 
             </div>
           </div>
+          <img src={bot_dec} alt="" className="w-100 d-none d-sm-block"/>
+          <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none"/>
         </div>
 
 
