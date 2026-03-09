@@ -1,7 +1,8 @@
+//SitterBookingDetail.jsx
 import React from "react";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import CancelBookingModal from "../../components/CancelBookingModal";
 import feetIcon from "../../images/icons/feet_icon.png";
 import dogIcon from "../../images/icons/dog_icon.png";
