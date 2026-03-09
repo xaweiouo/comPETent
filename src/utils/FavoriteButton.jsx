@@ -1,5 +1,5 @@
 // src/utils/FavoriteButton.jsx
-import { supabase } from "../lib/supabaseClient.js";
+import { supabase } from "../lib/supabaseClient";
 
 export function FavoriteButton({
   sitterId,

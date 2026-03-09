@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
 
 /* 替換左箭頭 */
 .carousel-control-prev-icon {
@@ -59,7 +59,7 @@
   border-radius: 10px !important;
   /* 只要大於高度的一半，就會維持圓角膠囊狀 */
   opacity: 1;
-  background-color: #E54C00;
+  background-color: $primary-06;
   /* 選中變色 */
 }
 
