@@ -6,6 +6,8 @@ import SitterServiceDetail from "./views/front/SitterServiceDetail";
 import SitterBookingForm from "./views/front/SitterBookingForm";
 import NotFound from "./views/front/NotFound";
 import OwnerProfile from "./views/front/OwnerProfile";
+import SitterBookingDetail from "./views/front/SitterBookingDetail";
+import OwnerBookingDetail from "./views/front/OwnerBookingDetail";
 import Login from "./views/front/Login";
 // import LookForPetSitter2 from "./views/front/LookForPetSitter2";
 
@@ -37,6 +39,14 @@ export const router = createHashRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "sitter/bookings/:id",
+        element: <SitterBookingDetail />,
+      },
+      {
+        path: "owner/bookings/:id",
+        element: <OwnerBookingDetail />,
       },
     ],
   },
