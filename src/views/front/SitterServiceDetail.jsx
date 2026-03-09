@@ -5,6 +5,8 @@ import { data, Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
+import { weekSorter } from "../../utils/mandarinWeekDay";
+import { mandarinPetSpecies } from "../../utils/mandarinPetSpecies";
 
 import { useSelector } from "react-redux";
 
@@ -12,32 +14,28 @@ import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
 import love_icon from '../../images/icons/love_icon.png';
 import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
 import location_icon from '../../images/icons/location_icon.png';
+import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
+import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
+import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
+import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
 
 
 const SitterServiceDetail = () => {
   const [isChecking, setIsChecking] = useState(true);
-  const [notFound, setNotFound] = useState(false);   // 是否確認資料不存在
+  const [notFound, setNotFound] = useState(false);   // 確認資料是否存在
 
   const [userId, setUserId] = useState(null);
-  const [serviceDetail, setServiceDetail] = useState(null); // 基礎資訊
+  const [serviceDetail, setServiceDetail] = useState([]); // 基礎資訊
+
   const [allSchedules, setAllSchedules] = useState([]); // 整合後的時段
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
 
   const params = useParams();
   const { id } = params;
 
   const { user, isAuthenticated } = useSelector(state => state.auth);
-
-  const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-
-  // 自定義顏色變數
-  const colors = {
-    bgLight: "#fcf6e9",
-    containerBg: "#f9e4c8",
-    orangeMain: "#e66b15",
-    timeBg: "#e68a39"
-  };
 
   const navigate = useNavigate();
 
@@ -94,8 +92,13 @@ const SitterServiceDetail = () => {
         `)
         .eq('id', id)
         .maybeSingle();
+
+      if (baseService && baseService.service_photos) {
+        // 排序：由小到大 (1, 2, 3...)
+        baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
+      }
       setServiceDetail(baseService);
-      console.log('servicedetail:', baseService);
+
       if (baseError) throw baseError;
 
       // 2. 根據保母 ID 和 類別，抓取所有相關時段
@@ -105,7 +108,7 @@ const SitterServiceDetail = () => {
         .eq('sitter_id', baseService.sitter_id)
         .eq('category', baseService.category);
       setAllSchedules(schedules);
-      console.log('schedules:', schedules);
+
       if (scheduleError) throw scheduleError;
 
       // 3. 取得該保母的所有評論
@@ -117,7 +120,6 @@ const SitterServiceDetail = () => {
         `)
         .eq('sitter_id', baseService.sitter_id);
       setReviews(reviewData);
-      console.log('reviews:', reviewData);
       if (reviewError) throw reviewError;
 
       // 4. 檢查收藏狀態 (若已登入)
@@ -134,11 +136,23 @@ const SitterServiceDetail = () => {
           .eq('owner_id', userData.id)
           .eq('sitter_id', baseService.sitter_id)
           .maybeSingle();
+
+        // 判斷是否已經預約過此服務 (且訂單仍在進行中)
+        const { data: bookingData } = await supabase
+          .from('bookings')
+          .select('id') // 只需要拿 id 判斷是否存在即可
+          .eq('owner_id', userData.id)
+          .eq('service_id', baseService.id) // 比對目前的服務 ID
+          .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
+          .order('created_at', { ascending: false }) // 若有多筆，拿最新的
+          .limit(1)
+          .maybeSingle();
+
         setUserId(userData.id);
         setIsFavorite(!!favData);
-        console.log('favorite:', favData);
-        console.log('faveError:', favError);
-        console.log('user:', user)
+
+        // 如果有查到訂單資料，isBooking 就會是 true
+        setIsBooking(!!bookingData);
       }
     } catch (error) {
       console.log('Error fetching details:', error.message);
@@ -187,7 +201,6 @@ const SitterServiceDetail = () => {
 
   return (
     <>
-      {/* {JSON.stringify(user)} */}
       <div className="">
         <div className="container">
           <img src={left_chevron_icon} alt="" />
@@ -196,61 +209,92 @@ const SitterServiceDetail = () => {
 
         {/* 輪播 */}
         <div className="container">
-          <div id="carouselExample" className=" carousel slide mb-4 position-relative">
+          <div id="carouselExample" className="carousel slide mb-4 position-relative">
 
+            {/* 無論單張或多張都渲染，單張時 Bootstrap 預設會顯示為單一個長條 */}
             <div className="carousel-indicators">
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
-              <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
+              {serviceDetail?.service_photos?.map((_, index) => (
+                <button
+                  key={`indicator-${index}`}
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide-to={index}
+                  className={index === 0 ? "active" : ""} // 第一個預設 active
+                  aria-current={index === 0 ? "true" : undefined}
+                  aria-label={`Slide ${index + 1}`}
+                ></button>
+              ))}
             </div>
 
-
-            <div className="carousel-inner rounded-4 carousel_sitter-service-detail" style={{}}>
-              <div className="carousel-item h-100 active">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" style={{ objectFit: 'cover', objectPosition: 'center' }} alt="..." />
-              </div>
-
-              <div className="carousel-item h-100">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
-              </div>
-
-              <div className="carousel-item h-100">
-                <img src={serviceDetail?.photo_url} className="d-block w-100 h-100" alt="..." />
-              </div>
-
+            {/* --- 輪播圖片 (Carousel Items) --- */}
+            <div className="carousel-inner rounded-4 carousel_sitter-service-detail">
+              {serviceDetail?.service_photos?.length > 0 ? (
+                serviceDetail?.service_photos?.map((photo, index) => (
+                  <div
+                    key={`photo-${index}`}
+                    className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+                  >
+                    <img
+                      src={photo.photo_url}
+                      className="d-block w-100 h-100"
+                      style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      alt={`服務照片 ${index + 1}`}
+                    />
+                  </div>
+                ))
+              ) : (
+                // 若連主圖都沒有的防呆處理
+                <div className="carousel-item h-100 active bg-light d-flex justify-content-center align-items-center">
+                  <span className="text-muted">尚無照片</span>
+                </div>
+              )}
             </div>
 
-            <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-              <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span className="visually-hidden">Previous</span>
-            </button>
-
-            <button className="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-              <span className="carousel-control-next-icon" aria-hidden="true"></span>
-              <span className="visually-hidden">Next</span>
-            </button>
+            {/* --- 左右箭頭控制 (Controls) --- */}
+            {/*條件渲染：只有當 hasMultiplePhotos 為 true 時才顯示 */}
+            {serviceDetail?.service_photos?.length > 0 && (
+              <>
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="prev"
+                >
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
+                </button>
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#carouselExample"
+                  data-bs-slide="next"
+                >
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
+                </button>
+              </>
+            )}
 
           </div>
         </div>
 
         <div className="container">
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-7" style={{ width: '93.83%' }}>
+          <div className="d-flex justify-content-between align-items-center mb-7">
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center" style={{ width: '93.83%' }}>
 
-              <div className="d-flex align-items-center mb-10">
+              <div className="d-flex align-items-center">
                 <img
                   src={serviceDetail?.users?.avatar_url}
                   className="user_avatar rounded-circle border border-secondary border-2 me-4"
                   alt="User Avatar"
-                  style={{}}
                 />
-                <h2 className="me-10" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>{serviceDetail?.users?.nickname}</h2>
-                <span className="badge rounded-pill bg-transparent text-dark fs-5 px-2 py-2" style={{ border: '2px solid #FA812F' }}>保母</span>
+                <p className="fs-2 fw-bold me-10 mb-0" style={{ marginBottom: 0 }}>{serviceDetail?.users?.nickname}</p>
+                <span className="badge border border-2 border-info rounded-pill bg-transparent text-dark fs-5 px-2 py-2">保母</span>
               </div>
 
               <div className="d-flex align-items-center">
-                <p className="h5 me-2" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>NT$</p>
-                <p className="h5" style={{ color: '#FF5400', fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700, fontSize: '28px' }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
+                <p className="me-2 text-primary fw-bold fs-5 mb-0" style={{ marginBottom: 0 }}>NT$</p>
+                <p className="text-primary fw-bold fs-3 mb-0" style={{ marginBottom: 0 }}>{serviceDetail?.price_per_30min != null ? `${serviceDetail?.price_per_30min} / 30分鐘` : serviceDetail?.price_per_day != null ? `${serviceDetail?.price_per_day} / 天` : `${serviceDetail?.price_per_session} / 次`}</p>
               </div>
 
 
@@ -258,7 +302,7 @@ const SitterServiceDetail = () => {
 
             {isFavorite ? (
               <div
-                className="ms-8 me-3 mb-7"
+                className="ms-8 me-3 align-self-center"
                 style={{ cursor: 'pointer' }}
                 onClick={handleToggleFavorite}
               >
@@ -266,7 +310,7 @@ const SitterServiceDetail = () => {
               </div>
             ) : (
               <div
-                className="ms-8 me-3 mb-7"
+                className="ms-8 me-3 align-self-centers"
                 style={{ cursor: 'pointer' }}
                 onClick={handleToggleFavorite}
               >
@@ -276,7 +320,7 @@ const SitterServiceDetail = () => {
 
           </div>
 
-          <div className="row row-cols-1 row-cols-sm-2 g-4">
+          <div className="row row-cols-1 row-cols-md-2 g-4">
 
             <div className="col">
               <div className="d-flex flex-column bg-white bg-opacity-50 rounded-4 px-7 py-10" style={{ height: '106px' }}>
@@ -289,7 +333,7 @@ const SitterServiceDetail = () => {
                 </div>
                 <div>
                   <img src={location_icon} alt="" />
-                  {serviceDetail?.locations.city + ' ' + serviceDetail?.locations.district}
+                  {serviceDetail?.locations?.city + ' ' + serviceDetail?.locations?.district}
                 </div>
               </div>
             </div>
@@ -307,7 +351,7 @@ const SitterServiceDetail = () => {
                   <p className="mb-7 ms-sm-4" style={{ fontFamily: '"Noto Sans TC",sans-serif', fontWeight: 700 }}>
                     服務寵物
                     <span className="badge rounded-pill text-bg-light border ms-10">
-                      {serviceDetail?.species}
+                      {mandarinPetSpecies(serviceDetail?.species)}
                     </span>
                   </p>
                 </div>
@@ -321,16 +365,15 @@ const SitterServiceDetail = () => {
 
 
 
-        <div className="container">
+        <div className="container pb-7">
           {/* 服務時間區塊 */}
-          <div className="p-4 p-md-5 shadow-sm mt-8" style={{ backgroundColor: '#FA812F33', borderRadius: "30px" }}>
+          <div className="p-4 p-md-5 shadow-sm mt-8 bg-info" style={{ '--bs-bg-opacity': .2, borderRadius: "20px" }}>
             <h5 className="text-primary text-center mb-4 fw-bold" >服務時間</h5>
 
-            {/* 使用橫向捲軸以防小螢幕擠壓，或在 md 以上平鋪 */}
             <div className="row row-cols-7 g-7 flex-sm-row flex-column">
               {allSchedules.sort((a, b) =>
                 weekSorter.indexOf(a.day_of_week) - weekSorter.indexOf(b.day_of_week)).map(day => (
-                  <div className="col">
+                  <div key={day.day_of_week} className="col">
                     <div className="bg-white h-100 p-3 text-center border-0 shadow-sm" style={{ borderRadius: "15px" }}>
 
                       <div className="fw-bold mb-3 text-dark">
@@ -338,9 +381,8 @@ const SitterServiceDetail = () => {
                       </div>
 
                       <div
-                        // key={idx}
-                        className="small py-1 mb-2 text-white fw-medium"
-                        style={{ backgroundColor: '#FA812F', borderRadius: "10px" }}
+                        className="small py-1 mb-2 text-white fw-medium bg-info"
+                        style={{ borderRadius: "10px" }}
                       >
                         {day.start_time.slice(0, -3)} ~ {day.end_time.slice(0, -3)}
                       </div>
@@ -352,55 +394,61 @@ const SitterServiceDetail = () => {
           </div>
 
           {/* 下方按鈕區塊 */}
-          <div className="row mt-4 g-3">
+          <div className="row mt-4 g-3 align-items-center">
             <div className="col-6">
               <button
-                className="btn w-100 py-2 fw-bold shadow-sm"
-                style={{
-                  color: '#FF5400',
-                  border: `2px solid #FF5400`,
-                  borderRadius: "50px",
-                  backgroundColor: "transparent"
-                }}
+                className="btn btn-border-radius border border-2 border-primary bg-transparent w-100 py-2 fw-bold text-primary shadow-sm"
               >
                 聯絡保母
               </button>
             </div>
             <div className="col-6">
               <button
-                className="btn w-100 py-2 fw-bold text-white shadow-sm"
-                style={{
-                  backgroundColor: '#FF5400',
-                  borderRadius: "50px",
-                  border: "none"
-                }}
+                className="btn btn-border-radius w-100 py-2 fw-bold bg-primary text-white shadow-sm"
+
                 onClick={() => {
-                  if (isAuthenticated) {
+                  if (!isAuthenticated) {
+                    alert('請先登入');
+                    return
+
+
+                    // navigate('booking', {
+                    //   state: {
+                    //     serviceId: serviceDetail.id,
+                    //     sitterId: serviceDetail.sitter_id,
+                    //   },
+                    // });
+                  }
+
+                  // 已經登入後，判斷是否有預約
+                  if (isBooking) {
+                    // 若已預約 -> 導向訂單詳情頁
+                    navigate('/');
+                  } else {
+                    // 若未預約 -> 導向預約流程頁
                     navigate('booking', {
                       state: {
                         serviceId: serviceDetail.id,
                         sitterId: serviceDetail.sitter_id,
                       },
                     });
-                  } else {
-                    alert('請先登入')
                   }
 
-                  // if (!detail.id || !detail.sitter_id) {
-                  //   alert('請先選擇一個保母服務');
-                  //   return;
-                  // }             
                 }}
               >
-                開始預約
+                {isBooking ? '已預約，查看訂單詳情' : '開始預約'}
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-5" style={{
-          backgroundColor: '#FFB22C33'
+
+
+        <div className=" bg-secondary" style={{
+          '--bs-bg-opacity': .2
         }}>
+          <img src={top_dec} alt="" className="w-100 d-none d-sm-block"/>
+          <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none"/>
           <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
             <div className="d-flex justify-content-center align-items-center">
 
@@ -416,39 +464,41 @@ const SitterServiceDetail = () => {
               </svg>
 
 
-              <h2 className="ms-3" style={{ color: '#FF5400' }}>好評推薦</h2>
+              <h2 className="ms-3 text-primary" >好評推薦</h2>
             </div>
 
             {/* 評論區容器：設定固定高度與溢出捲動 */}
             <div
-              className="px-3 py-2 mt-8 rounded"
-              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee', backgroundColor: '#FEF3E2' }}
+              className="px-3 py-2 mt-8 rounded bg-primary-01"
+              style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #eee', }}
             >
 
               {/* 單一評論卡片 */}
               {
                 reviews.map(review =>
-                  <div className="card border-0 shadow-sm mb-3">
+                  <div key={review.id} className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div className="d-flex align-items-center mb-2">
-
-                          <img
-                            src={review.users.avatar_url}
-                            className="rounded-circle me-3"
-                            alt="Avatar"
-                            style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-                          />
-                          <div>
-                            <h6 className="mb-0 fw-bold">{review.users.nickname}</h6>
-                            <div className="text-warning">
+                      <div className="d-flex flex-column">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="d-flex flex-column align-items-start mb-2">
+                            <div className="d-flex align-items-center mb-10">
+                              <img
+                                src={review.users.avatar_url}
+                                className="rounded-circle me-3"
+                                alt="Avatar"
+                                style={{ width: '48px', height: '48px', objectFit: 'cover' }}
+                              />
+                              <h6 className="mb-0 fw-bold">{review.users.nickname}</h6>
+                            </div>
+                            <div>
                               {starRating(review.rating)}
                             </div>
                           </div>
+
+                          <small className="text-muted">2026/01/02</small>
                         </div>
-                        <small className="text-muted">2026/01/02</small>
+                        <p className="card-text mt-2">{review.comment}</p>
                       </div>
-                      <p className="card-text mt-2">{review.comment}</p>
                     </div>
                   </div>
                 )
@@ -456,6 +506,8 @@ const SitterServiceDetail = () => {
 
             </div>
           </div>
+          <img src={bot_dec} alt="" className="w-100 d-none d-sm-block"/>
+          <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none"/>
         </div>
 
 

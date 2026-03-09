@@ -49,13 +49,25 @@ export const router = createHashRouter([
       },
     ],
   },
+  // 後台路由區塊
+  // ----------------------------------------
+  {
+    // 1. 獨立的後台登入頁面 (不受 AdminLayout 保護)
+    path: "/admin/adminlogin", 
+    element: <AdminLogin />,
+  },
   {
     path: "/admin",
     element: <AdminLayout />,
     children: [
+      // {
+      //   path: "adminlogin", 
+      //   element: <AdminLogin />,
+      // },
       {
-        path: "adminlogin", 
-        element: <AdminLogin />,
+        index: true, 
+        // 當只輸入 /admin 時，自動導向到訂單管理頁面
+        element: <AdminBookings />,
       },
       {
         path: "adminbookings", 
