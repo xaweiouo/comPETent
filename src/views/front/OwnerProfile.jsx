@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
@@ -23,6 +23,10 @@ function OwnerProfile() {
     orange: '#D35400', // 橘棕強調色
     textDark: '#333333',
   };
+
+  const petMap=useMemo(()=>{
+    return ownerPets.reduce((acc,pet)=>({...acc,[pet.id]:pet.name}),{})}
+    ,[ownerPets])
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -98,7 +102,7 @@ function OwnerProfile() {
           <div className="position-relative mb-5">
             {/* 背景大圖 (高度稍微調低，讓視覺焦點更集中在頭像) */}
             <img
-              src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80"
+              src={ownerProfile?.cover_url}
               alt="Hero Background"
               className="w-100 object-fit-cover rounded-4 shadow-sm"
               style={{ height: '451px' }}
@@ -158,10 +162,10 @@ function OwnerProfile() {
             {activeTab === 'pets' ? (
               /* -------- [標籤 A] 我的寵物 內容 -------- */
               <div className="col-12">
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                {/* <div className="d-flex justify-content-between align-items-center mb-3"> */}
                   {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
                   {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
-                </div>
+                {/* </div> */}
 
                 <div className="row g-3">
                   {ownerPets?.map(pet=>(
@@ -177,12 +181,12 @@ function OwnerProfile() {
                 {/* 預約紀錄卡片 */}
                 {ownerBooking?.map(b => (
 
-                  <div className="card border-0 rounded-4 shadow-sm mb-3">
+                  <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
                     <div className="card-body p-4 d-flex justify-content-between align-items-center">
                       <div>
                         <span className="badge bg-success rounded-pill mb-2">即將到來</span>
                         <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                        <p className="text-muted mb-0">{b.arrival_date+' '+b.arrival_time+'~'+b.departure_time}  ｜ 服務對象：</p>
+                        <p className="text-muted mb-0">{b.arrival_date+' '+b.arrival_time+'~'+b.departure_time}  ｜ 服務對象：{petMap[b.pet_id]}</p>
                       </div>
                       <div className="text-end">
                         <h5 className="fw-bold mb-2" style={{ color: theme.orange }}>NT$ {b.total_price}</h5>
