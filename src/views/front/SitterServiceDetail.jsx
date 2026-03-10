@@ -1,7 +1,7 @@
 import { supabase } from "../../lib/supabaseClient";
 
 import { useEffect, useState } from "react";
-import { data, Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
@@ -63,7 +63,7 @@ const SitterServiceDetail = () => {
 
         // 情況 B: 資料存在
         setIsChecking(false);
-      } catch (err) {
+      } catch {
         setNotFound(true);
         setIsChecking(false);
         setTimeout(() => navigate('/lookforpetsitter', { replace: true }), 3000);
@@ -76,88 +76,167 @@ const SitterServiceDetail = () => {
   }, [id, navigate]);
 
   useEffect(() => {
-    fetchData();
-  }, [id, user]);
-
-  const fetchData = async () => {
-    try {
-      // 1. 取得該服務的基本資訊與保母資訊
-      const { data: baseService, error: baseError } = await supabase
-        .from('services')
-        .select(`
+    const fetchData = async () => {
+      try {
+        // 1. 取得該服務的基本資訊與保母資訊
+        const { data: baseService, error: baseError } = await supabase
+          .from('services')
+          .select(`
           *,
           users!services_sitter_id_fkey (id, nickname, avatar_url),
           locations (city, district),
           service_photos (photo_url, sort_order)
         `)
-        .eq('id', id)
-        .maybeSingle();
+          .eq('id', id)
+          .maybeSingle();
 
-      if (baseService && baseService.service_photos) {
-        // 排序：由小到大 (1, 2, 3...)
-        baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
-      }
-      setServiceDetail(baseService);
+        if (baseService && baseService.service_photos) {
+          // 排序：由小到大 (1, 2, 3...)
+          baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
+        }
+        setServiceDetail(baseService);
 
-      if (baseError) throw baseError;
+        if (baseError) throw baseError;
 
-      // 2. 根據保母 ID 和 類別，抓取所有相關時段
-      const { data: schedules, error: scheduleError } = await supabase
-        .from('services')
-        .select('id, day_of_week, start_time, end_time')
-        .eq('sitter_id', baseService.sitter_id)
-        .eq('category', baseService.category);
-      setAllSchedules(schedules);
+        // 2. 根據保母 ID 和 類別，抓取所有相關時段
+        const { data: schedules, error: scheduleError } = await supabase
+          .from('services')
+          .select('id, day_of_week, start_time, end_time')
+          .eq('sitter_id', baseService.sitter_id)
+          .eq('category', baseService.category);
+        setAllSchedules(schedules);
 
-      if (scheduleError) throw scheduleError;
+        if (scheduleError) throw scheduleError;
 
-      // 3. 取得該保母的所有評論
-      const { data: reviewData, error: reviewError } = await supabase
-        .from('reviews')
-        .select(`
+        // 3. 取得該保母的所有評論
+        const { data: reviewData, error: reviewError } = await supabase
+          .from('reviews')
+          .select(`
           id, rating, comment,
           users!reviews_owner_id_fkey (nickname, avatar_url)
         `)
-        .eq('sitter_id', baseService.sitter_id);
-      setReviews(reviewData);
-      if (reviewError) throw reviewError;
+          .eq('sitter_id', baseService.sitter_id);
+        setReviews(reviewData);
+        if (reviewError) throw reviewError;
 
-      // 4. 檢查收藏狀態 (若已登入)
-      if (user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('id')
-          .eq('email', user.email)
-          .maybeSingle();
+        // 4. 檢查收藏狀態 (若已登入)
+        if (user) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', user.email)
+            .maybeSingle();
 
-        const { data: favData, error: favError } = await supabase
-          .from('favorites')
-          .select('id')
-          .eq('owner_id', userData.id)
-          .eq('sitter_id', baseService.sitter_id)
-          .maybeSingle();
+          const { data: favData } = await supabase
+            .from('favorites')
+            .select('id')
+            .eq('owner_id', userData.id)
+            .eq('sitter_id', baseService.sitter_id)
+            .maybeSingle();
 
-        // 判斷是否已經預約過此服務 (且訂單仍在進行中)
-        const { data: bookingData } = await supabase
-          .from('bookings')
-          .select('id') // 只需要拿 id 判斷是否存在即可
-          .eq('owner_id', userData.id)
-          .eq('service_id', baseService.id) // 比對目前的服務 ID
-          .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
-          .order('created_at', { ascending: false }) // 若有多筆，拿最新的
-          .limit(1)
-          .maybeSingle();
+          // 判斷是否已經預約過此服務 (且訂單仍在進行中)
+          const { data: bookingData } = await supabase
+            .from('bookings')
+            .select('id') // 只需要拿 id 判斷是否存在即可
+            .eq('owner_id', userData.id)
+            .eq('service_id', baseService.id) // 比對目前的服務 ID
+            .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
+            .order('created_at', { ascending: false }) // 若有多筆，拿最新的
+            .limit(1)
+            .maybeSingle();
 
-        setUserId(userData.id);
-        setIsFavorite(!!favData);
+          setUserId(userData.id);
+          setIsFavorite(!!favData);
 
-        // 如果有查到訂單資料，isBooking 就會是 true
-        setIsBooking(!!bookingData);
+          // 如果有查到訂單資料，isBooking 就會是 true
+          setIsBooking(!!bookingData);
+        }
+      } catch (error) {
+        console.log('Error fetching details:', error.message);
       }
-    } catch (error) {
-      console.log('Error fetching details:', error.message);
-    }
-  };
+    };
+    fetchData();
+  }, [id, user]);
+
+  // const fetchData = async () => {
+  //   try {
+  //     // 1. 取得該服務的基本資訊與保母資訊
+  //     const { data: baseService, error: baseError } = await supabase
+  //       .from('services')
+  //       .select(`
+  //         *,
+  //         users!services_sitter_id_fkey (id, nickname, avatar_url),
+  //         locations (city, district),
+  //         service_photos (photo_url, sort_order)
+  //       `)
+  //       .eq('id', id)
+  //       .maybeSingle();
+
+  //     if (baseService && baseService.service_photos) {
+  //       // 排序：由小到大 (1, 2, 3...)
+  //       baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
+  //     }
+  //     setServiceDetail(baseService);
+
+  //     if (baseError) throw baseError;
+
+  //     // 2. 根據保母 ID 和 類別，抓取所有相關時段
+  //     const { data: schedules, error: scheduleError } = await supabase
+  //       .from('services')
+  //       .select('id, day_of_week, start_time, end_time')
+  //       .eq('sitter_id', baseService.sitter_id)
+  //       .eq('category', baseService.category);
+  //     setAllSchedules(schedules);
+
+  //     if (scheduleError) throw scheduleError;
+
+  //     // 3. 取得該保母的所有評論
+  //     const { data: reviewData, error: reviewError } = await supabase
+  //       .from('reviews')
+  //       .select(`
+  //         id, rating, comment,
+  //         users!reviews_owner_id_fkey (nickname, avatar_url)
+  //       `)
+  //       .eq('sitter_id', baseService.sitter_id);
+  //     setReviews(reviewData);
+  //     if (reviewError) throw reviewError;
+
+  //     // 4. 檢查收藏狀態 (若已登入)
+  //     if (user) {
+  //       const { data: userData } = await supabase
+  //         .from('users')
+  //         .select('id')
+  //         .eq('email', user.email)
+  //         .maybeSingle();
+
+  //       const { data: favData, error: favError } = await supabase
+  //         .from('favorites')
+  //         .select('id')
+  //         .eq('owner_id', userData.id)
+  //         .eq('sitter_id', baseService.sitter_id)
+  //         .maybeSingle();
+
+  //       // 判斷是否已經預約過此服務 (且訂單仍在進行中)
+  //       const { data: bookingData } = await supabase
+  //         .from('bookings')
+  //         .select('id') // 只需要拿 id 判斷是否存在即可
+  //         .eq('owner_id', userData.id)
+  //         .eq('service_id', baseService.id) // 比對目前的服務 ID
+  //         .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
+  //         .order('created_at', { ascending: false }) // 若有多筆，拿最新的
+  //         .limit(1)
+  //         .maybeSingle();
+
+  //       setUserId(userData.id);
+  //       setIsFavorite(!!favData);
+
+  //       // 如果有查到訂單資料，isBooking 就會是 true
+  //       setIsBooking(!!bookingData);
+  //     }
+  //   } catch (error) {
+  //     console.log('Error fetching details:', error.message);
+  //   }
+  // };
 
   const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
@@ -447,8 +526,8 @@ const SitterServiceDetail = () => {
         <div className=" bg-secondary" style={{
           '--bs-bg-opacity': .2
         }}>
-          <img src={top_dec} alt="" className="w-100 d-none d-sm-block"/>
-          <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none"/>
+          <img src={top_dec} alt="" className="w-100 d-none d-sm-block" />
+          <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none" />
           <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
             <div className="d-flex justify-content-center align-items-center">
 
@@ -506,8 +585,8 @@ const SitterServiceDetail = () => {
 
             </div>
           </div>
-          <img src={bot_dec} alt="" className="w-100 d-none d-sm-block"/>
-          <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none"/>
+          <img src={bot_dec} alt="" className="w-100 d-none d-sm-block" />
+          <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none" />
         </div>
 
 

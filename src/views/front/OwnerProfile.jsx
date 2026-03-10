@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import { starRating } from "../../utils/starRating";
+// import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PetCard from "../../components/PetCard";
@@ -10,7 +10,7 @@ function OwnerProfile() {
 
   // 狀態驅動：控制目前顯示的角色，預設為 'sitter'
   const [activeTab, setActiveTab] = useState('pets');
-  const [userId, setUserId] = useState(null);
+  // const [userId, setUserId] = useState(null);
   const [ownerProfile, setOwnerProfile] = useState(null);
   const [ownerPets, setOwnerPets] = useState([]);
   const [ownerBooking, setOwnerBooking] = useState(null);
@@ -24,9 +24,10 @@ function OwnerProfile() {
     textDark: '#333333',
   };
 
-  const petMap=useMemo(()=>{
-    return ownerPets.reduce((acc,pet)=>({...acc,[pet.id]:pet.name}),{})}
-    ,[ownerPets])
+  const petMap = useMemo(() => {
+    return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
+  }
+    , [ownerPets])
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -38,17 +39,12 @@ function OwnerProfile() {
       return () => clearTimeout(timer);
     }
 
-    // 登入後，只在初始化時跑這一次
-    fetchInitialData();
-
-  }, [isAuthenticated, isAuthLoading]);
-
-  const fetchInitialData = async () => {
-    try {
-      // 【終極 Join】從 users 出發，一次拉回 bookings 和 services
-      const { data, error } = await supabase
-        .from('users')
-        .select(`
+    const fetchInitialData = async () => {
+      try {
+        // 【終極 Join】從 users 出發，一次拉回 bookings 和 services
+        const { data, error } = await supabase
+          .from('users')
+          .select(`
         *,
         pets (*),
         bookings!bookings_owner_id_fkey (
@@ -58,24 +54,62 @@ function OwnerProfile() {
           users (name, nickname, avatar_url))
         )
       `)
-        .eq('email', user.email)
-        .maybeSingle();
+          .eq('email', user.email)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data) {
-        // 拆分資料存入不同的 State
-        setOwnerProfile(data);
-        setOwnerPets(data.pets || []);
-        setOwnerBooking(data.bookings || []);
+        if (data) {
+          // 拆分資料存入不同的 State
+          setOwnerProfile(data);
+          setOwnerPets(data.pets || []);
+          setOwnerBooking(data.bookings || []);
 
 
-        console.log("✅ 資料同步完成：", data);
+          console.log("✅ 資料同步完成：", data);
+        }
+      } catch (error) {
+        console.error("❌ 抓取初始化資料失敗：", error.message);
       }
-    } catch (error) {
-      console.error("❌ 抓取初始化資料失敗：", error.message);
-    }
-  };
+    };
+    // 登入後，只在初始化時跑這一次
+    fetchInitialData();
+
+  }, [isAuthenticated, isAuthLoading, navigate,user]);
+
+  // const fetchInitialData = async () => {
+  //   try {
+  //     // 【終極 Join】從 users 出發，一次拉回 bookings 和 services
+  //     const { data, error } = await supabase
+  //       .from('users')
+  //       .select(`
+  //       *,
+  //       pets (*),
+  //       bookings!bookings_owner_id_fkey (
+  //         *,
+  //         services (
+  //         *,
+  //         users (name, nickname, avatar_url))
+  //       )
+  //     `)
+  //       .eq('email', user.email)
+  //       .maybeSingle();
+
+  //     if (error) throw error;
+
+  //     if (data) {
+  //       // 拆分資料存入不同的 State
+  //       setOwnerProfile(data);
+  //       setOwnerPets(data.pets || []);
+  //       setOwnerBooking(data.bookings || []);
+
+
+  //       console.log("✅ 資料同步完成：", data);
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ 抓取初始化資料失敗：", error.message);
+  //   }
+  // };
 
   if (!isAuthenticated) {
     return (
@@ -163,13 +197,13 @@ function OwnerProfile() {
               /* -------- [標籤 A] 我的寵物 內容 -------- */
               <div className="col-12">
                 {/* <div className="d-flex justify-content-between align-items-center mb-3"> */}
-                  {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
-                  {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
+                {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
+                {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
                 {/* </div> */}
 
                 <div className="row g-3">
-                  {ownerPets?.map(pet=>(
-                    <PetCard key={pet.id} pet={pet} divClassName={'col-3'} cardClassName={'card background-color:white'}/>
+                  {ownerPets?.map(pet => (
+                    <PetCard key={pet.id} pet={pet} divClassName={'col-3'} cardClassName={'card background-color:white'} />
                   ))}
                 </div>
               </div>
@@ -186,7 +220,7 @@ function OwnerProfile() {
                       <div>
                         <span className="badge bg-success rounded-pill mb-2">即將到來</span>
                         <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                        <p className="text-muted mb-0">{b.arrival_date+' '+b.arrival_time+'~'+b.departure_time}  ｜ 服務對象：{petMap[b.pet_id]}</p>
+                        <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}  ｜ 服務對象：{petMap[b.pet_id]}</p>
                       </div>
                       <div className="text-end">
                         <h5 className="fw-bold mb-2" style={{ color: theme.orange }}>NT$ {b.total_price}</h5>

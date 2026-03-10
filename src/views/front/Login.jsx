@@ -9,12 +9,12 @@ import { NavLink } from "react-router";
 function Login() {
   const [loginSwitch, setLoginSwitch] = useState(true);
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated } = useSelector(state => state.auth);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid }
+    formState: { errors, isSubmitting}
   } = useForm({
     mode: "onChange",
   });
