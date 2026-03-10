@@ -31,6 +31,7 @@ const SitterServiceDetail = () => {
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [bookingData,setBookingData]=useState({});
 
   const params = useParams();
   const { id } = params;
@@ -95,6 +96,7 @@ const SitterServiceDetail = () => {
           baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
         }
         setServiceDetail(baseService);
+        console.log(baseService);
 
         if (baseError) throw baseError;
 
@@ -150,6 +152,8 @@ const SitterServiceDetail = () => {
 
           // 如果有查到訂單資料，isBooking 就會是 true
           setIsBooking(!!bookingData);
+          setBookingData(bookingData);
+          console.log(bookingData);
         }
       } catch (error) {
         console.log('Error fetching details:', error.message);
@@ -502,7 +506,7 @@ const SitterServiceDetail = () => {
                   // 已經登入後，判斷是否有預約
                   if (isBooking) {
                     // 若已預約 -> 導向訂單詳情頁
-                    navigate('/');
+                    navigate(`/owner/bookings/${bookingData.id}`);
                   } else {
                     // 若未預約 -> 導向預約流程頁
                     navigate('booking', {

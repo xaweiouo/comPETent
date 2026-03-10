@@ -17,13 +17,6 @@ function OwnerProfile() {
 
   const navigate = useNavigate();
 
-  // 自訂主題色（參考你提供的附圖）
-  const theme = {
-    bg: '#FDF8EF', // 米白背景
-    orange: '#D35400', // 橘棕強調色
-    textDark: '#333333',
-  };
-
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
   }
@@ -41,7 +34,7 @@ function OwnerProfile() {
 
     const fetchInitialData = async () => {
       try {
-        // 【終極 Join】從 users 出發，一次拉回 bookings 和 services
+        // 從 users 出發，一次拉回 bookings 和 services
         const { data, error } = await supabase
           .from('users')
           .select(`
@@ -75,41 +68,7 @@ function OwnerProfile() {
     // 登入後，只在初始化時跑這一次
     fetchInitialData();
 
-  }, [isAuthenticated, isAuthLoading, navigate,user]);
-
-  // const fetchInitialData = async () => {
-  //   try {
-  //     // 【終極 Join】從 users 出發，一次拉回 bookings 和 services
-  //     const { data, error } = await supabase
-  //       .from('users')
-  //       .select(`
-  //       *,
-  //       pets (*),
-  //       bookings!bookings_owner_id_fkey (
-  //         *,
-  //         services (
-  //         *,
-  //         users (name, nickname, avatar_url))
-  //       )
-  //     `)
-  //       .eq('email', user.email)
-  //       .maybeSingle();
-
-  //     if (error) throw error;
-
-  //     if (data) {
-  //       // 拆分資料存入不同的 State
-  //       setOwnerProfile(data);
-  //       setOwnerPets(data.pets || []);
-  //       setOwnerBooking(data.bookings || []);
-
-
-  //       console.log("✅ 資料同步完成：", data);
-  //     }
-  //   } catch (error) {
-  //     console.error("❌ 抓取初始化資料失敗：", error.message);
-  //   }
-  // };
+  }, [isAuthenticated, isAuthLoading, navigate, user]);
 
   if (!isAuthenticated) {
     return (
@@ -122,13 +81,11 @@ function OwnerProfile() {
 
   return (
     <>
-      {/* {JSON.stringify(ownerProfile)}
-      {ownerBooking?.map(b=><p>{b}</p>)} */}
-      <div style={{ backgroundColor: theme.bg, minHeight: '100vh', paddingBottom: '50px' }}>
+      <div className="bg-primary-01" style={{  minHeight: '100vh', paddingBottom: '50px' }}>
         <div className="container pt-3">
 
           {/* 1. 頂部返回按鈕 */}
-          <div className="mb-3" style={{ color: theme.orange, cursor: 'pointer', fontWeight: 'bold' }}>
+          <div className="mb-3" style={{ color: 'black', cursor: 'pointer', fontWeight: 'bold' }}>
             &lt; 返回
           </div>
 
@@ -160,7 +117,7 @@ function OwnerProfile() {
 
           {/* 3. 居中顯示的基本資料 */}
           <div className="text-center mt-5 pt-3 mb-4">
-            <h2 className="fw-bold mb-1" style={{ color: theme.textDark }}>{ownerProfile?.nickname}</h2>
+            <h2 className="fw-bold mb-1" >{ownerProfile?.nickname}</h2>
             <p className="text-muted mb-2">姓名:{ownerProfile?.name}</p>
             <p className="text-muted mb-2">臺北市 信義區</p>
             <p className="text-muted mb-2">{ownerProfile?.phone}</p>
@@ -218,12 +175,18 @@ function OwnerProfile() {
                   <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
                     <div className="card-body p-4 d-flex justify-content-between align-items-center">
                       <div>
-                        <span className="badge bg-success rounded-pill mb-2">即將到來</span>
+                        <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
                         <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
                         <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}  ｜ 服務對象：{petMap[b.pet_id]}</p>
                       </div>
                       <div className="text-end">
-                        <h5 className="fw-bold mb-2" style={{ color: theme.orange }}>NT$ {b.total_price}</h5>
+                        <h5 className="fw-bold mb-2 text-primary" >NT$ {b.total_price}</h5>
+                        <button
+                          className="btn btn-sm btn-outline-secondary rounded-pill"
+                          onClick={() => navigate(`/owner/bookings/${b.id}`)}
+                        >
+                          查看詳情
+                        </button>
                         {/* <button className="btn btn-sm btn-outline-secondary rounded-pill">查看詳情</button> */}
                       </div>
                     </div>
