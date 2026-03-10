@@ -315,42 +315,42 @@ function LookForPetSitter() {
   // }, []);
 
   // 初次載入抓第 1 頁
-useEffect(() => {
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  async function loadInitial() {
-    await fetchServicesWithFilters(undefined, 1);
-  }
+    async function loadInitial() {
+      await fetchServicesWithFilters(undefined, 1);
+    }
 
-  if (isMounted) {
-    loadInitial();
-  }
+    if (isMounted) {
+      loadInitial();
+    }
 
-  return () => {
-    isMounted = false;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-// ownerId 或 currentPage 改變時，用目前頁碼抓資料
-useEffect(() => {
-  if (!ownerId) return;
+  // ownerId 或 currentPage 改變時，用目前頁碼抓資料
+  useEffect(() => {
+    if (!ownerId) return;
 
-  let isMounted = true;
+    let isMounted = true;
 
-  async function loadOnOwnerChange() {
-    await fetchServicesWithFilters(undefined, currentPage);
-  }
+    async function loadOnOwnerChange() {
+      await fetchServicesWithFilters(undefined, currentPage);
+    }
 
-  if (isMounted) {
-    loadOnOwnerChange();
-  }
+    if (isMounted) {
+      loadOnOwnerChange();
+    }
 
-  return () => {
-    isMounted = false;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [ownerId, currentPage]);
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerId, currentPage]);
 
 
 
@@ -553,10 +553,9 @@ useEffect(() => {
               </div>
             </div>
 
-           {/* 服務時間：起訖（佔 col-md-6，四個 select 平均寬） */}
-<div className="col-12 col-md-6">
+            {/* 服務時間：起訖 - 桌機版 */}
+<div className="col-12 col-md-6 d-none d-md-block">
   <div className="d-flex align-items-center w-100">
-
     {/* 開始：時 */}
     <div className="d-flex align-items-center flex-fill me-3">
       <div className="mb-2 input-group rounded-pill overflow-hidden border border-warning bg-white w-100">
@@ -592,7 +591,7 @@ useEffect(() => {
       <span className="ms-1">分</span>
     </div>
 
-    {/* 中間的 － （固定寬度，不參與平均分配） */}
+    {/* 中間的 －（只桌機要） */}
     <span
       className="mx-2 flex-shrink-0"
       style={{ color: "#FF8400", fontWeight: 700 }}
@@ -634,9 +633,93 @@ useEffect(() => {
       </div>
       <span className="ms-1">分</span>
     </div>
-
   </div>
 </div>
+{/* 服務時間：起訖 - 手機版（兩行滿版） */}
+<div className="col-12 d-block d-md-none">
+  <div className="row g-2">
+    {/* 第一行：開始 時 + 分 */}
+    <div className="col-12">
+      <div className="d-flex align-items-center w-100">
+        {/* 開始：時 */}
+        <div className="d-flex align-items-center flex-fill me-2">
+          <div className="mb-2 input-group rounded-pill overflow-hidden border border-warning bg-white w-100">
+            <select
+              className="form-select border-0 bg-transparent"
+              value={startHour}
+              onChange={(e) => setStartHour(e.target.value)}
+            >
+              <option value="">00</option>
+              {hours.map((h) => (
+                <option key={h} value={h.toString().padStart(2, "0")}>
+                  {h.toString().padStart(2, "0")}
+                </option>
+              ))}
+            </select>
+          </div>
+          <span className="ms-1">時</span>
+        </div>
+
+        {/* 開始：分 */}
+        <div className="d-flex align-items-center flex-fill">
+          <div className="mb-2 input-group rounded-pill overflow-hidden border border-warning bg-white w-100">
+            <select
+              className="form-select border-0 bg-transparent"
+              value={startMinute}
+              onChange={(e) => setStartMinute(e.target.value)}
+            >
+              <option value="">00</option>
+              <option value="00">00</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <span className="ms-1">分</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 第二行：結束 時 + 分 */}
+    <div className="col-12">
+      <div className="d-flex align-items-center w-100">
+        {/* 結束：時 */}
+        <div className="d-flex align-items-center flex-fill me-2">
+          <div className="mb-2 input-group rounded-pill overflow-hidden border border-warning bg-white w-100">
+            <select
+              className="form-select border-0 bg-transparent"
+              value={endHour}
+              onChange={(e) => setEndHour(e.target.value)}
+            >
+              <option value="">00</option>
+              {hours.map((h) => (
+                <option key={h} value={h.toString().padStart(2, "0")}>
+                  {h.toString().padStart(2, "0")}
+                </option>
+              ))}
+            </select>
+          </div>
+          <span className="ms-1">時</span>
+        </div>
+
+        {/* 結束：分 */}
+        <div className="d-flex align-items-center flex-fill">
+          <div className="mb-2 input-group rounded-pill overflow-hidden border border-warning bg-white w-100">
+            <select
+              className="form-select border-0 bg-transparent"
+              value={endMinute}
+              onChange={(e) => setEndMinute(e.target.value)}
+            >
+              <option value="">00</option>
+              <option value="00">00</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <span className="ms-1">分</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
             {/* 按鈕 */}
