@@ -435,6 +435,12 @@ function SitterBookingForm() {
     async function handleBookingSubmit(e) {
 
         e.preventDefault();
+
+        if (!currentUser) {
+            alert("請先登入後再建立預約");
+            return;
+        }
+
         const arrival_time = `${bookingForm.arrival_hour}:${bookingForm.arrival_minute}`;
         const departure_time = `${bookingForm.departure_hour}:${bookingForm.departure_minute}`;
         const pickup_address_detail = bookingForm.pickup_address_detail ?? "";
@@ -526,22 +532,7 @@ function SitterBookingForm() {
         });
     }
 
-    async function handleTestLogin() {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: "owner1@example.com",
-            password: "owner1",
-        });
-
-        console.log("login result:", data, error);
-
-        if (error) {
-            alert("測試登入失敗：" + error.message);
-        } else {
-            // 把目前登入者存起來
-            setCurrentUser(data.user);
-            alert("測試登入成功！");
-        }
-    }
+    
     // 點編輯按鈕，進入編輯模式（把這隻寵物的資料丟到 editingPetForm 裡）
     function handleEditPet() {
         if (!selectedPet) return;
@@ -2060,17 +2051,6 @@ function SitterBookingForm() {
                 </section >
             </main >
 
-            <footer className="booking-footer">
-                footer區域
-                <button type="button" onClick={handleTestLogin}>
-                    測試登入 owner1@example.com
-                </button>
-                {currentUser ? (
-                    <p>你好，{currentUser.email}（已登入）</p>
-                ) : (
-                    <p>目前尚未登入</p>
-                )}
-            </footer>
 
         </div >
     );
