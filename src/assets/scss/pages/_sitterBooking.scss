@@ -133,3 +133,24 @@ $black-800: #353535;
   }
 }
 
+// 保姆詳細頁面專用樣式
+.booking-readonly-field {
+  background-color: #FEF3E2;
+}
+
+.booking-readonly-icon {
+  background-color: #FEF3E2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-readonly-input {
+  background-color: #FEF3E2;
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  color: #353535;
+}
+
