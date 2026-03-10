@@ -98,8 +98,7 @@ function OwnerBookingDetail() {
 
   const [bookingData, setBookingData] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [serviceLoading] = useState(false);
-  const [serviceError] = useState("");
+
 
   /* 1. 讀取訂單資料（直接沿用你現在的 fetchSitterBookingDetail） */
   async function fetchOwnerBookingDetail(bookingId) {
