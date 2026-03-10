@@ -82,13 +82,6 @@ $black-800: #353535;
   padding: 4px 12px;
 }
 
-.pet-card {
-  // width: 306px;      
-  // margin: 0;        
-  border-radius: 20px;
-    background-color: rgba(0, 255, 0, 0.1); // 先用來 debug，看卡片範圍
-
-}
 
 .booking-card-transparent {
   background-color: transparent;  // 讓卡片吃到 body 的淡黃色
@@ -152,5 +145,60 @@ $black-800: #353535;
   padding-top: 0;
   padding-bottom: 0;
   color: #353535;
+}
+
+.pet-card {
+  border-radius: 20px;
+  // debug 用背景可以拿掉，或改成你要的底色
+  background-color: rgb(255, 255, 255);
+
+  // 固定卡片高度，依你實際畫面調整
+  min-height: 180px;
+  max-height: 180px;
+
+  // 先給一個「透明」的粗邊框，選取時只改顏色
+  border: 3px solid transparent;
+
+  // 動畫順一點
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+  // 讓內容撐滿高度、排版穩定（搭配 .card-body）
+  display: flex;
+  flex-direction: column;
+}
+.pet-card--active {
+  border-color: $warning;            // 原本的橘色框
+  background-color: #fff9e6;         // 淡橘底，看起來有選到
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.4);
+}
+.pet-name {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; // 單行
+}
+.pet-status-text {
+  white-space: nowrap;        // 不換行
+  overflow: hidden;           // 超出就隱藏
+  text-overflow: ellipsis;    // 超出顯示 …
+}
+@media (max-width: 768px) {
+  /* 每張卡片在手機寬度改成吃滿一行 */
+  .pet-card {
+    max-width: 100% !important;   // 原本 306px 把它蓋掉
+    width: 100% !important;
+  }
+
+  /* 外層容器如果有用 flex-row，可以允許換行 */
+  .booking-pet .carousel-item > .d-flex {
+    flex-wrap: nowrap;            // 保持一列橫向排
+    justify-content: flex-start;  // 左對齊
+  }
+}
+
+.pet-card-img-wrapper {
+  overflow: hidden;      // 多的切掉
+  border-radius: 16px;   // 跟 img 一致
 }
 
