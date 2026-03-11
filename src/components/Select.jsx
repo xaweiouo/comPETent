@@ -2,12 +2,12 @@ import { forwardRef } from "react";
 
 const Select = forwardRef(({
   imgSrc,
-  label,      // 選單標籤名稱
+  // label,      // 選單標籤名稱
   options,    // 傳入的選項陣列 (例如 PET_SPECIES_OPTIONS)
   value,      // 目前選中的值
   onChange,   // 改變時的 callback
   name,       // 欄位名稱 (用於表單處理)
-  placeholder = "請選擇" // 預設顯示文字
+  // placeholder = "請選擇" // 預設顯示文字
 },ref) => {
   return (
     <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">

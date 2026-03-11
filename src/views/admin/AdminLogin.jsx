@@ -6,8 +6,8 @@ import { setAdminLogin } from "../../slices/adminAuthSlice";
 import { supabase } from "../../lib/supabaseClient";
 
 function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function AdminLogin() {
   const {
       register,
       handleSubmit,
-      formState: { errors, isSubmitting, isValid }
+      formState: { errors }
     } = useForm({
       mode: "onChange",
     });
@@ -23,7 +23,7 @@ function AdminLogin() {
   
 
   const handleLogin = async (loginInfo) => {
-    console.log("正在嘗試登入的資料:", loginInfo);
+    // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       // 1. 執行 Supabase 登入

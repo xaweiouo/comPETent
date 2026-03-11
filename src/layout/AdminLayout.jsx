@@ -31,9 +31,9 @@ function AdminLayout() {
     <>
       <div className="min-vh-100 bg-light">
         {/* 後台專屬 Navbar */}
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
           <div className="container-fluid">
-            <span className="navbar-brand">寵物保母預約系統 - 後台管理</span>
+            <span className="navbar-brand">comPETent | 我能寵 - 後台</span>
             <div className="d-flex">
               <button onClick={handleLogout} className="btn btn-outline-light btn-sm">
                 登出

@@ -8,7 +8,7 @@ import { SITTER_SERVICE_OPTIONS, PET_SPECIES_OPTIONS, WEEKDAY_OPTIONS, HOUR_OPTI
 import Select from "../../components/Select";
 
 const ServiceDeployForm = () => {
-  const [isChecking, setIsChecking] = useState(true);
+  // const [isChecking, setIsChecking] = useState(true);
 
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [userId, setUserId] = useState(null);
@@ -19,6 +19,15 @@ const ServiceDeployForm = () => {
   useEffect(() => {
     if (isAuthLoading) return;
 
+    const getUserId = async () => {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', user.email)
+        .maybeSingle();
+      setUserId(userData.id);
+    };
+
     if (!isAuthenticated) {
       // 開啟倒數 3 秒後跳轉
       setTimeout(() => {
@@ -27,22 +36,22 @@ const ServiceDeployForm = () => {
     } else if (isAuthenticated) {
       getUserId();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate,user,isAuthLoading]);
 
-  const getUserId = async () => {
-    const { data: userData } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', user.email)
-      .maybeSingle();
-    setUserId(userData.id);
-  };
+  // const getUserId = async () => {
+  //   const { data: userData } = await supabase
+  //     .from('users')
+  //     .select('id')
+  //     .eq('email', user.email)
+  //     .maybeSingle();
+  //   setUserId(userData.id);
+  // };
 
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
+    // watch,
+    // formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       category: '',
@@ -73,8 +82,8 @@ const ServiceDeployForm = () => {
           sitter_id: userId,
           // location_id: data.location_id,
           // photo_url: mainPhotoPath,
-          category: data.category,
-          species: data.species,
+          category: service.category,
+          species: service.species,
           day_of_week: data.day_of_week,
           start_time: formattedStartTime,
           end_time: formattedEndtTime,

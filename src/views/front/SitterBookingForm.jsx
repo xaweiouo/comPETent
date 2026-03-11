@@ -222,12 +222,12 @@ function SitterBookingForm() {
         }
         fetchInitialUser();
         // 小步測試：確認有收到從上一頁帶來的 serviceId 和 sitterId
-        console.log('從上一頁帶來的 serviceId:', serviceId);
-        console.log('從上一頁帶來的 sitterId:', sitterId);
+        // console.log('從上一頁帶來的 serviceId:', serviceId);
+        // console.log('從上一頁帶來的 sitterId:', sitterId);
         async function fetchPets() {
             const { data, error } = await supabase.from("pets").select("*");
             if (error) {
-                console.log("fetchPets error", error);
+                // console.log("fetchPets error", error);
                 return;
             }
             setPets(data);
@@ -319,7 +319,7 @@ function SitterBookingForm() {
                 .single();
 
             if (error) {
-                console.log("fetchServiceDetail error", error);
+                // console.log("fetchServiceDetail error", error);
                 setServiceError("無法取得服務資料，請稍後再試");
             } else {
                 setServiceDetail(data);
@@ -348,7 +348,7 @@ function SitterBookingForm() {
                 .single();
 
             if (error) {
-                console.log("fetchSitterInfo error", error);
+                // console.log("fetchSitterInfo error", error);
                 return;
             }
             setSitterInfo(data);
@@ -399,7 +399,7 @@ function SitterBookingForm() {
             .single(); // 只拿一筆
         //userError 有資料或userRow 是 null 或 undefined，!userRow 就是 true。
         if (userError || !userRow) {
-            console.log("userError:", userError);
+            // console.log("userError:", userError);
             return {
                 status: false,
                 message: "找不到對應的使用者資料，請聯絡開發者",
@@ -444,8 +444,8 @@ function SitterBookingForm() {
         const arrival_time = `${bookingForm.arrival_hour}:${bookingForm.arrival_minute}`;
         const departure_time = `${bookingForm.departure_hour}:${bookingForm.departure_minute}`;
         const pickup_address_detail = bookingForm.pickup_address_detail ?? "";
-        console.log("arrival_time:", arrival_time);
-        console.log("departure_time:", departure_time);
+        // console.log("arrival_time:", arrival_time);
+        // console.log("departure_time:", departure_time);
 
         //防呆：如果服務資料還沒載入好，就不要讓使用者送出表單（因為價格計算需要服務資料）
         if (!serviceDetail) {
@@ -474,7 +474,7 @@ function SitterBookingForm() {
             return;
         }
 
-        console.log("準備送出 booking：", bookingForm);
+        // console.log("準備送出 booking：", bookingForm);
         // 2) 透過工具函式，從目前登入狀態取得 owner_id（users.id）
         const ownerResult = await getOwnerIdFromAuth();
 
@@ -581,7 +581,7 @@ function SitterBookingForm() {
             .eq("id", selectedPet.id);
 
         if (error) {
-            console.log("update pet error", error);
+            // console.log("update pet error", error);
             alert("更新寵物資料失敗，請稍後再試");
             return;
         }
@@ -632,7 +632,7 @@ function SitterBookingForm() {
             .single();
 
         if (error) {
-            console.log("handleAddPet error", error);
+            // console.log("handleAddPet error", error);
             alert("新增寵物失敗，請稍後再試");
             return;
         }
