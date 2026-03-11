@@ -36,7 +36,7 @@ const ServiceDeployForm = () => {
     } else if (isAuthenticated) {
       getUserId();
     }
-  }, [isAuthenticated, navigate,user,isAuthLoading]);
+  }, [isAuthenticated, navigate, user, isAuthLoading]);
 
   // const getUserId = async () => {
   //   const { data: userData } = await supabase
@@ -217,6 +217,20 @@ const ServiceDeployForm = () => {
                   </div>
 
                 </div>
+              </div>
+
+              <div className="col-12">
+                <label className="form-label">服務簡述</label>
+                <textarea
+                  className="form-control border border-warning"
+                  style={{ backgroundColor: "#FEF3E2" }}
+                  rows="4"
+                  // value={newPet.note}
+                  // onChange={(e) =>
+                  //   setNewPet((prev) => ({ ...prev, note: e.target.value }))
+                  // }
+                  // placeholder="例如：怕生、對貓敏感、曾開刀等"
+                />
               </div>
 
               <button type="submit" className="btn btn-primary">發布服務</button>
