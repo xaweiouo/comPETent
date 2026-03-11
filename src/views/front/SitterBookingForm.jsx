@@ -324,10 +324,10 @@ function SitterBookingForm() {
             } else {
                 setServiceDetail(data);
                 // 一進來就先算一次價錢（如果表單有預設值的話）
-                setPriceInfo((prev) => {
-                    const price = calculatePriceForService(data, bookingForm);
-                    return { ...prev, ...price };
-                });
+                // setPriceInfo((prev) => {
+                //     const price = calculatePriceForService(data, bookingForm);
+                //     return { ...prev, ...price };
+                // });
             }
 
             setServiceLoading(false);
@@ -435,6 +435,12 @@ function SitterBookingForm() {
     async function handleBookingSubmit(e) {
 
         e.preventDefault();
+
+        if (!currentUser) {
+            alert("請先登入後再建立預約");
+            return;
+        }
+
         const arrival_time = `${bookingForm.arrival_hour}:${bookingForm.arrival_minute}`;
         const departure_time = `${bookingForm.departure_hour}:${bookingForm.departure_minute}`;
         const pickup_address_detail = bookingForm.pickup_address_detail ?? "";
@@ -526,22 +532,7 @@ function SitterBookingForm() {
         });
     }
 
-    async function handleTestLogin() {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: "owner1@example.com",
-            password: "owner1",
-        });
-
-        console.log("login result:", data, error);
-
-        if (error) {
-            alert("測試登入失敗：" + error.message);
-        } else {
-            // 把目前登入者存起來
-            setCurrentUser(data.user);
-            alert("測試登入成功！");
-        }
-    }
+    
     // 點編輯按鈕，進入編輯模式（把這隻寵物的資料丟到 editingPetForm 裡）
     function handleEditPet() {
         if (!selectedPet) return;
@@ -886,7 +877,7 @@ function SitterBookingForm() {
                                                         key={pet.id}
                                                         className={
                                                             "card mb-3 pet-card" +
-                                                            (bookingForm.pet_id === pet.id ? " border-warning border-3" : "")
+                                                            (bookingForm.pet_id === pet.id ? " pet-card--active" : "")
                                                         }
                                                         style={{ width: "100%", maxWidth: "306px", cursor: "pointer" }}  // 固定寬度，確保三張排進這個區塊
                                                         onClick={() => {
@@ -895,22 +886,30 @@ function SitterBookingForm() {
                                                                 ...prev,
                                                                 pet_id: pet.id,
                                                             }));
+                                                            setIsAddingPet(false);      // ★ 關掉新增模式
+                                                            setEditingPetId(null);      // ★ 順便退出編輯，以免卡到舊資料
                                                         }}
                                                     >
                                                         <div className="row g-0">
                                                             {/* 左側圖片 */}
-                                                            <div className="col-5 d-flex align-items-center pe-0 me-0">
-                                                                <img
-                                                                    src={pet.photo_url || "src/images/booking_img_logo.jpg"}
-                                                                    className="img-fluid rounded-4 py-2 ps-2 pe-0 me-0"
-                                                                    alt={pet.name}
-                                                                    style={{ height: "100%", objectFit: "cover" }}
-                                                                />
+                                                            <div className="col-5 d-flex align-items-stretch pe-0 me-0">
+                                                                <div className="w-100 h-100 ratio ratio-4x3 pet-card-img-wrapper">
+                                                                    <img
+                                                                        src={pet.photo_url || "src/images/booking_img_logo.jpg"}
+                                                                        className="w-100 h-100 rounded-4 p-1"
+                                                                        alt={pet.name}
+                                                                        style={{ objectFit: "cover" }}
+                                                                    />
+                                                                </div>
                                                             </div>
+
                                                             {/* 右側資訊 */}
                                                             <div className="col-7 ps-0 ms-0">
                                                                 <div className="card-body ms-1">
-                                                                    <h5 className="card-title fw-bold mb-2">{pet.name}</h5>
+                                                                    <h5 className="card-title fw-bold mb-2 pet-name">
+                                                                        {pet.name}
+                                                                    </h5>
+
 
                                                                     <p className="card-text mb-1">
                                                                         <span className="badge bg-warning text-dark me-2">年齡</span>
@@ -943,9 +942,10 @@ function SitterBookingForm() {
                                                                         </span>
                                                                     </p>
 
-                                                                    <p className="card-text mt-2 mb-0">
+                                                                    <p className="card-text mt-2 mb-0 pet-status-text">
                                                                         {pet.is_neutered ? "已結紮，有施打疫苗" : "未結紮，疫苗請洽飼主"}
                                                                     </p>
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1056,6 +1056,11 @@ function SitterBookingForm() {
                                                                     <option value="">請選擇種類</option>
                                                                     <option value="dog">狗</option>
                                                                     <option value="cat">貓</option>
+                                                                    <option value="bird">鳥</option>
+                                                                    <option value="fish">魚</option>
+                                                                    <option value="rabbit">兔</option>
+                                                                    <option value="rodent">鼠</option>
+                                                                    <option value="reptiles">爬蟲</option>
                                                                     <option value="others">其他</option>
                                                                 </select>
                                                             </div>
@@ -1328,6 +1333,11 @@ function SitterBookingForm() {
                                                                 >
                                                                     <option value="dog">狗</option>
                                                                     <option value="cat">貓</option>
+                                                                    <option value="bird">鳥</option>
+                                                                    <option value="fish">魚</option>
+                                                                    <option value="rabbit">兔</option>
+                                                                    <option value="rodent">鼠</option>
+                                                                    <option value="reptiles">爬蟲</option>
                                                                     <option value="others">其他</option>
                                                                 </select>
                                                             </div>
@@ -1930,25 +1940,36 @@ function SitterBookingForm() {
                                     </button>
                                 </div>
 
-                                {/* 列 2：總金額 + 送出預約申請 */}
-                                <div className="px-4 pb-3 d-flex align-items-center">
-                                    {/* 左：總金額 */}
-                                    <div className="me-3">
-                                        <div className="small text-muted">總金額</div>
-                                        <div className="fw-bold fs-5">NT$ 600</div>
-                                    </div>
+                                <div
+                                    className={
+                                        "px-4 pb-3 d-flex align-items-center" +
+                                        (!isFeeOpen ? " justify-content-between" : "")
+                                    }
+                                >
+                                    {/* 左：總金額（只在收合時顯示） */}
+                                    {!isFeeOpen && (
+                                        <div className="text-start">
+                                            <div className="small text-muted">總金額</div>
+                                            <div className="fw-bold fs-5">NT$ {priceInfo.totalPrice}</div>
+                                        </div>
+                                    )}
 
                                     {/* 右：送出預約申請按鈕 */}
-                                    <div className="flex-grow-1">
+                                    <div className={isFeeOpen ? "flex-grow-1" : ""}>
                                         <button
                                             type="button"
-                                            className="btn btn-primary fw-bold w-100 py-2 rounded-pill"
+                                            className={
+                                                "btn btn-primary fw-bold py-2 rounded-pill text-white" +
+                                                (!isFeeOpen ? "" : " w-100")
+                                            }
                                             onClick={handleBookingSubmit}
                                         >
                                             送出預約申請
                                         </button>
                                     </div>
                                 </div>
+
+
 
                                 {/* 展開內容：fee 明細 + 注意事項 */}
                                 {isFeeOpen && (
@@ -2030,17 +2051,6 @@ function SitterBookingForm() {
                 </section >
             </main >
 
-            <footer className="booking-footer">
-                footer區域
-                <button type="button" onClick={handleTestLogin}>
-                    測試登入 owner1@example.com
-                </button>
-                {currentUser ? (
-                    <p>你好，{currentUser.email}（已登入）</p>
-                ) : (
-                    <p>目前尚未登入</p>
-                )}
-            </footer>
 
         </div >
     );

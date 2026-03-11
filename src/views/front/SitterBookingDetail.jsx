@@ -289,7 +289,6 @@ function SitterBookingDetail() {
 
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         async function loadBooking() {
             try {
@@ -303,14 +302,14 @@ function SitterBookingDetail() {
         }
 
         loadBooking();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
 
     }, [bookingId]);
 
     async function handleAcceptBooking() {
         if (!bookingId) return;
 
-        const { data, error } = await supabase
+        // const { data, error } = await supabase
+        const { error } = await supabase
             .from("bookings")
             .update({ status: "accepted" })   // 這裡直接寫成目標狀態
             .eq("id", bookingId)
@@ -343,7 +342,8 @@ function SitterBookingDetail() {
     //完成訂單
     async function handleCompleteBooking() {
         if (!bookingId) return;
-        const { data, error } = await supabase
+        // const { data, error } = await supabase
+        const { error } = await supabase
             .from("bookings")
             .update({ status: "completed" })
             .eq("id", bookingId)
@@ -380,7 +380,8 @@ function SitterBookingDetail() {
         const now = new Date().toISOString();
 
         if (!bookingId) return;
-        const { data, error } = await supabase
+        // const { data, error } = await supabase
+        const { error } = await supabase
             .from("bookings")
             .update({
                 status: "cancelled",
