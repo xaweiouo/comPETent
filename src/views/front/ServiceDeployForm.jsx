@@ -51,7 +51,7 @@ const ServiceDeployForm = () => {
     register,
     handleSubmit,
     // watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       category: '',
