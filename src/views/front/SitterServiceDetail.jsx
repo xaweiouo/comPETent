@@ -96,7 +96,6 @@ const SitterServiceDetail = () => {
           baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
         }
         setServiceDetail(baseService);
-        console.log(baseService);
 
         if (baseError) throw baseError;
 
@@ -153,7 +152,6 @@ const SitterServiceDetail = () => {
           // 如果有查到訂單資料，isBooking 就會是 true
           setIsBooking(!!bookingData);
           setBookingData(bookingData);
-          console.log(bookingData);
         }
       } catch (error) {
         console.log('Error fetching details:', error.message);
