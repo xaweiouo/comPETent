@@ -160,7 +160,7 @@ function OwnerProfile() {
 
                 <div className="row g-3">
                   {ownerPets?.map(pet => (
-                    <PetCard key={pet.id} pet={pet} divClassName={'col-3'} cardClassName={'card background-color:white'} />
+                    <PetCard key={pet.id} pet={pet} divClassName={'col-12 col-md-6 col-lg-3'} cardClassName={'card background-color:white'} />
                   ))}
                 </div>
               </div>

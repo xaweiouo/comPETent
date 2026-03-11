@@ -869,7 +869,7 @@ function SitterBookingForm() {
                                         >
                                             {/* 固定一個寬度區塊，裡面三張卡片水平排 */}
                                             <div
-                                                className="mx-auto d-flex  flex-column flex-md-row align-items-center justify-content-center gap-3"
+                                                className="mx-auto d-flex  flex-column flex-xl-row align-items-center justify-content-center gap-3"
                                                 style={{ maxWidth: "1100px" }}  // 根據設計稿可調整
                                             >
                                                 {pagePets.map((pet) => (
