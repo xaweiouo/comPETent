@@ -177,10 +177,10 @@ function LookForPetSitter() {
     }
 
     if (sortBy === "rating") {
-      console.log("在 supabase 查詢中按評分降序排序");
+      // console.log("在 supabase 查詢中按評分降序排序");
       query = query.order("rating", { ascending: false });
     } else {
-      console.log("在 supabase 查詢中沒有排序或未知的 sortBy，預設按 id 升序排序");
+      // console.log("在 supabase 查詢中沒有排序或未知的 sortBy，預設按 id 升序排序");
       query = query.order("id", { ascending: true });
     }
 
@@ -191,7 +191,7 @@ function LookForPetSitter() {
     const { data, error, count } = await query;
 
     if (error) {
-      console.log("fetchServicesWithFilters error", error);
+      // console.log("fetchServicesWithFilters error", error);
       return;
     }
     if (!data) {
@@ -228,7 +228,7 @@ function LookForPetSitter() {
     // 如果還沒登入，就不用查 favorites，直接 setCards
     if (!isAuthenticated || !user) {
       setCards(baseCards);
-      console.log("services with filters (no login)", baseCards);
+      // console.log("services with filters (no login)", baseCards);
       return;
     }
 
@@ -236,7 +236,7 @@ function LookForPetSitter() {
     // 如果 ownerId 還沒準備好，就先顯示沒有收藏狀態
     if (!ownerId) {
       setCards(baseCards);
-      console.log("services with filters (login but no ownerId)", baseCards);
+      // console.log("services with filters (login but no ownerId)", baseCards);
       return;
     }
 
@@ -247,7 +247,7 @@ function LookForPetSitter() {
       .eq("owner_id", ownerId);
 
     if (favError) {
-      console.log("fetch favorites error", favError);
+      // console.log("fetch favorites error", favError);
       // 查 favorites 爆掉時，至少先顯示卡片
       setCards(baseCards);
       return;
@@ -263,7 +263,7 @@ function LookForPetSitter() {
     }));
 
     setCards(mergedCards);
-    console.log("services with filters (with favorites)", mergedCards);
+    // console.log("services with filters (with favorites)", mergedCards);
   }
 
 
@@ -286,7 +286,7 @@ function LookForPetSitter() {
         .single();
 
       if (userError || !userRow) {
-        console.error("找不到對應的 users 資料", userError);
+        // console.error("找不到對應的 users 資料", userError);
         setOwnerId(null);
         return;
       }
@@ -306,7 +306,7 @@ function LookForPetSitter() {
 
   // 監聽 filters，專門用來 debug
   useEffect(() => {
-    console.log("filters changed", filters.startTime, filters.endTime);
+    // console.log("filters changed", filters.startTime, filters.endTime);
   }, [filters.startTime, filters.endTime]);
 
 

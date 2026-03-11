@@ -23,7 +23,7 @@ function AdminLogin() {
   
 
   const handleLogin = async (loginInfo) => {
-    console.log("正在嘗試登入的資料:", loginInfo);
+    // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       // 1. 執行 Supabase 登入

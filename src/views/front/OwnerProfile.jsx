@@ -59,7 +59,7 @@ function OwnerProfile() {
           setOwnerBooking(data.bookings || []);
 
 
-          console.log("✅ 資料同步完成：", data);
+          // console.log("✅ 資料同步完成：", data);
         }
       } catch (error) {
         console.error("❌ 抓取初始化資料失敗：", error.message);
