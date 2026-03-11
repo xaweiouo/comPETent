@@ -8,36 +8,40 @@ const Select = forwardRef(({
   onChange,   // 改變時的 callback
   name,       // 欄位名稱 (用於表單處理)
   // placeholder = "請選擇" // 預設顯示文字
-},ref) => {
+  error,
+}, ref) => {
   return (
-    <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
-      <span className="input-group-text border-0 bg-transparent">
-        <img
-          src={imgSrc}
-          alt="notes"
-          width="20"
-          height="20"
-          className="me-2"
-        />
-      </span>
-      <select
-        className="form-select border-0 bg-transparent"
-        id="serviceType"
-        aria-label="服務類別"
-        ref={ref}
-        name={name}
-        value={value}
-        // value={filters.category}
-        // onChange={(e) => handleFilterChange("category", e.target.value)}
-        onChange={onChange}
-      >
-        <option value="">請選擇一項服務...</option>
-        {options.map(opt =>
-          <option value={opt.value}>{opt.label}</option>
-        )}
-  
-      </select>
-    </div>
+    <>
+      <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
+        <span className="input-group-text border-0 bg-transparent">
+          <img
+            src={imgSrc}
+            alt="notes"
+            width="20"
+            height="20"
+            className="me-2"
+          />
+        </span>
+        <select
+          className="form-select border-0 bg-transparent"
+          id="serviceType"
+          aria-label="服務類別"
+          ref={ref}
+          name={name}
+          value={value}
+          // value={filters.category}
+          // onChange={(e) => handleFilterChange("category", e.target.value)}
+          onChange={onChange}
+        >
+          <option value="">請選擇</option>
+          {options.map(opt =>
+            <option value={opt.value}>{opt.label}</option>
+          )}
+
+        </select>
+      </div>
+      {error && <p className="">{error.message}</p>}
+    </>
   );
 });
 
