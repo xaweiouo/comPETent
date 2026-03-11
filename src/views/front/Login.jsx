@@ -20,7 +20,7 @@ function Login() {
   });
 
   async function handleLogin(loginInfo) {
-    console.log("正在嘗試登入的資料:", loginInfo);
+    // console.log("正在嘗試登入的資料:", loginInfo);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: loginInfo.email,
       password: loginInfo.password
@@ -28,7 +28,7 @@ function Login() {
 
     if (error) {
       alert(`登入失敗: ${error.message}`);
-      console.log(error)
+      // console.log(error)
     } else {
       dispatch(setUser(data.user));
       alert('登入成功！');
@@ -36,7 +36,7 @@ function Login() {
   }
 
   const handleSignup = async (formData) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password
     });
@@ -45,7 +45,7 @@ function Login() {
       alert(`註冊出錯：${error.message}`);
     } else {
       alert('請檢查電子郵件以完成驗證！');
-      console.log(data);
+      // console.log(data);
     }
   };
 
