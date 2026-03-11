@@ -1,4 +1,4 @@
-function PetCard({pet,divClassName,cardClassName}) {
+function PetCard({ pet, divClassName, cardClassName }) {
   return (
     <>
       <div className={divClassName}>
@@ -7,14 +7,14 @@ function PetCard({pet,divClassName,cardClassName}) {
           className={
             cardClassName
           }
-          style={{ width: "100%", maxWidth: "306px", cursor: "pointer" }}  // 固定寬度，確保三張排進這個區塊
-          // onClick={() => {
-          //   setSelectedPetId(pet.id);
-          //   setBookingForm((prev) => ({
-          //     ...prev,
-          //     pet_id: pet.id,
-          //   }));
-          // }}
+          style={{ width: "100%",  cursor: "pointer" }}  // 固定寬度，確保三張排進這個區塊
+        // onClick={() => {
+        //   setSelectedPetId(pet.id);
+        //   setBookingForm((prev) => ({
+        //     ...prev,
+        //     pet_id: pet.id,
+        //   }));
+        // }}
         >
           <div className="row g-0">
             {/* 左側圖片 */}
@@ -29,7 +29,10 @@ function PetCard({pet,divClassName,cardClassName}) {
             {/* 右側資訊 */}
             <div className="col-7 ps-0 ms-0">
               <div className="card-body ms-1">
-                <h5 className="card-title fw-bold mb-2">{pet.name}</h5>
+                <h5 className="card-title fw-bold mb-2" style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>{pet.name}</h5>
 
                 <p className="card-text mb-1">
                   <span className="badge bg-warning text-dark me-2">年齡</span>
