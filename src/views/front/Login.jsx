@@ -125,7 +125,7 @@ function Login() {
 
 
         <p className="text-center">{isAuthenticated ? '已登入' : '未登入'}</p>
-        <button type="button" disabled={!isAuthenticated} onClick={() => { handleLogout(dispatch) }}>登出</button>
+        <button type="button" className="d-block mx-auto" disabled={!isAuthenticated} onClick={() => { handleLogout(dispatch) }}>登出</button>
       </div>
     </>
   )
