@@ -1,0 +1,118 @@
+// @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+
+/* 替換左箭頭 */
+.carousel-control-prev-icon {
+  background-image: none;
+  background-image: url('../../../images/icons/left_chevron_icon.png');
+  background-size: contain;
+  /* 確保圖片完整顯示且不變形 */
+  background-repeat: no-repeat;
+  /* 防止圖片重複出現 */
+  background-position: center;
+  /* 居中顯示 */
+  width: 20px;
+  /* 視你的圖片大小調整 */
+  height: 20px;
+}
+
+/* 替換右箭頭 */
+.carousel-control-next-icon {
+  background-image: none;
+  background-image: url('../../../images/icons/right_chevron_icon.png');
+  background-size: contain;
+  /* 確保圖片完整顯示且不變形 */
+  background-repeat: no-repeat;
+  /* 防止圖片重複出現 */
+  background-position: center;
+  /* 居中顯示 */
+  width: 20px;
+  /* 視你的圖片大小調整 */
+  height: 20px;
+}
+
+.carousel-indicators [button],
+.carousel-indicators button {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+
+  /* 關鍵：移除 Bootstrap 預設的透明上下邊框 */
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0;
+  border-right: 0;
+
+  margin-left: 5px;
+  margin-right: 5px;
+
+  /* 選擇性：如果你發現圓點太靠底部，可以微調 padding 或 margin */
+  padding: 0;
+  opacity: 0.5;
+  background-color: #fff;
+  /* 確保有顏色 */
+}
+
+/* 選中狀態 */
+.carousel-indicators .active {
+  width: 20px !important;
+  /* 寬度增加（大約 2 到 2.5 倍） */
+  border-radius: 10px !important;
+  /* 只要大於高度的一半，就會維持圓角膠囊狀 */
+  opacity: 1;
+  background-color: $primary-06;
+  /* 選中變色 */
+}
+
+// /* 4. 當前選中的圓點換成另一張圖，或是變亮 */
+// .carousel-indicators .active {
+//     background-image: url('your-active-dot-icon.svg') ;
+//     opacity: 1;
+// }
+
+//RWD
+.carousel_sitter-service-detail {
+  height: 451px;
+
+  @media (max-width:375px) {
+    height: 260px;
+  }
+}
+
+.user_avatar {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+
+  @media (max-width:375px) {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+// .gradient-icon {
+//   width: 32px;
+//   height: 32px;
+  
+//   /* 1. 設定垂直漸層背景 */
+//   background: linear-gradient(to bottom, #FF5400,#FF5400, #FFB800);
+  
+//   /* 2. 使用 PNG 作為遮罩 (遮罩內有像素的地方才會顯示背景) */
+//   -webkit-mask-image: url('../../../images/icons/good_icon.png');
+//   mask-image: url('../../../images/icons/good_icon.png');
+  
+//   /* 3. 確保遮罩不重複且置中 */
+//   -webkit-mask-size: contain;
+//   mask-size: contain;
+//   -webkit-mask-repeat: no-repeat;
+//   mask-repeat: no-repeat;
+// }
+
+.gradient-fill {
+  /* 使用剛才在 SVG defs 裡設定的 ID */
+  fill: url(#gradient);
+}
+
+.good-icon{
+  width: 32px;
+  height: 32px;
+}

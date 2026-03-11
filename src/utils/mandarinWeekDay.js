@@ -1,0 +1,14 @@
+export const mandarinWeekDay=(day)=>{
+  const weekDay={
+    mon:'星期一',
+    tue:'星期二',
+    wed:'星期三',
+    thu:'星期四',
+    fri:'星期五',
+    sat:'星期六',
+    sun:'星期日',
+  };
+  return weekDay[day];
+};
+
+export const weekSorter = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];

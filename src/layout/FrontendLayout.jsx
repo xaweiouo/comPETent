@@ -1,11 +1,15 @@
 import { Outlet } from "react-router"
+import Navbar from "../components/NavBar"
+import Footer from "../components/Footer"
 const FrontendLayout = () => {
-    return(
+    return (
         <main>
-            <h1>aj</h1>
+            <Navbar/>
             <Outlet />
+            <Footer />
         </main>
     )
 }
 export default FrontendLayout
+
 

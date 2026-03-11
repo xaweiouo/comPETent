@@ -1,0 +1,22 @@
+//字體
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+
+//載入bootstarp icons
+$bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
+@import "bootstrap-icons/font/bootstrap-icons";
+@import "bootstrap/scss/functions";
+//客製bootstrap
+$font-family-sans-serif: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+@import "./costomerize_variables";
+@import "./variables";
+
+@import "./reset";
+
+@import "bootstrap/scss/bootstrap";
+
+
+@import "./base";
+@import "./scss/pages/home";
+@import "./scss/pages/_sitterBooking";
+@import './scss/pages/sitter_service_detail';
+@import "./scss/pages/_lookForPetSitter";

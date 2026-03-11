@@ -1,0 +1,204 @@
+// _sitterBooking.scss
+// html, body {
+//   background-color: rgba(254, 243, 226, 1);
+// }
+// img {
+//   overflow: hidden;
+//   object-fit: cover;
+// }
+// .nav-logo {
+//   width: 68px;
+//   height: 52px;
+//   @media (max-width: 768px) {
+//     width: 40px;
+//     height: 32px;
+    
+//   }
+// }
+
+// .banner-image {
+//   width: 100%;
+//   object-fit: cover;
+//   @media (max-width: 768px) {
+//     width: 240px;
+//     height: auto;
+//   }
+// }
+
+// .btn-gradint-primary {
+//   color: #fff;
+//   background: linear-gradient(
+//     90deg,
+//     rgba(255, 84, 0, 1) 0%,
+//     rgba(255, 178, 44, 1) 100%
+//   );
+//   &:hover {
+//     color: #fff;
+//     background: linear-gradient(
+//       240deg,
+//       rgba(255, 84, 0, 1) 0%,
+//       rgba(255, 178, 44, 1) 100%
+//     );
+//     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+//   }
+// }
+
+// .btn-gradint-secondary {
+//   color: #E54C00;
+//   background: linear-gradient(
+//     90deg,
+//     rgba(255, 84, 0, .5) 0%,
+//     rgba(255, 178, 44, .5) 100%
+//   );
+//   &:hover {
+//     color: #E54C00;
+//     background: linear-gradient(
+//       240deg,
+//       rgba(255, 84, 0, .5) 0%,
+//       rgba(255, 178, 44, .5) 100%
+//     );
+//     box-shadow: 0 0 15px rgba(0 ,0 , 0, .5);
+//   }
+// }
+
+// 定義顏色
+$black-800: #353535;
+
+.booking-back-btn {
+  display: inline-flex;      
+  align-items: center;       
+  border: none;
+  background: transparent;
+  text-decoration: none;
+}
+
+.booking-back-btn h5 {
+  color: $black-800;
+  margin: 0;        
+}
+
+.badge-pill-gray {
+  border: 1px solid #CECECE; 
+  padding: 4px 12px;
+}
+
+
+.booking-card-transparent {
+  background-color: transparent;  // 讓卡片吃到 body 的淡黃色
+}
+
+.background-transparent {
+  background-color: transparent;  // 讓卡片吃到 body 的淡黃色
+}
+
+.pet-toggle-pill {
+  border-radius: 999px;
+  padding: 0.35rem 1.1rem;
+  border: 2px solid rgba($warning, 0.6); // Bootstrap 的 $warning
+  background-color: #fff;
+  color: $dark;
+  font-weight: 700;
+}
+
+/* 被選中狀態：框加深，接近設計稿「實線橘圈」 */
+.btn-check:checked + .pet-toggle-pill {
+  border-color: $warning;
+}
+
+@media (max-width: 768px) {
+  /* 讓整行有空間換行，但保持主方向橫排 */
+  .booking-service-time-row .col-12 {
+    flex-wrap: wrap;
+  }
+
+  /* 日期區塊：在手機寬度縮小 & 預留給時分一點空間 */
+  .booking-service-time-row .col-12 > .flex-grow-1 {
+    flex: 1 1 60%;     /* 日期大約佔 60% 寬 */
+    margin-right: 0.5rem;
+  }
+
+  /* 時分區塊：改成獨立第二列，吃滿寬度 */
+  .booking-time-group-arrival,
+  .booking-time-group-departure {
+    flex: 0 0 100%;
+    margin-top: 0.5rem;
+    justify-content: flex-start;
+  }
+}
+
+// 保姆詳細頁面專用樣式
+.booking-readonly-field {
+  background-color: #FEF3E2;
+}
+
+.booking-readonly-icon {
+  background-color: #FEF3E2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-readonly-input {
+  background-color: #FEF3E2;
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  color: #353535;
+}
+
+.pet-card {
+  border-radius: 20px;
+  // debug 用背景可以拿掉，或改成你要的底色
+  background-color: rgb(255, 255, 255);
+
+  // 固定卡片高度，依你實際畫面調整
+  min-height: 180px;
+  max-height: 180px;
+
+  // 先給一個「透明」的粗邊框，選取時只改顏色
+  border: 3px solid transparent;
+
+  // 動畫順一點
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+  // 讓內容撐滿高度、排版穩定（搭配 .card-body）
+  display: flex;
+  flex-direction: column;
+}
+.pet-card--active {
+  border-color: $warning;            // 原本的橘色框
+  background-color: #fff9e6;         // 淡橘底，看起來有選到
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.4);
+}
+.pet-name {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; // 單行
+}
+.pet-status-text {
+  white-space: nowrap;        // 不換行
+  overflow: hidden;           // 超出就隱藏
+  text-overflow: ellipsis;    // 超出顯示 …
+}
+@media (max-width: 768px) {
+  /* 每張卡片在手機寬度改成吃滿一行 */
+  .pet-card {
+    max-width: 100% !important;   // 原本 306px 把它蓋掉
+    width: 100% !important;
+  }
+
+  /* 外層容器如果有用 flex-row，可以允許換行 */
+  .booking-pet .carousel-item > .d-flex {
+    flex-wrap: nowrap;            // 保持一列橫向排
+    justify-content: flex-start;  // 左對齊
+  }
+}
+
+.pet-card-img-wrapper {
+  overflow: hidden;      // 多的切掉
+  border-radius: 16px;   // 跟 img 一致
+}
+
