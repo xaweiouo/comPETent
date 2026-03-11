@@ -51,7 +51,7 @@ const ServiceDeployForm = () => {
     register,
     handleSubmit,
     // watch,
-    // formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       category: '',
@@ -120,26 +120,28 @@ const ServiceDeployForm = () => {
           <form action="" onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-center fw-bold text-primary mb-5">發布服務</h2>
 
-            <div className="row g-3 align-items-end">
+            <div className="row g-3 align-items-start">
               {/* 服務類別 */}
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-6">
                 <label htmlFor="serviceType" className="form-label mb-2">
                   服務類別
                 </label>
                 <Select
-                  {...register("category")}
+                  {...register("category", { required: "請選擇一個服務類別" })}
                   options={SITTER_SERVICE_OPTIONS}
+                  error={errors?.category}
                 />
               </div>
 
               {/* 寵物類別 */}
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-6">
                 <label htmlFor="serviceType" className="form-label mb-2">
                   服務的寵物
                 </label>
                 <Select
-                  {...register("species")}
+                  {...register("species", { required: "請選擇一個寵物類別" })}
                   options={PET_SPECIES_OPTIONS}
+                  error={errors?.species}
                 />
               </div>
 
@@ -155,81 +157,83 @@ const ServiceDeployForm = () => {
               </div> */}
 
               {/* 服務天 */}
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-4">
                 <label htmlFor="serviceType" className="form-label mb-2">
                   服務天
                 </label>
                 <Select
-                  {...register("day_of_week")}
+                  {...register("day_of_week", { required: "請選擇一個服務天" })}
                   options={WEEKDAY_OPTIONS}
+                  error={errors?.day_of_week}
                 />
               </div>
 
               {/* 開始時間：時分 */}
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-4">
                 <div className="row g-2">
 
                   <div className="col-6">
                     <label className="form-label mb-2">開始時</label>
-                    <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
-                      <Select
-                        {...register("start_hour")}
-                        options={HOUR_OPTIONS}
-                      />
-                    </div>
+                    <Select
+                      {...register("start_hour", { required: "請選擇開始時間" })}
+                      options={HOUR_OPTIONS}
+                      error={errors?.start_hour}
+                    />
                   </div>
 
                   <div className="col-6">
                     <label className="form-label mb-2">開始分</label>
-                    <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
-                      <Select
-                        {...register("start_minute")}
-                        options={MINUTE_OPTIONS}
-                      />
-                    </div>
+                    <Select
+                      {...register("start_minute", { required: "請選擇開始時間" })}
+                      options={MINUTE_OPTIONS}
+                      error={errors?.start_minute}
+                    />
                   </div>
 
                 </div>
               </div>
 
               {/* 結束時間：時分 */}
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-4">
                 <div className="row g-2">
 
                   <div className="col-6">
                     <label className="form-label mb-2">結束時</label>
-                    <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
-                      <Select
-                        {...register("end_hour")}
-                        options={HOUR_OPTIONS}
-                      />
-                    </div>
+                    <Select
+                      {...register("end_hour", { required: "請選擇結束時間" })}
+                      options={HOUR_OPTIONS}
+                      error={errors?.end_hour}
+                    />
                   </div>
 
                   <div className="col-6">
                     <label className="form-label mb-2">結束分</label>
-                    <div className="input-group rounded-pill overflow-hidden border border-warning bg-white">
-                      <Select
-                        {...register("end_minute")}
-                        options={MINUTE_OPTIONS}
-                      />
-                    </div>
+                    <Select
+                      {...register("end_minute", { required: "請選擇結束時間" })}
+                      options={MINUTE_OPTIONS}
+                      error={errors?.end_minute}
+                    />
                   </div>
 
                 </div>
               </div>
 
               <div className="col-12">
-                <label className="form-label">服務簡述</label>
+                <div className="d-flex">
+                  <label className="form-label">服務簡述</label>
+                  {errors.description && <p className="ms-3">{errors.description.message}</p>}
+                </div>
                 <textarea
+                  {...register("description", { required: "請簡述服務" })}
                   className="form-control border border-warning"
                   style={{ backgroundColor: "#FEF3E2" }}
                   rows="4"
-                  // value={newPet.note}
-                  // onChange={(e) =>
-                  //   setNewPet((prev) => ({ ...prev, note: e.target.value }))
-                  // }
-                  // placeholder="例如：怕生、對貓敏感、曾開刀等"
+                // error={errors?.description}
+                // value={newPet.note}
+                // onChange={(e) =>
+                //   setNewPet((prev) => ({ ...prev, note: e.target.value }))
+                // }
+                // placeholder="例如：怕生、對貓敏感、曾開刀等"
                 />
               </div>
 

@@ -173,11 +173,12 @@ function OwnerProfile() {
                 {ownerBooking?.map(b => (
 
                   <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
-                    <div className="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div className="card-body p-3 d-flex justify-content-between align-items-center">
                       <div>
                         <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
                         <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                        <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}  ｜ 服務對象：{petMap[b.pet_id]}</p>
+                        <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}</p>
+                        <p>服務對象：{petMap[b.pet_id]}</p>
                       </div>
                       <div className="text-end">
                         <h5 className="fw-bold mb-2 text-primary" >NT$ {b.total_price}</h5>
