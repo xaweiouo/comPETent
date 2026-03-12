@@ -1,7 +1,25 @@
-function PetCard({ pet, divClassName, cardClassName }) {
+// import { useRef,useEffect } from "react";
+// import * as bootstrap from 'bootstrap';
+// import PetDetailModal from "./PetDetailModal";
+
+function PetCard({ pet, divClassName, cardClassName ,cardOnClick}) {
+  // const cardRef=useRef(null);
+  // const petDetailModalRef=useRef(null);
+
+  // useEffect(()=>{
+  //   if (cardRef.current) {
+  //     petDetailModalRef.current = new bootstrap.Modal(cardRef.current);
+  //   }
+  // },[])
+
+  // const openModal = () => {
+  //   petDetailModalRef.current?.show();
+  // };
+
   return (
     <>
-      <div className={divClassName}>
+      {/* <PetDetailModal cardRef={cardRef}/> */}
+      <div className={divClassName} onClick={cardOnClick}>
         <div
           // key={pet.id}
           className={

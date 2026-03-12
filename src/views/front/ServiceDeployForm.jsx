@@ -4,6 +4,12 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 
+import feetIcon from "../../images/icons/feet_icon.png";
+// import locationIcon from "../../images/icons/location_icon.png";
+import calendarIcon from "../../images/icons/calendar_icon.png";
+import workIcon from "../../images/icons/work_icon.png";
+// import radarIcon from "../../images/icons/radar_icon.png";
+
 import { SITTER_SERVICE_OPTIONS, PET_SPECIES_OPTIONS, WEEKDAY_OPTIONS, HOUR_OPTIONS, MINUTE_OPTIONS } from "../../utils/options";
 import Select from "../../components/Select";
 
@@ -76,18 +82,18 @@ const ServiceDeployForm = () => {
       console.log("準備寫入的資料內容：", JSON.stringify(dataToSave));
 
       // 寫入 services 主表
-      const { data: service, error: sError } = await supabase
+      const {  error: sError } = await supabase
         .from('services')
         .insert([{
           sitter_id: userId,
           // location_id: data.location_id,
           // photo_url: mainPhotoPath,
-          category: service.category,
-          species: service.species,
+          category: data.category,
+          species: data.species,
           day_of_week: data.day_of_week,
           start_time: formattedStartTime,
           end_time: formattedEndtTime,
-          // description: data.description,
+          description: data.description,
           // 根據類別寫入對應價格，其餘為 null
           // price_per_30min: data.price_per_30min || null,
           // price_per_day: data.price_per_day || null,
@@ -114,7 +120,6 @@ const ServiceDeployForm = () => {
 
   return (
     <>
-      <p>{userId}</p>
       <section className="lookfor-filter-group py-5">
         <div className="container">
           <form action="" onSubmit={handleSubmit(onSubmit)}>
@@ -128,6 +133,7 @@ const ServiceDeployForm = () => {
                 </label>
                 <Select
                   {...register("category", { required: "請選擇一個服務類別" })}
+                  imgSrc={workIcon}
                   options={SITTER_SERVICE_OPTIONS}
                   error={errors?.category}
                 />
@@ -140,6 +146,7 @@ const ServiceDeployForm = () => {
                 </label>
                 <Select
                   {...register("species", { required: "請選擇一個寵物類別" })}
+                  imgSrc={feetIcon}
                   options={PET_SPECIES_OPTIONS}
                   error={errors?.species}
                 />
@@ -163,6 +170,7 @@ const ServiceDeployForm = () => {
                 </label>
                 <Select
                   {...register("day_of_week", { required: "請選擇一個服務天" })}
+                  imgSrc={calendarIcon}
                   options={WEEKDAY_OPTIONS}
                   error={errors?.day_of_week}
                 />
@@ -176,6 +184,7 @@ const ServiceDeployForm = () => {
                     <label className="form-label mb-2">開始時</label>
                     <Select
                       {...register("start_hour", { required: "請選擇開始時間" })}
+                      imgSrc={calendarIcon}
                       options={HOUR_OPTIONS}
                       error={errors?.start_hour}
                     />
@@ -185,6 +194,7 @@ const ServiceDeployForm = () => {
                     <label className="form-label mb-2">開始分</label>
                     <Select
                       {...register("start_minute", { required: "請選擇開始時間" })}
+                      imgSrc={calendarIcon}
                       options={MINUTE_OPTIONS}
                       error={errors?.start_minute}
                     />
@@ -201,6 +211,7 @@ const ServiceDeployForm = () => {
                     <label className="form-label mb-2">結束時</label>
                     <Select
                       {...register("end_hour", { required: "請選擇結束時間" })}
+                      imgSrc={calendarIcon}
                       options={HOUR_OPTIONS}
                       error={errors?.end_hour}
                     />
@@ -210,6 +221,7 @@ const ServiceDeployForm = () => {
                     <label className="form-label mb-2">結束分</label>
                     <Select
                       {...register("end_minute", { required: "請選擇結束時間" })}
+                      imgSrc={calendarIcon}
                       options={MINUTE_OPTIONS}
                       error={errors?.end_minute}
                     />

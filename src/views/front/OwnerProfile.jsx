@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+
 import { supabase } from "../../lib/supabaseClient";
 // import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PetCard from "../../components/PetCard";
+import PetDetailModal from "../../components/PetDetailModal";
 
 function OwnerProfile() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
@@ -15,12 +17,19 @@ function OwnerProfile() {
   const [ownerPets, setOwnerPets] = useState([]);
   const [ownerBooking, setOwnerBooking] = useState(null);
 
+  // 建立一個狀態來儲存當前點選的寵物物件
+  const [selectedPet, setSelectedPet] = useState(null);
+
   const navigate = useNavigate();
 
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
   }
-    , [ownerPets])
+    , [ownerPets]);
+
+  const cardOnClick = (pet) => {
+    setSelectedPet(pet);
+  }
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -81,7 +90,7 @@ function OwnerProfile() {
 
   return (
     <>
-      <div className="bg-primary-01" style={{  minHeight: '100vh', paddingBottom: '50px' }}>
+      <div className="bg-primary-01" style={{ minHeight: '100vh', paddingBottom: '50px' }}>
         <div className="container pt-3">
 
           {/* 1. 頂部返回按鈕 */}
@@ -157,10 +166,17 @@ function OwnerProfile() {
                 {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
                 {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
                 {/* </div> */}
-
+                <PetDetailModal pet={selectedPet}/>
                 <div className="row g-3">
                   {ownerPets?.map(pet => (
-                    <PetCard key={pet.id} pet={pet} divClassName={'col-12 col-md-6 col-lg-3'} cardClassName={'card background-color:white'} />
+                    <PetCard
+                      key={pet.id}
+                      pet={pet}
+                      divClassName={'col-12 col-md-6 col-lg-3'}
+                      cardClassName={'card background-color:white'}
+                      // cardRef={cardRef}
+                      // 點擊時把當前的 pet 物件傳回去
+                      cardOnClick={() => cardOnClick(pet)} />
                   ))}
                 </div>
               </div>
