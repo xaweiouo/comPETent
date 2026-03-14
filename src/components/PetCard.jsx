@@ -3,18 +3,6 @@
 // import PetDetailModal from "./PetDetailModal";
 
 function PetCard({ pet, divClassName, cardClassName ,cardOnClick}) {
-  // const cardRef=useRef(null);
-  // const petDetailModalRef=useRef(null);
-
-  // useEffect(()=>{
-  //   if (cardRef.current) {
-  //     petDetailModalRef.current = new bootstrap.Modal(cardRef.current);
-  //   }
-  // },[])
-
-  // const openModal = () => {
-  //   petDetailModalRef.current?.show();
-  // };
 
   return (
     <>

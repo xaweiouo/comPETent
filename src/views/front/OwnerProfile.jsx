@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-
+import * as bootstrap from 'bootstrap';
 import { supabase } from "../../lib/supabaseClient";
 // import { starRating } from "../../utils/starRating";
 import { useSelector } from "react-redux";
@@ -19,6 +19,8 @@ function OwnerProfile() {
 
   // 建立一個狀態來儲存當前點選的寵物物件
   const [selectedPet, setSelectedPet] = useState(null);
+  const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'create'
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,9 +29,8 @@ function OwnerProfile() {
   }
     , [ownerPets]);
 
-  const cardOnClick = (pet) => {
-    setSelectedPet(pet);
-  }
+  const petModalRef = useRef(null);
+  const newPetModalRef = useRef(null);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -67,7 +68,6 @@ function OwnerProfile() {
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
 
-
           // console.log("✅ 資料同步完成：", data);
         }
       } catch (error) {
@@ -78,6 +78,56 @@ function OwnerProfile() {
     fetchInitialData();
 
   }, [isAuthenticated, isAuthLoading, navigate, user]);
+
+  const openModal = () => {
+
+    const element = petModalRef.current;
+
+    if (element) {
+      // 1. 檢查是否已經初始化過，沒有才 new
+      // if (!newPetModalRef.current) {
+      newPetModalRef.current = new bootstrap.Modal(element, {
+        keyboard: false
+      });
+      // }
+
+      element.addEventListener('hide.bs.modal', () => {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      });
+
+      newPetModalRef.current.show();
+
+    } else {
+      console.error("找不到 Modal DOM 或 Bootstrap 未載入");
+    }
+  };
+
+  const closeModal=()=>{
+    newPetModalRef.current.hide();
+  }
+
+  // 點擊寵物卡：看詳細資料
+  const handleView = (pet) => {
+    setSelectedPet({...pet});
+    setMode('view');
+    setIsModalOpen(true);
+  };
+
+  // 點擊新增：給予空資料
+  const handleAdd = () => {
+    setSelectedPet(null); // 清空
+    setMode('create');
+    setIsModalOpen(true);
+  };
+
+  const cardOnClick = (pet) => {
+    openModal();
+    handleView(pet);
+    console.log(pet)
+    // setSelectedPet(pet);
+  }
 
   if (!isAuthenticated) {
     return (
@@ -166,7 +216,7 @@ function OwnerProfile() {
                 {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
                 {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
                 {/* </div> */}
-                <PetDetailModal pet={selectedPet}/>
+                <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closeModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets}/>
                 <div className="row g-3">
                   {ownerPets?.map(pet => (
                     <PetCard
@@ -176,7 +226,8 @@ function OwnerProfile() {
                       cardClassName={'card background-color:white'}
                       // cardRef={cardRef}
                       // 點擊時把當前的 pet 物件傳回去
-                      cardOnClick={() => cardOnClick(pet)} />
+                      cardOnClick={() => cardOnClick(pet)}
+                    />
                   ))}
                 </div>
               </div>
