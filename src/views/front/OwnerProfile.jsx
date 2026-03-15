@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import * as bootstrap from 'bootstrap';
 import { supabase } from "../../lib/supabaseClient";
 // import { starRating } from "../../utils/starRating";
+
+import { TailSpin } from "react-loader-spinner";
+
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PetCard from "../../components/PetCard";
@@ -9,6 +12,8 @@ import PetDetailModal from "../../components/PetDetailModal";
 
 function OwnerProfile() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
+
+  const [loading, setLoading] = useState(true);
 
   // 狀態驅動：控制目前顯示的角色，預設為 'sitter'
   const [activeTab, setActiveTab] = useState('pets');
@@ -67,6 +72,7 @@ function OwnerProfile() {
           setOwnerProfile(data);
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
+          setLoading(false);
 
           // console.log("✅ 資料同步完成：", data);
         }
@@ -104,13 +110,13 @@ function OwnerProfile() {
     }
   };
 
-  const closeModal=()=>{
+  const closeModal = () => {
     newPetModalRef.current.hide();
   }
 
   // 點擊寵物卡：看詳細資料
   const handleView = (pet) => {
-    setSelectedPet({...pet});
+    setSelectedPet({ ...pet });
     setMode('view');
     setIsModalOpen(true);
   };
@@ -136,6 +142,11 @@ function OwnerProfile() {
         <p className="text-center">3秒後回到首頁</p>
       </>
     )
+  } else if (loading) {
+    return <div className="d-flex justify-content-center">
+      <TailSpin color="var(--bs-primary)" />
+    </div>
+
   };
 
   return (
@@ -216,7 +227,7 @@ function OwnerProfile() {
                 {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
                 {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
                 {/* </div> */}
-                <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closeModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets}/>
+                <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closeModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
                 <div className="row g-3">
                   {ownerPets?.map(pet => (
                     <PetCard

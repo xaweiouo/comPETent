@@ -3,6 +3,8 @@ import { supabase } from "../../lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
+import { TailSpin } from "react-loader-spinner";
+
 import { starRating } from "../../utils/starRating";
 import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
 import { weekSorter } from "../../utils/mandarinWeekDay";
@@ -32,7 +34,7 @@ const SitterServiceDetail = () => {
   const [reviews, setReviews] = useState([]); // 評論列表
   const [isFavorite, setIsFavorite] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
-  const [bookingData,setBookingData]=useState({});
+  const [bookingData, setBookingData] = useState({});
 
   const params = useParams();
   const { id } = params;
@@ -41,7 +43,7 @@ const SitterServiceDetail = () => {
 
   const navigate = useNavigate();
 
-  const onToggleDone=(isFav)=>{setIsFavorite(isFav)}
+  const onToggleDone = (isFav) => { setIsFavorite(isFav) }
 
   useEffect(() => {
     const checkServiceExistence = async () => {
@@ -66,7 +68,7 @@ const SitterServiceDetail = () => {
         }
 
         // 情況 B: 資料存在
-        setIsChecking(false);
+        // setIsChecking(false);
       } catch {
         setNotFound(true);
         setIsChecking(false);
@@ -155,6 +157,8 @@ const SitterServiceDetail = () => {
           // 如果有查到訂單資料，isBooking 就會是 true
           setIsBooking(!!bookingData);
           setBookingData(bookingData);
+          setIsChecking(false);
+
         }
       } catch (error) {
         console.log('Error fetching details:', error.message);
@@ -163,111 +167,35 @@ const SitterServiceDetail = () => {
     fetchData();
   }, [id, user]);
 
-  // const fetchData = async () => {
-  //   try {
-  //     // 1. 取得該服務的基本資訊與保母資訊
-  //     const { data: baseService, error: baseError } = await supabase
-  //       .from('services')
-  //       .select(`
-  //         *,
-  //         users!services_sitter_id_fkey (id, nickname, avatar_url),
-  //         locations (city, district),
-  //         service_photos (photo_url, sort_order)
-  //       `)
-  //       .eq('id', id)
-  //       .maybeSingle();
+  // const handleToggleFavorite = async () => {
+  //   if (!isAuthenticated) {
+  //     alert('請先登入再使用收藏功能');
+  //     return;
+  //   };
 
-  //     if (baseService && baseService.service_photos) {
-  //       // 排序：由小到大 (1, 2, 3...)
-  //       baseService.service_photos.sort((a, b) => a.sort_order - b.sort_order);
-  //     }
-  //     setServiceDetail(baseService);
+  //   if (isFavorite) {
+  //     // 取消收藏
+  //     await supabase.from('favorites').delete().eq('owner_id', userId).eq('sitter_id', serviceDetail.sitter_id);
+  //     setIsFavorite(false);
+  //     alert('已取消收藏');
+  //   } else {
+  //     // 新增收藏
+  //     await supabase.from('favorites').insert({ owner_id: userId, sitter_id: serviceDetail.sitter_id });
+  //     setIsFavorite(true);
+  //     alert('已加入收藏');
 
-  //     if (baseError) throw baseError;
-
-  //     // 2. 根據保母 ID 和 類別，抓取所有相關時段
-  //     const { data: schedules, error: scheduleError } = await supabase
-  //       .from('services')
-  //       .select('id, day_of_week, start_time, end_time')
-  //       .eq('sitter_id', baseService.sitter_id)
-  //       .eq('category', baseService.category);
-  //     setAllSchedules(schedules);
-
-  //     if (scheduleError) throw scheduleError;
-
-  //     // 3. 取得該保母的所有評論
-  //     const { data: reviewData, error: reviewError } = await supabase
-  //       .from('reviews')
-  //       .select(`
-  //         id, rating, comment,
-  //         users!reviews_owner_id_fkey (nickname, avatar_url)
-  //       `)
-  //       .eq('sitter_id', baseService.sitter_id);
-  //     setReviews(reviewData);
-  //     if (reviewError) throw reviewError;
-
-  //     // 4. 檢查收藏狀態 (若已登入)
-  //     if (user) {
-  //       const { data: userData } = await supabase
-  //         .from('users')
-  //         .select('id')
-  //         .eq('email', user.email)
-  //         .maybeSingle();
-
-  //       const { data: favData, error: favError } = await supabase
-  //         .from('favorites')
-  //         .select('id')
-  //         .eq('owner_id', userData.id)
-  //         .eq('sitter_id', baseService.sitter_id)
-  //         .maybeSingle();
-
-  //       // 判斷是否已經預約過此服務 (且訂單仍在進行中)
-  //       const { data: bookingData } = await supabase
-  //         .from('bookings')
-  //         .select('id') // 只需要拿 id 判斷是否存在即可
-  //         .eq('owner_id', userData.id)
-  //         .eq('service_id', baseService.id) // 比對目前的服務 ID
-  //         .in('status', ['pending', 'accepted', 'paid']) // 排除已取消、已完成的訂單
-  //         .order('created_at', { ascending: false }) // 若有多筆，拿最新的
-  //         .limit(1)
-  //         .maybeSingle();
-
-  //       setUserId(userData.id);
-  //       setIsFavorite(!!favData);
-
-  //       // 如果有查到訂單資料，isBooking 就會是 true
-  //       setIsBooking(!!bookingData);
-  //     }
-  //   } catch (error) {
-  //     console.log('Error fetching details:', error.message);
   //   }
   // };
-
-  const handleToggleFavorite = async () => {
-    if (!isAuthenticated) {
-      alert('請先登入再使用收藏功能');
-      return;
-    };
-
-    if (isFavorite) {
-      // 取消收藏
-      await supabase.from('favorites').delete().eq('owner_id', userId).eq('sitter_id', serviceDetail.sitter_id);
-      setIsFavorite(false);
-      alert('已取消收藏');
-    } else {
-      // 新增收藏
-      await supabase.from('favorites').insert({ owner_id: userId, sitter_id: serviceDetail.sitter_id });
-      setIsFavorite(true);
-      alert('已加入收藏');
-
-    }
-  };
 
   // 1. 第一層守門員：正在與資料庫通訊中
   if (isChecking) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="d-flex flex-column align-items-center">
         <p className="text-center">正在載入服務詳情...</p>
+        <div>
+          <TailSpin
+            color="var(--bs-primary)" />
+        </div>
       </div>
     );
   }
@@ -384,13 +312,13 @@ const SitterServiceDetail = () => {
 
             </div>
 
-            <FavoriteButton 
-            sitterId={serviceDetail.sitter_id} 
-            ownerId={userId} 
-            isFavorite={isFavorite}
-            isAuthenticated={isAuthenticated}
-            user={user}
-            onToggleDone={onToggleDone}
+            <FavoriteButton
+              sitterId={serviceDetail.sitter_id}
+              ownerId={userId}
+              isFavorite={isFavorite}
+              isAuthenticated={isAuthenticated}
+              user={user}
+              onToggleDone={onToggleDone}
             />
 
             {/* {isFavorite ? (
