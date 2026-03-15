@@ -3,6 +3,11 @@ import * as bootstrap from 'bootstrap';
 import { useRef, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import feetIcon from '../../src/images/icons/feet_icon.png'
+import dogIcon from '../../src/images/icons/dog_icon.png'
+import cakeIcon from '../../src/images/icons/cake_icon.png'
+import calendarIcon from '../../src/images/icons/calendar_icon.png'
+
 function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
   // const petModalRef = useRef(null);
   // const newPetModalRef = useRef(null);
@@ -163,7 +168,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                             style={{ backgroundColor: "#FEF3E2" }}
                           >
                             <img
-                              // src={feetIcon}
+                              src={feetIcon}
                               alt="feet"
                               width="20"
                               height="20"
@@ -199,7 +204,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                             style={{ backgroundColor: "#FEF3E2" }}
                           >
                             <img
-                              // src={dogIcon}
+                              src={dogIcon}
                               alt="dog"
                               width="20"
                               height="20"
@@ -234,7 +239,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                             style={{ backgroundColor: "#FEF3E2" }}
                           >
                             <img
-                              // src={cakeIcon}
+                              src={cakeIcon}
                               alt="cake"
                               width="20"
                               height="20"
@@ -265,7 +270,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                             style={{ backgroundColor: "#FEF3E2" }}
                           >
                             <img
-                              // src={calendarIcon}
+                              src={calendarIcon}
                               alt="calendar"
                               width="20"
                               height="20"

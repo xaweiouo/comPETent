@@ -18,6 +18,7 @@ import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
 import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
+import { FavoriteButton } from "../../utils/FavoriteButton";
 
 
 const SitterServiceDetail = () => {
@@ -39,6 +40,8 @@ const SitterServiceDetail = () => {
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
   const navigate = useNavigate();
+
+  const onToggleDone=(isFav)=>{setIsFavorite(isFav)}
 
   useEffect(() => {
     const checkServiceExistence = async () => {
@@ -381,7 +384,16 @@ const SitterServiceDetail = () => {
 
             </div>
 
-            {isFavorite ? (
+            <FavoriteButton 
+            sitterId={serviceDetail.sitter_id} 
+            ownerId={userId} 
+            isFavorite={isFavorite}
+            isAuthenticated={isAuthenticated}
+            user={user}
+            onToggleDone={onToggleDone}
+            />
+
+            {/* {isFavorite ? (
               <div
                 className="ms-8 me-3 align-self-center"
                 style={{ cursor: 'pointer' }}
@@ -397,7 +409,7 @@ const SitterServiceDetail = () => {
               >
                 <img src={empt_heart_icon} alt="" />
               </div>
-            )}
+            )} */}
 
           </div>
 
