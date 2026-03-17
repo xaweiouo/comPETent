@@ -222,7 +222,7 @@ function OwnerProfile() {
           <div className="row px-2">
             {activeTab === 'pets' ? (
               /* -------- [標籤 A] 我的寵物 內容 -------- */
-              <div className="col-12">
+              <div className="">
                 {/* <div className="d-flex justify-content-between align-items-center mb-3"> */}
                 {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
                 {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
@@ -233,7 +233,7 @@ function OwnerProfile() {
                     <PetCard
                       key={pet.id}
                       pet={pet}
-                      divClassName={'col-12 col-md-6 col-lg-3'}
+                      divClassName={'col-md-6 col-lg-3'}
                       cardClassName={'card background-color:white'}
                       // cardRef={cardRef}
                       // 點擊時把當前的 pet 物件傳回去
@@ -244,7 +244,7 @@ function OwnerProfile() {
               </div>
             ) : (
               /* -------- [標籤 B] 我的預約 內容 -------- */
-              <div className="col-12">
+              <div className="">
                 {/* <h5 className="fw-bold mb-3">近期預約</h5> */}
 
                 {/* 預約紀錄卡片 */}
