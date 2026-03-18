@@ -1,7 +1,13 @@
-function PetCard({ pet, divClassName, cardClassName }) {
+// import { useRef,useEffect } from "react";
+// import * as bootstrap from 'bootstrap';
+// import PetDetailModal from "./PetDetailModal";
+
+function PetCard({ pet, divClassName, cardClassName ,cardOnClick}) {
+
   return (
     <>
-      <div className={divClassName}>
+      {/* <PetDetailModal cardRef={cardRef}/> */}
+      <div className={divClassName} onClick={cardOnClick}>
         <div
           // key={pet.id}
           className={
