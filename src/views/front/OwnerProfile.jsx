@@ -223,10 +223,6 @@ function OwnerProfile() {
             {activeTab === 'pets' ? (
               /* -------- [標籤 A] 我的寵物 內容 -------- */
               <div className="">
-                {/* <div className="d-flex justify-content-between align-items-center mb-3"> */}
-                {/* <h5 className="fw-bold mb-0">毛孩家族 (2)</h5> */}
-                {/* <button className="btn btn-sm btn-outline-dark rounded-pill">+ 新增毛孩</button> */}
-                {/* </div> */}
                 <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closeModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
                 <div className="row g-3">
                   {ownerPets?.map(pet => (
@@ -245,9 +241,6 @@ function OwnerProfile() {
             ) : (
               /* -------- [標籤 B] 我的預約 內容 -------- */
               <div className="">
-                {/* <h5 className="fw-bold mb-3">近期預約</h5> */}
-
-                {/* 預約紀錄卡片 */}
                 {ownerBooking?.map(b => (
 
                   <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
