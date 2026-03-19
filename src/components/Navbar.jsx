@@ -53,8 +53,8 @@ const Navbar = () => {
     initAuth()
   }, [])
 
+  //想要在登入後再取得會員照片、姓名，重新渲染於navbar，但一直沒辦法解決!!!!
   useEffect(() => {
-    if (!userEmail) return; 
     const initRole = async () => {
       try {
         const { data: userData } = await supabase
@@ -67,7 +67,7 @@ const Navbar = () => {
           `)
           .eq('email', userEmail)
           .maybeSingle();
-
+          console.log(userData)
         if(userData){
           setUserNickName(userData.nickname)
           setUserImg(userData.avatar_url)
