@@ -2,14 +2,21 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const messageSlice=createSlice({
   name:'message',
-  initialState:[],
+  initialState:[
+    // {
+    //   id:1,
+    //   type:'danger',
+    //   title:'成功',
+    //   text:'123456'
+    // }
+  ],
   reducers:{
     createMessage(state,action){
       state.push({
         id:action.payload.id,
         type:action.payload.message?'danger':'success',
         title:action.payload.message?'失敗':'成功',
-        text:action.payload.message?action.payload.message:'成功',
+        text:action.payload.message?action.payload.message:action.payload.text,
       })
     },
     removeMessage(state,action){
