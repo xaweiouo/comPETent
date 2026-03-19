@@ -49,7 +49,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
         prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
       );
 
-      dispatch(createAsyncMessage(data&&{text:'修改成功'}||error));
+      dispatch(createAsyncMessage(data && { text: '修改成功' } || error));
       closeModal();
 
     } catch (error) {
@@ -424,9 +424,9 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                         >
                           取消
                         </button> */}
-                        <button type="submit" className="btn btn-primary">
+                        {/* <button type="submit" className="btn btn-primary">
                           送出
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
@@ -435,13 +435,17 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
             </div>
             <div className="modal-footer justify-content-between">
               <button type="button" className="btn btn-danger" data-bs-dismiss="modal">刪除此寵物</button>
-              <button
+              {mode === 'view' ? <button
+                key='edit'
                 type="button"
                 className="btn btn-primary text-white"
                 onClick={() => setMode('edit')}
               >
                 編輯
-              </button>
+              </button> : <button key='submit' type="submit" className="btn btn-primary text-white" form="editForm">
+                送出
+              </button>}
+
             </div>
           </div>
         </div>
