@@ -7,6 +7,8 @@ import feetIcon from '../../src/images/icons/feet_icon.png'
 import dogIcon from '../../src/images/icons/dog_icon.png'
 import cakeIcon from '../../src/images/icons/cake_icon.png'
 import calendarIcon from '../../src/images/icons/calendar_icon.png'
+import { useDispatch } from 'react-redux';
+import { createAsyncMessage } from '../slices/messageSlice';
 
 function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
   // const petModalRef = useRef(null);
@@ -19,6 +21,8 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
   //   mode: 'create', // 'create' | 'edit' | 'view'
   //   // data: null      // 存放要編輯的那筆資料
   // });
+
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -45,6 +49,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
         prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
       );
 
+      dispatch(createAsyncMessage(data&&{text:'修改成功'}||error));
       closeModal();
 
     } catch (error) {
