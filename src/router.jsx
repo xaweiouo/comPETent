@@ -15,7 +15,8 @@ import AdminLayout from "./layout/AdminLayout";
 import AdminBookings from "./views/admin/AdminBookings";
 import AdminUsers from "./views/admin/AdminUsers";
 import AdminLogin from "./views/admin/AdminLogin";
-// import LookForPetSitter2 from "./views/front/LookForPetSitter2";
+import OwnerBookings from "./views/front/OwnerBookings";
+
 
 export const router = createHashRouter([
   {
@@ -41,6 +42,10 @@ export const router = createHashRouter([
       {
         path: "ownerprofile",
         element: <OwnerProfile />,
+      },
+      {
+        path: "ownerbookings",
+        element: <OwnerBookings />,
       },
       {
         path: "servicedeploy",

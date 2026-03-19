@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 // import { store } from "./store/store";
 import { useEffect } from "react";
 import { clearUser, setUser } from "./slices/authSlice";
+import MessageToast from "./components/MessageToast";
 
 
 function App() {
@@ -35,8 +36,10 @@ function App() {
   }, [dispatch]);
 
   return (
-
-    <RouterProvider router={router} />
+    <>
+      <MessageToast />
+      <RouterProvider router={router} />
+    </>
 
   )
 }
