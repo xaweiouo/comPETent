@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from "react-router"
 import logo from "../../src/images/logo.png"
 import feetIcon from "../../src/images/icons/feet_icon.png"
@@ -9,10 +9,89 @@ import shieldIcon from "../../src/images/icons/shield_icon.png"
 import faqIcon from "../../src/images/icons/faq_icon.png"
 import stroke from "../../src/images/icons/stroke_icon.png"
 import { useNavigate } from 'react-router';
+import { supabase } from "../lib/supabaseClient";
+import { useSelector, useDispatch } from 'react-redux';
+import { authListener, setRole, setLogout } from '../slices/userAuthSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { user, role } = useSelector(state => state.userAuth)
+  const [userEmail, setUserEmail] = useState("")
+  const [userNickName, setUserNickName] = useState("")
+  const [userImg, setUserImg] = useState("")
+  const logout = async () => {
+    try {
+      const { error: logoutError } = await supabase.auth.signOut();
+      dispatch(setLogout())
+      setUserNickName(null)
+      setUserImg(null)
+      navigate('/')
+      if (logoutError) {
+        throw logoutError
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    //初始化簡查
+    const initAuth = async () => {
+      try {
+        const { data: authData, erro: authError } = await supabase.auth.getSession();
+        if (authData.session) {
+          setUserEmail(authData.session.user.email)
+          dispatch(authListener(authData));
+        }
+        if (authError) throw authError;
+      } catch (error) {
+        console.log(error.message)
+      }
+    };
+    initAuth()
+  }, [])
+
+  useEffect(() => {
+    if (!userEmail) return; 
+    const initRole = async () => {
+      try {
+        const { data: userData } = await supabase
+          .from('users')
+          .select(`
+            id,
+            nickname,
+            email,
+            avatar_url
+          `)
+          .eq('email', userEmail)
+          .maybeSingle();
+
+        if(userData){
+          setUserNickName(userData.nickname)
+          setUserImg(userData.avatar_url)
+        }
+
+        // 2. 檢查角色
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userData.id)
+
+        if (roleError || !roleData) {
+          // 如果沒有角色，強制登出並阻擋
+          await supabase.auth.signOut();
+          throw new Error('沒有角色');
+        }
+        // 3. 驗證成功，寫入 Redux
+        dispatch(setRole(roleData))
+      } catch (error) {
+        console.log(error.message)
+      }
+    };
+    initRole()
+  }, [userEmail])
   return (
     <nav className="container">
       <div className="nav-capsule mt-7 mb-6">
@@ -45,10 +124,42 @@ const Navbar = () => {
             </li>
           </ul>
 
-          {/* 右側：功能按鈕 (PC 靠右 / Mobile 置中) */}
-          <div className="nav-auth">
-            <button className="btn-login" onClick={() => {navigate("/login"), setIsMenuOpen(!isMenuOpen)}}>登入 / 註冊</button>
-          </div>
+          {/*依登入狀態切換button，有Role呈現會員照片、姓名 */}
+          {role ? (
+            <div className="nav-auth">
+              <div className="dropdown">
+                <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                  <div className='rounded-circle overflow-hidden'>
+                    <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
+                  </div>
+                  <span className="fw-bold fs-5">{userNickName}</span>
+                </a>
+                {/* 下拉選單 */}
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  {/* 飼主 */}
+                  {(role === "owner" || role === "sitter" || role === "admin") && (
+                    <li><a className="dropdown-item" href="#">我是飼主</a></li>
+                  )}
+
+                  {/* 保母 */}
+                  {(role === "sitter" || role === "admin") && (
+                    <li><a className="dropdown-item" href="#">我是保母</a></li>
+                  )}
+
+                  {/* 管理平台 */}
+                  {role === "admin" && (
+                    <li><a className="dropdown-item" href="#">管理平台</a></li>
+                  )}
+                  <li><a className="dropdown-item" onClick={() => logout()}>登出</a></li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="nav-auth">
+              <button className="btn-login" onClick={() => { navigate("/login"), setIsMenuOpen(!isMenuOpen) }}>登入 / 註冊</button>
+            </div>
+          )}
+
         </div>
 
         {/* 漢堡選單 (僅 Mobile 顯示) */}

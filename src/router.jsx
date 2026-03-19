@@ -9,6 +9,7 @@ import OwnerProfile from "./views/front/OwnerProfile";
 import SitterBookingDetail from "./views/front/SitterBookingDetail";
 import OwnerBookingDetail from "./views/front/OwnerBookingDetail";
 import Login from "./views/front/Login";
+import Signup from "./views/front/Signup";
 import ServiceDeployForm from "./views/front/ServiceDeployForm";
 import AdminLayout from "./layout/AdminLayout";
 import AdminBookings from "./views/admin/AdminBookings";
@@ -48,6 +49,10 @@ export const router = createHashRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
       },
       {
         path: "sitter/bookings/:id",
