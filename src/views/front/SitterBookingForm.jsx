@@ -13,13 +13,10 @@ import infoIcon from "../../images/icons/info_icon.png";
 import fallbackPetImage from "../../images/booking_img/小黃logo_預約表單.jpg";
 import feetIcon from "../../images/icons/feet_icon.png";
 
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 
-
-
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-// const supabase = createClient(supabaseUrl, supabaseKey);
 
 
 //把calculateTimeDiff和 calculatePriceForService 寫在 component 外面，當成純工具函式，讓 component 裡的邏輯比較清楚
@@ -136,6 +133,8 @@ function calculatePriceForService(service, bookingForm) {
     };
 }
 function SitterBookingForm() {
+    const dispatch = useDispatch();
+
     // 從網址查詢參數拿到 sitterId
     const location = useLocation();
 
@@ -222,12 +221,9 @@ function SitterBookingForm() {
         }
         fetchInitialUser();
         // 小步測試：確認有收到從上一頁帶來的 serviceId 和 sitterId
-        // console.log('從上一頁帶來的 serviceId:', serviceId);
-        // console.log('從上一頁帶來的 sitterId:', sitterId);
         async function fetchPets() {
             const { data, error } = await supabase.from("pets").select("*");
             if (error) {
-                // console.log("fetchPets error", error);
                 return;
             }
             setPets(data);
@@ -245,65 +241,6 @@ function SitterBookingForm() {
     }, [serviceId, sitterId]);
 
 
-
-    //抓使用者登入和寵物的 useEffect，依賴 serviceId 和 sitterId，確保一進來就知道要抓哪個服務和保母的資訊
-    //     useEffect(() => {
-    //           console.log('從上一頁帶來的 serviceId:', serviceId);
-    //   console.log('從上一頁帶來的 sitterId:', sitterId);
-    //         async function fetchInitialUserAndPets() {
-    //             // 1) 問 Supabase：現在有沒有登入的人
-    //             const { data: authData, error: authError } = await supabase.auth.getUser();
-    //             const authUser = authData?.user || null;
-    //             setCurrentUser(authUser);
-
-    //             if (authError || !authUser) {
-    //                 console.log("尚未登入，暫不載入寵物");
-    //                 setPets([]); // 沒登入就清空
-    //                 return;
-    //             }
-
-    //             // 2) 用 email 找對應 users.id (owner_id)
-    //             const { data: userRow, error: userError } = await supabase
-    //                 .from("users")
-    //                 .select("id")
-    //                 .eq("email", authUser.email)
-    //                 .single();
-
-    //             if (userError || !userRow) {
-    //                 console.log("找不到對應的使用者資料", userError);
-    //                 setPets([]);
-    //                 return;
-    //             }
-
-    //             const ownerId = userRow.id;
-
-    //             // 3) 用 ownerId 去抓該飼主的寵物
-    //             const { data: petsData, error: petsError } = await supabase
-    //                 .from("pets")
-    //                 .select("*")
-    //                 .eq("owner_id", ownerId);
-
-    //             if (petsError) {
-    //                 console.log("fetchPets error", petsError);
-    //                 setPets([]);
-    //                 return;
-    //             }
-
-    //             setPets(petsData);
-
-    //             if (petsData.length > 0) {
-    //                 setSelectedPetId(petsData[0].id);
-    //                 setBookingForm((prev) => ({
-    //                     ...prev,
-    //                     pet_id: petsData[0].id,
-    //                 }));
-    //             }
-    //         }
-
-    //         fetchInitialUserAndPets();
-    //     }, [serviceId, sitterId]); 
-
-
     //抓服務資訊的
     useEffect(() => {
         if (!serviceId) return;
@@ -319,7 +256,6 @@ function SitterBookingForm() {
                 .single();
 
             if (error) {
-                // console.log("fetchServiceDetail error", error);
                 setServiceError("無法取得服務資料，請稍後再試");
             } else {
                 setServiceDetail(data);
@@ -348,7 +284,6 @@ function SitterBookingForm() {
                 .single();
 
             if (error) {
-                // console.log("fetchSitterInfo error", error);
                 return;
             }
             setSitterInfo(data);
@@ -399,7 +334,6 @@ function SitterBookingForm() {
             .single(); // 只拿一筆
         //userError 有資料或userRow 是 null 或 undefined，!userRow 就是 true。
         if (userError || !userRow) {
-            // console.log("userError:", userError);
             return {
                 status: false,
                 message: "找不到對應的使用者資料，請聯絡開發者",
@@ -437,49 +371,78 @@ function SitterBookingForm() {
         e.preventDefault();
 
         if (!currentUser) {
-            alert("請先登入後再建立預約");
+            dispatch(
+                createAsyncMessage({
+                    message: "請先登入後再建立預約",
+                })
+            );
             return;
         }
 
         const arrival_time = `${bookingForm.arrival_hour}:${bookingForm.arrival_minute}`;
         const departure_time = `${bookingForm.departure_hour}:${bookingForm.departure_minute}`;
         const pickup_address_detail = bookingForm.pickup_address_detail ?? "";
-        // console.log("arrival_time:", arrival_time);
-        // console.log("departure_time:", departure_time);
 
         //防呆：如果服務資料還沒載入好，就不要讓使用者送出表單（因為價格計算需要服務資料）
         if (!serviceDetail) {
-            alert("服務資料載入中，請稍候再試");
+            dispatch(
+                createAsyncMessage({
+                    message: "服務資料載入中，請稍候再試",
+                })
+            );
             return;
         }
         // 1) 表單基本檢查
         if (bookingForm.pet_id == null) {
-            alert("請選擇寵物");
+            dispatch(
+                createAsyncMessage({
+                    message: "請選擇寵物",
+                })
+            );
             return;
         }
         if (!bookingForm.arrival_date) {
-            alert("請填寫抵達時間");
+            dispatch(
+                createAsyncMessage({
+                    message: "請填寫抵達時間",
+                })
+            );
             return;
         }
         if (!bookingForm.departure_date) {
-            alert("請填寫離開時間");
+            dispatch(
+                createAsyncMessage({
+                    message: "請填寫離開時間",
+                })
+            );
             return;
         }
         if (!sitterId) {
-            alert('缺少保母資料，請從保母詳情頁重新進入預約流程');
+            dispatch(
+                createAsyncMessage({
+                    message: "缺少保母資料，請從保母詳情頁重新進入預約流程",
+                })
+            );
             return;
         }
         if (!serviceId) {
-            alert('缺少服務資料，請從保母詳情頁重新進入預約流程');
+            dispatch(
+                createAsyncMessage({
+                    message: "缺少服務資料，請從保母詳情頁重新進入預約流程",
+                })
+            );
             return;
         }
 
-        // console.log("準備送出 booking：", bookingForm);
         // 2) 透過工具函式，從目前登入狀態取得 owner_id（users.id）
         const ownerResult = await getOwnerIdFromAuth();
 
         if (!ownerResult.status || !ownerResult.ownerId) {
-            alert(ownerResult.message);
+            dispatch(
+                createAsyncMessage({
+                    message: ownerResult.message,
+                })
+            );
             return;
         }
         const ownerId = ownerResult.ownerId;
@@ -510,14 +473,20 @@ function SitterBookingForm() {
             .select("id, order_number");
 
         if (error) {
-            console.log("添加預約表單失敗:", error);
-            alert("建立預約失敗，請稍後再試");
+            dispatch(
+                createAsyncMessage({
+                    message: "建立預約失敗，請稍後再試",
+                })
+            );
             return;
         }
 
         // 4) 成功時提示 + 清空表單
-        console.log("建立預約成功:", insertData);
-        alert("建立預約成功！");
+        dispatch(
+            createAsyncMessage({
+                text: "建立預約成功！",
+            })
+        );
 
         setBookingForm({
             pet_id: null,
@@ -532,7 +501,7 @@ function SitterBookingForm() {
         });
     }
 
-    
+
     // 點編輯按鈕，進入編輯模式（把這隻寵物的資料丟到 editingPetForm 裡）
     function handleEditPet() {
         if (!selectedPet) return;
@@ -581,8 +550,11 @@ function SitterBookingForm() {
             .eq("id", selectedPet.id);
 
         if (error) {
-            // console.log("update pet error", error);
-            alert("更新寵物資料失敗，請稍後再試");
+            dispatch(
+                createAsyncMessage({
+                    message: "更新寵物資料失敗，請稍後再試",
+                })
+            );
             return;
         }
 
@@ -596,7 +568,11 @@ function SitterBookingForm() {
         );
 
         setEditingPetId(null);
-        alert("寵物資料已更新！");
+        dispatch(
+            createAsyncMessage({
+                text: "寵物資料已更新！",
+            })
+        );
     }
 
     // 點新增寵物，送出新增寵物的 API 請求
@@ -606,7 +582,11 @@ function SitterBookingForm() {
         // 1) 取得目前登入者 id（你之前 getOwnerIdFromAuth 已經寫好了）
         const ownerResult = await getOwnerIdFromAuth();
         if (!ownerResult.status || !ownerResult.ownerId) {
-            alert(ownerResult.message);
+            dispatch(
+                createAsyncMessage({
+                    message: ownerResult.message,
+                })
+            );
             return;
         }
         const ownerId = ownerResult.ownerId;
@@ -632,8 +612,11 @@ function SitterBookingForm() {
             .single();
 
         if (error) {
-            // console.log("handleAddPet error", error);
-            alert("新增寵物失敗，請稍後再試");
+            dispatch(
+                createAsyncMessage({
+                    message: "新增寵物失敗，請稍後再試",
+                })
+            );
             return;
         }
 
@@ -658,7 +641,11 @@ function SitterBookingForm() {
             photo_url: "",
         });
         setIsAddingPet(false);
-        alert("新增寵物成功！");
+        dispatch(
+            createAsyncMessage({
+                text: "新增寵物成功！",
+            })
+        );
     }
 
     // 每頁最多 3 張卡片
@@ -678,87 +665,6 @@ function SitterBookingForm() {
 
     return (
         <div className="container booking-page">
-            <header className="booking-header-nav">
-                {/* navbar 共用區 */}
-                {/* <section className="container">
-                    <nav className="navbar navbar-expand-lg py-2 px-3 mt-7 mb-6 bg-body-tertiary rounded-5 shadow">
-                        <div className="container-fluid">
-                            <a className="navbar-brand" href="/">
-                                <img src="./src/images/logo.png" className="nav-logo" alt="logo" />
-                            </a>
-                            <button
-                                className="navbar-toggler"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#navbarSupportedContent"
-                                aria-controls="navbarSupportedContent"
-                                aria-expanded="false"
-                                aria-label="Toggle navigation"
-                            >
-                                <span className="navbar-toggler-icon"></span>
-                            </button>
-                            <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                                <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/feet_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">關於我們</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/flow_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">服務流程</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/search_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">尋找保母</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/become_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">成為保母</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/shield_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">安心保障</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link d-flex align-items-center" href="#">
-                                            <img src="./src/images/icons/faq_icon.png" className="me-2" alt="" width="20" />
-                                            <span className="fw-bold h5 mb-0">FAQ</span>
-                                        </a>
-                                    </li>
-                                    <li className="nav-item dropdown">
-                                        <a
-                                            className="nav-link dropdown-toggle"
-                                            id="navbarDropdown"
-                                            href="#"
-                                            role="button"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                        >
-                                            會員
-                                        </a>
-                                        <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            <li><a className="dropdown-item" href="#">基本資料</a></li>
-                                            <li><a className="dropdown-item" href="#">我是保母</a></li>
-                                            <li><a className="dropdown-item" href="#">我是飼主</a></li>
-                                            <li><a className="dropdown-item" href="#">登出</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                </section> */}
-            </header>
 
             <main className="booking-main container">
                 {/* row 把左半／右半包起來 */}
@@ -840,7 +746,7 @@ function SitterBookingForm() {
                                     <img
                                         src={feetIcon}
                                         className="me-2"
-                                        alt=""
+                                        alt="feetIcon"
                                         width="20"
                                         height="20"
                                     />
