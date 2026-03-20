@@ -156,7 +156,7 @@ const Home = () => {
                     </div>
                 </div>
                 <div className="row text-center mb-9">
-                    <div className="col-md-4 position-relative mb-6 mb-md-8">
+                    <div className="col-md-4 position-relative mb-6 mb-md-0">
                         <div className="bg-white rounded-4 p-7 pb-md-8 h-100">
                             <h5 className="mb-10 fw-bold">多元服務</h5>
                             <p className="h5">comPETent 提供多元的服務，各種寵物皆能找到保母，不局限於貓、狗，還有提供各種服務的保母。</p>
@@ -214,10 +214,10 @@ const Home = () => {
 
                                                             return <img key={i} className="me-1" src={starNull} alt="" />;
                                                         })}
-                                                        <span className="fs-6 ms-2 fw-bold">{sitter.rating}</span>
+                                                        <span className="fs-6 ms-2 fw-bold">{sitter.rating.toFixed(1)}</span>
                                                     </p>
                                                     <div className="border border-secondary w-75 mb-3"></div>
-                                                    <p className="fs-6 fw-bold">NT$ <span className="fs-5">{sitter.prices[0].price}</span> /{sitter.prices[0].type}</p>
+                                                    <p className="fs-6 fw-bold">NT$ <span className="fs-5">{sitter.prices[0].price}</span> / {sitter.prices[0].type}</p>
                                                 </div>
                                             </div>
                                         </div>

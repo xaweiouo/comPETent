@@ -6,9 +6,9 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { authListener, setRole } from '../../slices/userAuthSlice';
+import { authListener, setRole, setLogout } from '../../slices/userAuthSlice';
 import { supabase } from "../../lib/supabaseClient";
-function Login() {
+function Signup() {
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,42 +23,25 @@ function Login() {
 
 
 
-  const handleLogin = async (loginInfo) => {
+  const handleSignup = async (signupInfo) => {
     // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
+      const { error } = await supabase.auth.signOut();
       // 1. 執行 Supabase 登入
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: loginInfo.email,
-        password: loginInfo.password,
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: signupInfo.email,
+        password: signupInfo.password,
       });
 
+      console.log(authData)
       if (authError) throw authError;
-      dispatch(authListener(authData));
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', authData.session.user.email)
-        .maybeSingle();
 
-      const userId = userData.id;
+      // const { data: userData } = await supabase
+      //   .from('users')
+      //   .insert('id')
+        
 
-
-
-      // 2. 檢查角色
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-
-      if (roleError || !roleData) {
-        // 如果沒有角色，強制登出並阻擋
-        await supabase.auth.signOut();
-        throw new Error('沒有角色');
-      }
-      // 3. 驗證成功，寫入 Redux 並跳轉
-      dispatch(setRole(roleData))
-      navigate('/');
 
     } catch (err) {
       setError(err.message || '登入失敗，請檢查帳號密碼');
@@ -77,10 +60,10 @@ function Login() {
           <div className="d-flex justify-content-center align-items-center">
 
 
-            <h2 className="ms-3 text-primary" >登入</h2>
+            <h2 className="ms-3 text-primary" >註冊</h2>
           </div>
 
-          {/* 登入容器 */}
+          {/* 註冊容器 */}
           <div
             className="px-3 py-2 mt-8 rounded bg-primary-01"
             style={{ border: '1px solid #eee', }}
@@ -89,7 +72,19 @@ function Login() {
               <div className="row justify-content-center">
                 <div className="col-md-6">
                   {error && <div className="alert alert-danger">{error}</div>}
-                  <form onSubmit={handleSubmit(handleLogin)}>
+                  <form onSubmit={handleSubmit(handleSignup)}>
+                    <div className="mb-3">
+                      <label htmlFor="nickName" className="form-label">
+                        暱稱
+                      </label>
+                      <input
+                        id="nickName"
+                        name="nickname"
+                        type="text"
+                        className="form-control"
+                        {...register("nickname", {required: "請輸入暱稱"})}/>
+                      {errors.nickname && <p className="text-danger">{errors.nickname.message}</p>}
+                    </div>
                     <div className="mb-3">
                       <label className="form-label">Email</label>
                       <input id="email" type="email" name="email" className="form-control"
@@ -102,10 +97,7 @@ function Login() {
                         {...register("password", { required: "請輸入密碼", })} />
                       {errors.password && <p className="text-danger">{errors.password.message}</p>}
                     </div>
-                    <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>{isSubmitting ? '登入中...' : '登入'}</button>
-                    <div className='d-flex mt-3'>
-                      <a className='ms-auto me-3' onClick={() => navigate('/signup')}>註冊成為comPETent會員</a>
-                    </div>
+                    <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>{isSubmitting ? '註冊中...' : '註冊'}</button>
                   </form>
                 </div>
               </div>
@@ -120,4 +112,4 @@ function Login() {
   )
 };
 
-export default Login;
+export default Signup;
