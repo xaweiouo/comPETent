@@ -11,22 +11,28 @@ import stroke from "../../src/images/icons/stroke_icon.png"
 import { useNavigate } from 'react-router';
 import { supabase } from "../lib/supabaseClient";
 import { useSelector, useDispatch } from 'react-redux';
-import { authListener, setRole, setLogout } from '../slices/userAuthSlice';
+import { setLogout } from '../slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { user, role } = useSelector(state => state.userAuth)
+  const { user, role } = useSelector(state => state.auth)
   const [userEmail, setUserEmail] = useState("")
   const [userNickName, setUserNickName] = useState("")
   const [userImg, setUserImg] = useState("")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const toggleDropdown = (e) => {
+    e.preventDefault(); // 阻止 <a> 標籤的預設行為
+    setIsDropdownOpen(!isDropdownOpen);
+  };
   const logout = async () => {
     try {
       const { error: logoutError } = await supabase.auth.signOut();
       dispatch(setLogout())
-      setUserNickName(null)
-      setUserImg(null)
+      setIsDropdownOpen(!isDropdownOpen);
+      // setUserNickName(null)
+      // setUserImg(null)
       navigate('/')
       if (logoutError) {
         throw logoutError
@@ -36,26 +42,29 @@ const Navbar = () => {
     }
   }
 
-  useEffect(() => {
-    //初始化簡查
-    const initAuth = async () => {
-      try {
-        const { data: authData, erro: authError } = await supabase.auth.getSession();
-        if (authData.session) {
-          setUserEmail(authData.session.user.email)
-          dispatch(authListener(authData));
-        }
-        if (authError) throw authError;
-      } catch (error) {
-        console.log(error.message)
-      }
-    };
-    initAuth()
-  }, [])
+  // useEffect(() => {
+  //   //初始化簡查
+  //   const initAuth = async () => {
+  //     try {
+  //       const { data: authData, erro: authError } = await supabase.auth.getSession();
+  //       if (authData.session) {
+  //         setUserEmail(authData.session.user.email)
+  //         dispatch(authListener(authData));
+  //       }
+  //       if (authError) throw authError;
+  //     } catch (error) {
+  //       console.log(error.message)
+  //     }
+  //   };
+  //   initAuth()
+  // }, [])
 
-  //想要在登入後再取得會員照片、姓名，重新渲染於navbar，但一直沒辦法解決!!!!
+  // //想要在登入後再取得會員照片、姓名，重新渲染於navbar，但一直沒辦法解決!!!!
   useEffect(() => {
     const initRole = async () => {
+      // 防呆機制：如果 Redux 裡還沒有 user，就不打 API，避免報錯
+      if (!user || !user.email) return;
+
       try {
         const { data: userData } = await supabase
           .from('users')
@@ -65,7 +74,7 @@ const Navbar = () => {
             email,
             avatar_url
           `)
-          .eq('email', userEmail)
+          .eq('email', user.email)
           .maybeSingle();
           console.log(userData)
         if(userData){
@@ -73,25 +82,25 @@ const Navbar = () => {
           setUserImg(userData.avatar_url)
         }
 
-        // 2. 檢查角色
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userData.id)
+        // // 2. 檢查角色
+        // const { data: roleData, error: roleError } = await supabase
+        //   .from('user_roles')
+        //   .select('role')
+        //   .eq('user_id', userData.id)
 
-        if (roleError || !roleData) {
-          // 如果沒有角色，強制登出並阻擋
-          await supabase.auth.signOut();
-          throw new Error('沒有角色');
-        }
-        // 3. 驗證成功，寫入 Redux
-        dispatch(setRole(roleData))
+        // if (roleError || !roleData) {
+        //   // 如果沒有角色，強制登出並阻擋
+        //   await supabase.auth.signOut();
+        //   throw new Error('沒有角色');
+        // }
+        // // 3. 驗證成功，寫入 Redux
+        // dispatch(setRole(roleData))
       } catch (error) {
         console.log(error.message)
       }
     };
     initRole()
-  }, [userEmail])
+  }, [user])
   return (
     <nav className="container">
       <div className="nav-capsule mt-7 mb-6">
@@ -128,14 +137,14 @@ const Navbar = () => {
           {role ? (
             <div className="nav-auth">
               <div className="dropdown">
-                <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" onClick={toggleDropdown}>
                   <div className='rounded-circle overflow-hidden'>
                     <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
                   </div>
                   <span className="fw-bold fs-5">{userNickName}</span>
                 </a>
                 {/* 下拉選單 */}
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
                   {/* 飼主 */}
                   {(role === "owner" || role === "sitter" || role === "admin") && (
                     <li><a className="dropdown-item" href="#">我是飼主</a></li>
