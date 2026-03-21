@@ -155,9 +155,9 @@ function OwnerProfile() {
         <div className="container pt-3">
 
           {/* 1. 頂部返回按鈕 */}
-          <div className="mb-3" style={{ color: 'black', cursor: 'pointer', fontWeight: 'bold' }}>
+          {/* <div className="mb-3" style={{ color: 'black', cursor: 'pointer', fontWeight: 'bold' }}>
             &lt; 返回
-          </div>
+          </div> */}
 
           {/* 2. 英雄大圖與置中頭像 */}
           <div className="position-relative mb-5">
@@ -209,13 +209,13 @@ function OwnerProfile() {
             >
               我的寵物
             </button>
-            <button
+            {/* <button
               className={`btn rounded-pill px-4 fw-bold ${activeTab === 'bookings' ? 'btn-dark' : 'btn-light text-muted'}`}
               onClick={() => setActiveTab('bookings')}
               style={{ transition: 'all 0.2s' }}
             >
               我的預約
-            </button>
+            </button> */}
           </div>
 
           {/* 5. 條件渲染區塊 (依據 activeTab 顯示內容) */}
