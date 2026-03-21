@@ -8,6 +8,8 @@ import becomeIcon from "../../src/images/icons/become_icon.png"
 import shieldIcon from "../../src/images/icons/shield_icon.png"
 import faqIcon from "../../src/images/icons/faq_icon.png"
 import stroke from "../../src/images/icons/stroke_icon.png"
+import topChevron from "../../src/images/icons/top_chevron_icon.png"
+import botChevron from "../../src/images/icons/bot_chevron_icon.png"
 import { useNavigate } from 'react-router';
 import { supabase } from "../lib/supabaseClient";
 import { useSelector, useDispatch } from 'react-redux';
@@ -22,10 +24,20 @@ const Navbar = () => {
   const [userNickName, setUserNickName] = useState("")
   const [userImg, setUserImg] = useState("")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const toggleDropdown = (e) => {
     e.preventDefault(); // 阻止 <a> 標籤的預設行為
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // 紀錄哪個大項目被展開：null, 'sitter', 'owner'
+  const [openSection, setOpenSection] = useState(null);
+
+  const toggleSection = (section) => {
+    // 如果點擊已展開的，就收合；否則展開新的
+    setOpenSection(openSection === section ? null : section);
+  };
+
   const logout = async () => {
     try {
       const { error: logoutError } = await supabase.auth.signOut();
@@ -137,7 +149,7 @@ const Navbar = () => {
           {role ? (
             <div className="nav-auth">
               <div className="dropdown">
-                <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" onClick={toggleDropdown}>
+                <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" onClick={(e)=>{toggleDropdown(e);toggleSection(null)}}>
                   <div className='rounded-circle overflow-hidden'>
                     <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
                   </div>
@@ -145,15 +157,31 @@ const Navbar = () => {
                 </a>
                 {/* 下拉選單 */}
                 <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
+                    <li><a className="dropdown-item" href="#">基本資料</a></li>
                   {/* 飼主 */}
-                  {(role === "owner" || role === "sitter" || role === "admin") && (
-                    <li><a className="dropdown-item" href="#">我是飼主</a></li>
-                  )}
-
+                  {/* {(role === "owner" || role === "sitter" || role === "admin") && (
+                  )} */}
+                  <li onClick={() => toggleSection('owner')}>
+                    <a className="dropdown-item">
+                      我是飼主<img src={openSection==='owner'?topChevron:botChevron} alt="botChevron" className='align-self-center ms-1'/>
+                    </a>                  
+                  </li>
+                    <ul className={openSection==='owner'?'d-block':'d-none'}>
+                      <li>編輯資料</li>
+                      <li>查看訂單</li>
+                    </ul>
                   {/* 保母 */}
-                  {(role === "sitter" || role === "admin") && (
-                    <li><a className="dropdown-item" href="#">我是保母</a></li>
-                  )}
+                  {/* {(role === "sitter" || role === "admin") && (
+                  )} */}
+                  <li onClick={() => toggleSection('sitter')}>
+                    <a className="dropdown-item">
+                      我是保母<img src={openSection==='sitter'?topChevron:botChevron} alt="botChevron" className='align-self-center ms-1'/>
+                    </a>
+                  </li>
+                    <ul className={openSection==='sitter'?'d-block':'d-none'}>
+                      <li>編輯資料</li>
+                      <li>查看訂單</li>
+                    </ul>
 
                   {/* 管理平台 */}
                   {role === "admin" && (
