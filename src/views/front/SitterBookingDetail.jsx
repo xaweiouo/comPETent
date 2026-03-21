@@ -13,6 +13,8 @@ import clockIcon from "../../images/icons/clock_icon.png";
 import locationIcon from "../../images/icons/location_icon.png";
 import infoIcon from "../../images/icons/info_icon.png";
 
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 
 function formatBookingStatus(status) {
@@ -98,6 +100,7 @@ function formatSpecies(species) {
 
 
 function SitterBookingDetail() {
+    const dispatch = useDispatch();
 
     const { id } = useParams();
     const bookingId = id;
@@ -138,29 +141,29 @@ function SitterBookingDetail() {
                 );
 
             case "paid":
-  return (
-    <div className="d-flex flex-column gap-3">
-      <p className="mb-1 fw-bold">已付款，等待保母完成服務</p>
+                return (
+                    <div className="d-flex flex-column gap-3">
+                        <p className="mb-1 fw-bold">已付款，等待保母完成服務</p>
 
-      <div className="d-flex justify-content-between gap-3">
-        <button
-          type="button"
-          className="btn btn-primary fw-bold rounded-pill flex-fill"
-          onClick={handleCompleteBooking}
-        >
-          完成訂單
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline-danger rounded-pill flex-fill"
-          data-bs-toggle="modal"
-          data-bs-target="#cancelBookingModal"
-        >
-          取消預約
-        </button>
-      </div>
-    </div>
-  );
+                        <div className="d-flex justify-content-between gap-3">
+                            <button
+                                type="button"
+                                className="btn btn-primary fw-bold rounded-pill flex-fill"
+                                onClick={handleCompleteBooking}
+                            >
+                                完成訂單
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger rounded-pill flex-fill"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelBookingModal"
+                            >
+                                取消預約
+                            </button>
+                        </div>
+                    </div>
+                );
 
 
 
@@ -183,82 +186,66 @@ function SitterBookingDetail() {
     async function fetchSitterBookingDetail(bookingId) {
         // 如果沒有 id，直接丟錯 / 回傳 null
         if (!bookingId) return;
+
         // 1) 從 Supabase 抓 bookings 那一筆
         const { data, error } = await supabase
             .from("bookings")
-            .select("id, order_number, status, arrival_date, arrival_time, departure_date, departure_time, pickup_location_id, pickup_address_detail, note, total_price, pet_id, owner_id, service_id, service_days, service_units")
+            .select(
+                "id, order_number, status, arrival_date, arrival_time, departure_date, departure_time, pickup_location_id, pickup_address_detail, note, total_price, pet_id, owner_id, service_id, service_days, service_units"
+            )
             .eq("id", bookingId)
             .single();
+
         if (error) {
-            console.log("fetch booking detail error", error);
-            alert("載入訂單資料失敗，請稍後再試");
-            return;
+         throw error;
         }
+
         // 如果有 pickup_location_id，再去抓一次 locations 表，拿到地點資訊
         let locationData = null;
-
         if (data.pickup_location_id) {
-            const { data: loc, error: locError } = await supabase
+            const { data: loc } = await supabase
                 .from("locations")
                 .select("id, city, district")
                 .eq("id", data.pickup_location_id)
                 .single();
-
-            if (locError) {
-                console.log("fetch location error", locError);
-            } else {
-                locationData = loc;
-            }
+            locationData = loc; // 沒有資料就是 null，不影響後面
         }
+
         // [步驟 3]用 data.pet_id 去抓 pets，放到 petData
         let petData = null;
-
         if (data.pet_id) {
-            const { data: pet, error: petError } = await supabase
+            const { data: pet } = await supabase
                 .from("pets")
                 .select(
                     "id, name, species, size, gender, birth_date, last_vaccination_date, is_neutered, photo_url, note"
                 )
                 .eq("id", data.pet_id)
                 .single();
-
-            if (petError) {
-                console.log("fetch pet error", petError);
-            } else {
-                petData = pet;
-            }
+            petData = pet;
         }
+
         // [步驟 4]（之後要加）用 data.owner_id 去抓 users，放到 ownerData
         let ownerData = null;
         if (data.owner_id) {
-            const { data: owner, error: ownerError } = await supabase
+            const { data: owner } = await supabase
                 .from("users")
                 .select("id, name, email, phone, avatar_url")
                 .eq("id", data.owner_id)
                 .single();
-
-            if (ownerError) {
-                console.log("fetch owner error", ownerError);
-            } else {
-                ownerData = owner;
-            }
+            ownerData = owner;
         }
+
         // [步驟 5]（之後要加）用 data.service_id 去抓 services，放到 serviceData
         let serviceData = null;
         if (data.service_id) {
-            const { data: service, error: serviceError } = await supabase
+            const { data: service } = await supabase
                 .from("services")
                 .select(
                     "id, category, species, day_of_week, start_time, end_time, price_per_30min, price_per_day, price_per_session"
                 )
                 .eq("id", data.service_id)
                 .single();
-
-            if (serviceError) {
-                console.log("fetch service error", serviceError);
-            } else {
-                serviceData = service;
-            }
+            serviceData = service;
         }
 
         // 2) 組成 bookingData 物件（至少要有 booking 這包）
@@ -283,42 +270,48 @@ function SitterBookingDetail() {
             service: serviceData,
             location: locationData,
             review: null,
-        }
+        };
+
         // 3) 回傳 bookingData
         return bookingData;
-
     }
+
 
     useEffect(() => {
         async function loadBooking() {
             try {
                 const data = await fetchSitterBookingDetail(bookingId);
-                console.log("fetch result:", data);
                 setBookingData(data);
-            } catch (err) {
-                console.log("loadBooking error", err);
-                // 之後你可以在這裡塞一個 error state
+            } catch {
+                dispatch(
+                    createAsyncMessage({
+                        message: "載入訂單資料時發生錯誤，請稍後再試。",
+                    })
+                );
             }
         }
 
         loadBooking();
+    }, [bookingId, dispatch]);
 
-    }, [bookingId]);
 
     async function handleAcceptBooking() {
         if (!bookingId) return;
 
-        // const { data, error } = await supabase
         const { error } = await supabase
             .from("bookings")
             .update({ status: "accepted" })   // 這裡直接寫成目標狀態
             .eq("id", bookingId)
-            .select("status")                 // 可選，想拿回更新後的值就 select 一下
+            .select("status")
             .single();
 
         if (error) {
-            console.log("update booking error", error);
-            alert("接受預約失敗，請稍後再試");
+            // 失敗：用 message（danger / 失敗）
+            dispatch(
+                createAsyncMessage({
+                    message: "接受預約失敗，請稍後再試。",
+                })
+            );
             return;
         }
 
@@ -329,58 +322,75 @@ function SitterBookingDetail() {
                     ...prev,
                     booking: {
                         ...prev.booking,
-                        status: "accepted", // 或 data.status
+                        status: "accepted",
                     },
                 }
                 : prev
         );
 
-        alert("已接受訂單！");
+        // 成功：用 text（success / 成功）
+        dispatch(
+            createAsyncMessage({
+                text: "已接受訂單！",
+            })
+        );
     }
 
 
-    //完成訂單
+
+    // 完成訂單
     async function handleCompleteBooking() {
         if (!bookingId) return;
-        // const { data, error } = await supabase
+
         const { error } = await supabase
             .from("bookings")
             .update({ status: "completed" })
             .eq("id", bookingId)
             .select("status")
             .single();
+
         if (error) {
-            console.log("update booking error", error);
-            alert("完成訂單失敗，請稍後再試");
+            // 失敗 → danger / 失敗
+            dispatch(
+                createAsyncMessage({
+                    message: "完成訂單失敗，請稍後再試。",
+                })
+            );
             return;
         }
 
         // 更新前端 state：只改 bookingData.booking.status
-
         setBookingData((prev) =>
-            prev ? {
-                ...prev,
-                booking: {
-                    ...prev.booking,
-                    status: "completed", // 或 data.status
-                },
-            }
+            prev
+                ? {
+                    ...prev,
+                    booking: {
+                        ...prev.booking,
+                        status: "completed", // 或 data.status
+                    },
+                }
                 : prev
         );
-        alert("已完成訂單！");
 
+        // 成功 → success / 成功
+        dispatch(
+            createAsyncMessage({
+                text: "已完成訂單！",
+            })
+        );
     }
 
 
 
-    //取消訂單
+
+    // 取消訂單
     const [cancelReason, setCancelReason] = useState("");
 
     async function handleCancelBooking() {
         const now = new Date().toISOString();
 
         if (!bookingId) return;
-        // const { data, error } = await supabase
+
         const { error } = await supabase
             .from("bookings")
             .update({
@@ -388,35 +398,45 @@ function SitterBookingDetail() {
                 cancelled_at: now,
                 cancelled_by: "sitter",
                 cancel_reason: cancelReason,
-
             })
             .eq("id", bookingId)
             .select("status")
             .single();
+
         if (error) {
-            console.log("update booking error", error);
-            alert("取消訂單失敗，請稍後再試");
+            // 失敗 → danger / 失敗
+            dispatch(
+                createAsyncMessage({
+                    message: "取消訂單失敗，請稍後再試。",
+                })
+            );
             return;
         }
 
         // 更新前端 state：只改 bookingData.booking.status
-
         setBookingData((prev) =>
-            prev ? {
-                ...prev,
-                booking: {
-                    ...prev.booking,
-                    status: "cancelled", // 或 data.status
-                    cancelled_at: now,
-                    cancelled_by: "sitter",
-                    cancel_reason: cancelReason,
-                },
-            }
+            prev
+                ? {
+                    ...prev,
+                    booking: {
+                        ...prev.booking,
+                        status: "cancelled",
+                        cancelled_at: now,
+                        cancelled_by: "sitter",
+                        cancel_reason: cancelReason,
+                    },
+                }
                 : prev
         );
-        alert("已取消訂單！");
 
+        // 成功 → success / 成功
+        dispatch(
+            createAsyncMessage({
+                text: "已取消訂單！",
+            })
+        );
     }
+
 
 
     //手機版費用假資料
