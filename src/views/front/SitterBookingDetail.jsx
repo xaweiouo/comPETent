@@ -197,7 +197,7 @@ function SitterBookingDetail() {
             .single();
 
         if (error) {
-         throw error;
+            throw error;
         }
 
         // 如果有 pickup_location_id，再去抓一次 locations 表，拿到地點資訊
