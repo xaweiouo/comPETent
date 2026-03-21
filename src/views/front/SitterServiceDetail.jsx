@@ -10,7 +10,7 @@ import { mandarinWeekDay } from "../../utils/mandarinWeekDay";
 import { weekSorter } from "../../utils/mandarinWeekDay";
 import { mandarinPetSpecies } from "../../utils/mandarinPetSpecies";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
 import love_icon from '../../images/icons/love_icon.png';
@@ -21,6 +21,7 @@ import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
 import { FavoriteButton } from "../../utils/FavoriteButton";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 
 const SitterServiceDetail = () => {
@@ -42,6 +43,7 @@ const SitterServiceDetail = () => {
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
   const navigate = useNavigate();
+  const dispatch=useDispatch();
 
   const onToggleDone = (isFav) => { setIsFavorite(isFav) }
 
@@ -169,26 +171,6 @@ const SitterServiceDetail = () => {
     };
     fetchData();
   }, [id, user]);
-
-  // const handleToggleFavorite = async () => {
-  //   if (!isAuthenticated) {
-  //     alert('請先登入再使用收藏功能');
-  //     return;
-  //   };
-
-  //   if (isFavorite) {
-  //     // 取消收藏
-  //     await supabase.from('favorites').delete().eq('owner_id', userId).eq('sitter_id', serviceDetail.sitter_id);
-  //     setIsFavorite(false);
-  //     alert('已取消收藏');
-  //   } else {
-  //     // 新增收藏
-  //     await supabase.from('favorites').insert({ owner_id: userId, sitter_id: serviceDetail.sitter_id });
-  //     setIsFavorite(true);
-  //     alert('已加入收藏');
-
-  //   }
-  // };
 
   // 1. 第一層守門員：正在與資料庫通訊中
   if (isChecking) {
@@ -432,7 +414,8 @@ const SitterServiceDetail = () => {
 
                 onClick={() => {
                   if (!isAuthenticated) {
-                    alert('請先登入');
+                    dispatch(createAsyncMessage({message:'請先登入'}));
+                    // alert('請先登入');
                     return
 
 
