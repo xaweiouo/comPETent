@@ -6,8 +6,9 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { authListener, setRole } from '../../slices/userAuthSlice';
+// import { authListener, setRole } from '../../slices/authSlice';
 import { supabase } from "../../lib/supabaseClient";
+import { fetchUserPermissions } from '../../slices/authSlice';
 function Login() {
   const [error, setError] = useState('');
   const dispatch = useDispatch();
@@ -34,30 +35,34 @@ function Login() {
       });
 
       if (authError) throw authError;
-      dispatch(authListener(authData));
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', authData.session.user.email)
-        .maybeSingle();
 
-      const userId = userData.id;
+      // dispatch(authListener(authData));
+      // const { data: userData } = await supabase
+      //   .from('users')
+      //   .select('id')
+      //   .eq('email', authData.session.user.email)
+      //   .maybeSingle();
+
+      // const userId = userData.id;
 
 
 
-      // 2. 檢查角色
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
+      // // 2. 檢查角色
+      // const { data: roleData, error: roleError } = await supabase
+      //   .from('user_roles')
+      //   .select('role')
+      //   .eq('user_id', userId)
 
-      if (roleError || !roleData) {
-        // 如果沒有角色，強制登出並阻擋
-        await supabase.auth.signOut();
-        throw new Error('沒有角色');
-      }
-      // 3. 驗證成功，寫入 Redux 並跳轉
-      dispatch(setRole(roleData))
+      // if (roleError || !roleData) {
+      //   // 如果沒有角色，強制登出並阻擋
+      //   await supabase.auth.signOut();
+      //   throw new Error('沒有角色');
+      // }
+      // // 3. 驗證成功，寫入 Redux 並跳轉
+      // dispatch(setRole(roleData))
+
+      await dispatch(fetchUserPermissions(authData.user)).unwrap();
+      console.log(authData)
       navigate('/');
 
     } catch (err) {

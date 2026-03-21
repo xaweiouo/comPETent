@@ -8,7 +8,7 @@ import { router } from "./router";
 import { useDispatch } from "react-redux";
 // import { store } from "./store/store";
 import { useEffect } from "react";
-import { clearUser, setUser } from "./slices/authSlice";
+import { setLogout, fetchUserPermissions, setUser } from "./slices/authSlice";
 import MessageToast from "./components/MessageToast";
 
 
@@ -20,15 +20,15 @@ function App() {
   useEffect(() => {
     // 1. 初始化檢查：檢查本地 Session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) dispatch(setUser(session.user));
+      if (session) dispatch(fetchUserPermissions(session.user));
     });
 
     // 2. 監聽狀態變動：如登入、登出、密碼更改
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        dispatch(setUser(session.user));
+        dispatch(fetchUserPermissions(session.user));
       } else {
-        dispatch(clearUser());
+        dispatch(setLogout());
       }
     });
 
