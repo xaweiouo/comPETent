@@ -189,7 +189,7 @@ const Navbar = () => {
                   </li>
                   <ul className={openSection === 'sitter' ? 'd-block' : 'd-none'}>
                     <li>查看個人資料</li>
-                    <li><Link to='sitter/bookings/24' className='text-decoration-none text-reset'>查看訂單</Link></li>
+                    <li><Link to='sitter/bookings/25' className='text-decoration-none text-reset'>查看訂單</Link></li>
                   </ul>
 
                   {/* 管理平台 */}
