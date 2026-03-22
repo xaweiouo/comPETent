@@ -1,31 +1,32 @@
 import { supabase } from "../lib/supabaseClient";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router";
-import { setAdminLogout } from "../slices/adminAuthSlice";
+// import { setAdminLogout } from "../slices/adminAuthSlice";
 import { useEffect } from "react";
+import { setLogout } from "../slices/authSlice";
 
 function AdminLayout() {
-  const { isAdminAuthenticated } = useSelector(state => state.adminAuth);
+  const { isAuthenticated } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAdminAuthenticated) {
-      navigate('/admin/adminlogin');
-    }
-  }, [isAdminAuthenticated, navigate]);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     navigate('/admin/adminlogin');
+  //   }
+  // }, [isAuthenticated, navigate]);
 
   // 處理登出
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    dispatch(setAdminLogout());
+    dispatch(setLogout());
     navigate('/admin/adminlogin', { replace: true });
   };
 
   // 如果未登入，導向後台登入頁
-  // if (!isAdminAuthenticated) {
-  //   navigate('/admin/adminlogin');
-  // }
+  if (!isAuthenticated) {
+    navigate('/admin/adminlogin');
+  }
 
   return (
     <>
