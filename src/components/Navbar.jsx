@@ -159,10 +159,14 @@ const Navbar = () => {
             <div className="nav-auth">
               <div className="dropdown">
                 <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" onClick={(e) => { toggleDropdown(e); toggleSection(null) }}>
-                  <div className='rounded-circle overflow-hidden'>
-                    <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
-                  </div>
-                  <span className="fw-bold fs-5">{userNickName}</span>
+                  {userImg && userNickName && (
+                    <>
+                      <div className='rounded-circle overflow-hidden'>
+                        <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
+                      </div>
+                      <span className="fw-bold fs-5">{userNickName}</span>
+                    </>
+                  )}
                 </a>
                 {/* 下拉選單 */}
                 <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
@@ -202,7 +206,11 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="nav-auth">
-              <button className="btn-login" onClick={() => { navigate("/login"), setIsMenuOpen(!isMenuOpen) }}>登入 / 註冊</button>
+              <button className="btn-login" onClick={() => {
+                navigate("/login", {
+                  state: { from: location }
+                }), setIsMenuOpen(!isMenuOpen)
+              }}>登入 / 註冊</button>
             </div>
           )}
 
