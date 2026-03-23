@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PetCard from "../../components/PetCard";
 import PetDetailModal from "../../components/PetDetailModal";
+import { useForm } from "react-hook-form";
 
 function OwnerProfile() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
@@ -25,7 +26,7 @@ function OwnerProfile() {
   // 建立一個狀態來儲存當前點選的寵物物件
   const [selectedPet, setSelectedPet] = useState(null);
   const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'create'
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPetModalOpen, setIsPetModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -36,6 +37,9 @@ function OwnerProfile() {
 
   const petModalRef = useRef(null);
   const newPetModalRef = useRef(null);
+
+  const profileRef = useRef(null);
+  const newProfileRef = useRef(null);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -73,8 +77,9 @@ function OwnerProfile() {
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
           setLoading(false);
+          reset(ownerProfile);
 
-          // console.log("✅ 資料同步完成：", data);
+          console.log("✅ 資料同步完成：", ownerProfile); 
         }
       } catch (error) {
         console.error("❌ 抓取初始化資料失敗：", error.message);
@@ -85,7 +90,40 @@ function OwnerProfile() {
 
   }, [isAuthenticated, isAuthLoading, navigate, user]);
 
-  const openModal = () => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    defaultValues: ownerProfile || {},
+    // mode: 'onChange'
+  });
+
+  const openProfileModal = () => {
+    const element = profileRef.current;
+    if (element) {
+      // 1. 檢查是否已經初始化過，沒有才 new
+      // if (!newPetModalRef.current) {
+      newProfileRef.current = new bootstrap.Modal(element, {
+        keyboard: false
+      });
+      // }
+
+      element.addEventListener('hide.bs.modal', () => {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      });
+
+      newProfileRef.current.show();
+
+    } else {
+      console.error("找不到 Modal DOM 或 Bootstrap 未載入");
+    }
+  }
+
+  const openPetModal = () => {
 
     const element = petModalRef.current;
 
@@ -110,7 +148,7 @@ function OwnerProfile() {
     }
   };
 
-  const closeModal = () => {
+  const closePetModal = () => {
     newPetModalRef.current.hide();
   }
 
@@ -118,18 +156,18 @@ function OwnerProfile() {
   const handleView = (pet) => {
     setSelectedPet({ ...pet });
     setMode('view');
-    setIsModalOpen(true);
+    setIsPetModalOpen(true);
   };
 
   // 點擊新增：給予空資料
   const handleAdd = () => {
     setSelectedPet(null); // 清空
     setMode('create');
-    setIsModalOpen(true);
+    setIsPetModalOpen(true);
   };
 
   const cardOnClick = (pet) => {
-    openModal();
+    openPetModal();
     handleView(pet);
     console.log(pet)
     // setSelectedPet(pet);
@@ -186,12 +224,17 @@ function OwnerProfile() {
           </div>
 
           {/* 3. 居中顯示的基本資料 */}
-          <div className="text-center mt-5 pt-3 mb-4">
+          <div className="text-center mt-5 pt-3 mb-4 border-bottom pb-3">
             <h2 className="fw-bold mb-1" >{ownerProfile?.nickname}</h2>
-            <p className="text-muted mb-2">姓名:{ownerProfile?.name}</p>
-            <p className="text-muted mb-2">臺北市 信義區</p>
-            <p className="text-muted mb-2">{ownerProfile?.phone}</p>
-            <p className="text-muted mb-2">{ownerProfile?.email}</p>
+            <p className="text-black mb-2">姓名:{ownerProfile?.name}</p>
+            <p className="text-black mb-2">臺北市 信義區</p>
+            <p className="text-black mb-2">{ownerProfile?.phone}</p>
+            <p className="text-black mb-2">{ownerProfile?.email}</p>
+
+            <button type="button" className="btn btn-sm btn-secondary mt-2 rounded-pill"
+              onClick={openProfileModal}
+            >修改基本資料</button>
+
             {/* <span
               className="badge rounded-pill bg-transparent border px-3 py-1"
               style={{ borderColor: theme.orange, color: theme.orange, fontSize: '0.9rem' }}
@@ -200,88 +243,140 @@ function OwnerProfile() {
             </span> */}
           </div>
 
+          <div
+            className="modal fade"
+            ref={profileRef}
+            tabIndex="-1"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog modal-lg modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">修改基本資料</h5>
+                  <button type="button" className="btn-close" ></button>
+                </div>
+
+                <form >
+                  <div className="modal-body">
+                    {/* 封面相片與大頭照展示區 */}
+                    <div className="position-relative mb-5" style={{ height: '200px' }}>
+                      <div className="w-100 h-100 bg-light border rounded overflow-hidden">
+                        {/* 這裡可放置封面圖預覽 */}
+                        <div className="text-center mt-5 text-muted">封面相片預覽區</div>
+                      </div>
+
+                      {/* 圓形大頭照 */}
+                      <div
+                        className="position-absolute start-0 bottom-0 translate-middle-y ms-4"
+                        style={{
+                          width: '100px',
+                          height: '100px',
+                          borderRadius: '50%',
+                          border: '4px solid white',
+                          backgroundColor: '#ddd',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted" style={{ fontSize: '12px' }}>
+                          大頭照
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 表單欄位 */}
+                    <div className="row g-3 mt-4">
+                      <div className="col-md-12 mb-3">
+                        <label className="form-label">封面相片 URL</label>
+                        <input type="text" className="form-control" {...register("coverUrl")} />
+                      </div>
+
+                      <div className="col-md-12 mb-3">
+                        <label className="form-label">大頭照 URL</label>
+                        <input type="text" className="form-control" {...register("avatarUrl")} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">姓名</label>
+                        <input
+                          className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                          {...register("name", { required: "姓名為必填" })}
+                        />
+                        {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">暱稱</label>
+                        <input className="form-control" {...register("nickname")} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">電話</label>
+                        <input className="form-control" {...register("phone")} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Email</label>
+                        <input
+                          type="email"
+                          className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                          {...register("email", { required: "Email 為必填" })}
+                        />
+                      </div>
+
+                      <div className="col-12">
+                        <label className="form-label">地址</label>
+                        <input className="form-control" {...register("address")} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary">取消</button>
+                    <button type="submit" className="btn btn-primary">儲存變更</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
           {/* 4. Tab 切換導航列 (置中) */}
-          <div className="d-flex justify-content-center gap-3 mb-5 border-bottom pb-3">
-            <button
+          {/* <div className="d-flex justify-content-center gap-3 mb-5 border-bottom pb-3"> */}
+          {/* <button
               className={`btn rounded-pill px-4 fw-bold ${activeTab === 'pets' ? 'btn-dark' : 'btn-light text-muted'}`}
               onClick={() => setActiveTab('pets')}
               style={{ transition: 'all 0.2s' }}
             >
               我的寵物
-            </button>
-            {/* <button
+            </button> */}
+          {/* <button
               className={`btn rounded-pill px-4 fw-bold ${activeTab === 'bookings' ? 'btn-dark' : 'btn-light text-muted'}`}
               onClick={() => setActiveTab('bookings')}
               style={{ transition: 'all 0.2s' }}
             >
               我的預約
             </button> */}
-          </div>
+          {/* </div> */}
 
-          {/* 5. 條件渲染區塊 (依據 activeTab 顯示內容) */}
+
           <div className="row px-2">
-            {activeTab === 'pets' ? (
-              /* -------- [標籤 A] 我的寵物 內容 -------- */
-              <div className="">
-                <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closeModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
-                <div className="row g-3">
-                  {ownerPets?.map(pet => (
-                    <PetCard
-                      key={pet.id}
-                      pet={pet}
-                      divClassName={'col-md-6 col-lg-3'}
-                      cardClassName={'card background-color:white'}
-                      // cardRef={cardRef}
-                      // 點擊時把當前的 pet 物件傳回去
-                      cardOnClick={() => cardOnClick(pet)}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              /* -------- [標籤 B] 我的預約 內容 -------- */
-              <div className="">
-                {ownerBooking?.map(b => (
-
-                  <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
-                    <div className="card-body p-3 d-flex justify-content-between align-items-center">
-                      <div>
-                        <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
-                        <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                        <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}</p>
-                        <p>服務對象：{petMap[b.pet_id]}</p>
-                      </div>
-                      <div className="text-end">
-                        <h5 className="fw-bold mb-2 text-primary" >NT$ {b.total_price}</h5>
-                        <button
-                          className="btn btn-sm btn-outline-secondary rounded-pill"
-                          onClick={() => navigate(`/owner/bookings/${b.id}`)}
-                        >
-                          查看詳情
-                        </button>
-                        {/* <button className="btn btn-sm btn-outline-secondary rounded-pill">查看詳情</button> */}
-                      </div>
-                    </div>
-                  </div>
+            <h2 className="text-black text-center mb-4">我的寵物</h2>
+            <div className="">
+              <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closePetModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
+              <div className="row g-3">
+                {ownerPets?.map(pet => (
+                  <PetCard
+                    key={pet.id}
+                    pet={pet}
+                    divClassName={'col-md-6 col-lg-3'}
+                    cardClassName={'card background-color:white'}
+                    // cardRef={cardRef}
+                    // 點擊時把當前的 pet 物件傳回去
+                    cardOnClick={() => cardOnClick(pet)}
+                  />
                 ))}
-
-                {/* 歷史預約卡片 (呈現反灰感) */}
-                {/* <div className="card border-0 rounded-4 shadow-sm" style={{ opacity: 0.7 }}>
-                <div className="card-body p-4 d-flex justify-content-between align-items-center">
-                  <div>
-                    <span className="badge bg-secondary rounded-pill mb-2">已完成</span>
-                    <h5 className="fw-bold mb-1">狗狗寄宿 (保母：王大明)</h5>
-                    <p className="text-muted mb-0">2023/10/01 - 2023/10/03 ｜ 服務對象：阿金</p>
-                  </div>
-                  <div className="text-end">
-                    <h5 className="fw-bold mb-2 text-muted">NT$ 2,400</h5>
-                    <button className="btn btn-sm btn-outline-secondary rounded-pill">再次預約</button>
-                  </div>
-                </div>
-              </div> */}
-
               </div>
-            )}
+            </div>
+
           </div>
 
         </div>

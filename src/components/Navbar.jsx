@@ -176,7 +176,7 @@ const Navbar = () => {
                   )} */}
                   <li onClick={() => toggleSection('owner')}>
                     <a className="dropdown-item">
-                      我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="botChevron" className='align-self-center ms-1' />
+                      我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
                   </li>
                   <ul className={openSection === 'owner' ? 'd-block' : 'd-none'}>
@@ -188,7 +188,7 @@ const Navbar = () => {
                   )} */}
                   <li onClick={() => toggleSection('sitter')}>
                     <a className="dropdown-item">
-                      我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="botChevron" className='align-self-center ms-1' />
+                      我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
                   </li>
                   <ul className={openSection === 'sitter' ? 'd-block' : 'd-none'}>
