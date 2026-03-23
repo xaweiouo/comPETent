@@ -26,6 +26,12 @@ const authSlice = createSlice({
     setRole: (state, action) => {
       state.role = action.payload[0].role;
     },
+    updateUserInfo: (state, action) => {
+     
+        // 將新的資料（如 nickname, name）合併進原本的 user 物件
+        state.user = { ...state.user, ...action.payload };
+      
+    },
     setLogout: (state) => {
       state.user = null;
       state.role = null;
@@ -67,5 +73,5 @@ export const fetchUserPermissions = createAsyncThunk(
   }
 );
 
-export const { setUser, setLogout,setRole } = authSlice.actions;
+export const { setUser, setLogout,setRole,updateUserInfo } = authSlice.actions;
 export default authSlice.reducer;

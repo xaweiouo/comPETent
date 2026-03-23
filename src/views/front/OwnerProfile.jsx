@@ -5,11 +5,13 @@ import { supabase } from "../../lib/supabaseClient";
 
 import { TailSpin } from "react-loader-spinner";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PetCard from "../../components/PetCard";
 import PetDetailModal from "../../components/PetDetailModal";
 import { useForm } from "react-hook-form";
+import { createAsyncMessage } from "../../slices/messageSlice";
+import { updateUserInfo } from "../../slices/authSlice";
 
 function OwnerProfile() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
@@ -29,6 +31,7 @@ function OwnerProfile() {
   const [isPetModalOpen, setIsPetModalOpen] = useState(false);
 
   const navigate = useNavigate();
+  const dispatch=useDispatch();
 
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
@@ -77,7 +80,7 @@ function OwnerProfile() {
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
           setLoading(false);
-          reset(ownerProfile);
+          reset({...data});
 
           console.log("✅ 資料同步完成：", ownerProfile); 
         }
@@ -100,6 +103,42 @@ function OwnerProfile() {
     // mode: 'onChange'
   });
 
+  const onSubmit=async(formData)=>{
+    try {
+      const updateData = {
+      name: formData.name,
+      nickname: formData.nickname,
+      email: formData.email,
+      phone: formData.phone,
+    };
+      const { data, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', formData.id)
+        .select() // 重要：加上 .select() 讓它回傳更新後的完整資料
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+      // 更新本地的 State，讓 UI 即時顯示新資料
+      setOwnerProfile(data); 
+      dispatch(updateUserInfo({
+        name: data.name,
+        nickname: data.nickname,}))
+      
+      dispatch(createAsyncMessage({ text: "更新成功"}));
+
+      // 4. 自動關閉 Modal (如果你的 newProfileRef 已定義)
+      if (newProfileRef.current) {
+        newProfileRef.current.hide();
+      }
+    }
+    } catch (error) {
+      dispatch(createAsyncMessage(error))
+    }
+  }
+
   const openProfileModal = () => {
     const element = profileRef.current;
     if (element) {
@@ -111,6 +150,8 @@ function OwnerProfile() {
       // }
 
       element.addEventListener('hide.bs.modal', () => {
+        reset(ownerProfile);
+
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
@@ -197,7 +238,7 @@ function OwnerProfile() {
             &lt; 返回
           </div> */}
 
-          {/* 2. 英雄大圖與置中頭像 */}
+          {/* 2. 封面相片與置中頭像 */}
           <div className="position-relative mb-5">
             {/* 背景大圖 (高度稍微調低，讓視覺焦點更集中在頭像) */}
             <img
@@ -256,7 +297,7 @@ function OwnerProfile() {
                   <button type="button" className="btn-close" ></button>
                 </div>
 
-                <form >
+                <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="modal-body">
                     {/* 封面相片與大頭照展示區 */}
                     <div className="position-relative mb-5" style={{ height: '200px' }}>
