@@ -26,7 +26,9 @@ const ServiceDeployForm = () => {
   // const[tempDistrict,setTempDistrict]=useState('');
 
   // 過濾出該縣市的所有地區組合
-  const filteredDistricts = locations.filter(loc => loc.city === tempCity).map(loc=>({value:loc.district,label:loc.district}));
+  const filteredDistricts = locations.filter(loc => loc.city === tempCity).map(loc => ({ value: loc.id, label: loc.district }));
+
+
 
   const navigate = useNavigate();
 
@@ -53,21 +55,13 @@ const ServiceDeployForm = () => {
     }
   }, [isAuthenticated, navigate, user, isAuthLoading]);
 
-  // const getUserId = async () => {
-  //   const { data: userData } = await supabase
-  //     .from('users')
-  //     .select('id')
-  //     .eq('email', user.email)
-  //     .maybeSingle();
-  //   setUserId(userData.id);
-  // };
-
   const {
     register,
     control,
     setValue,
     handleSubmit,
-    // watch,
+    reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -84,6 +78,27 @@ const ServiceDeployForm = () => {
     }
   });
 
+  // 監控 category 欄位的值
+  const selectedCategory = watch("category");
+  const getPriceInfo = (category) => {
+    switch (category) {
+      case '陪伴散步':
+      case '寵物安親':
+      case '到府照顧':
+      case '訓練':
+        return { label: '(每半小時)', fieldName: 'price_per_30min' };
+      case '寄宿':
+        return { label: '(每日)', fieldName: 'price_per_day' };
+      case '洗澡美容':
+        return { label: '(每次)', fieldName: 'price_per_session' };
+      default:
+        return { label: '', fieldName: null };
+    }
+  };
+
+  const { label, fieldName } = getPriceInfo(selectedCategory);
+
+
   const onSubmit = async (data) => {
     try {
       const formattedStartTime = `${data.start_hour}:${data.start_minute}:00`;
@@ -99,23 +114,26 @@ const ServiceDeployForm = () => {
         .from('services')
         .insert([{
           sitter_id: userId,
-          // location_id: data.location_id,
+          location_id: data.location_id,
           // photo_url: mainPhotoPath,
           category: data.category,
-          // species: data.species,
-          // day_of_week: data.day_of_week,
-          // start_time: formattedStartTime,
-          // end_time: formattedEndtTime,
-          // description: data.description,
+          species: data.species,
+          day_of_week: data.day_of_week,
+          start_time: formattedStartTime,
+          end_time: formattedEndtTime,
+          description: data.description,
           // 根據類別寫入對應價格，其餘為 null
-          // price_per_30min: data.price_per_30min || null,
-          // price_per_day: data.price_per_day || null,
-          // price_per_session: data.price_per_session || null,
+          price_per_30min: data.price_per_30min || null,
+          price_per_day: data.price_per_day || null,
+          price_per_session: data.price_per_session || null,
         }])
         .select()
         .single();
 
       if (sError) throw sError;
+
+      reset();
+      setTempCity('');
     } catch (error) {
       console.log(error);
       alert("提交失敗，請檢查網路或格式");
@@ -138,7 +156,7 @@ const ServiceDeployForm = () => {
           <form action="" onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-center fw-bold text-primary mb-5">發布服務</h2>
 
-            <div className="row g-3 align-items-start">
+            <div className="row g-3 align-items-start justify-content-between">
 
               <div className="col-12 col-md-3">
                 <Controller
@@ -151,7 +169,16 @@ const ServiceDeployForm = () => {
                       imgSrc={workIcon}
                       label="服務類別"
                       options={SITTER_SERVICE_OPTIONS}
-                      {...field} // 這會自動傳入 value 和 onChange
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        field.onChange(newValue);
+
+                        // 當類別改變，清空所有價格欄位
+                        setValue("price_per_30min", null);
+                        setValue("price_per_day", null);
+                        setValue("price_per_session", null);
+                      }}
+                      // {...field} // 這會自動傳入 value 和 onChange
                       error={errors?.category}
                     />
                   )}
@@ -190,14 +217,6 @@ const ServiceDeployForm = () => {
                     setValue("location_id", ""); // 連動清空地區 ID
                   }}
                 />
-
-                {/* <select value={tempCity} onChange={(e) => {
-                  setTempCity(e.target.value);
-                  setValue("location_id", ""); // 切換縣市時，重置 ID
-                }}>
-                  <option value="">請選擇縣市</option>
-                  {cityOptions.map(city => <option key={city} value={city}>{city}</option>)}
-                </select> */}
               </div>
 
               <div className="col-12 col-md-3">
@@ -212,21 +231,154 @@ const ServiceDeployForm = () => {
                       label="服務地區"
                       options={filteredDistricts}
                       {...field} // 這會自動傳入 value 和 onChange
+                      disabled={!tempCity}
                       error={errors?.location_id}
                     />
                   )}
                 />
               </div>
 
-              <div className="col-12">
+              <div className="col-12 col-md-3">
+                <Controller
+                  name="day_of_week"
+                  control={control}
+                  rules={{ required: "請選擇一天" }}
+                  render={({ field }) => (
+                    <Select
+                      id="星期"
+                      imgSrc={locationIcon}
+                      label="服務星期"
+                      options={WEEKDAY_OPTIONS}
+                      {...field} // 這會自動傳入 value 和 onChange
+                      error={errors?.day_of_week}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="d-flex col-12 col-md-9 align-items-center">
+
+                <div className="row gx-3 col-12 col-md-6 align-items-start">
+                  <div className="col-12 col-md-6">
+                    <Controller
+                      name="start_hour"
+                      control={control}
+                      rules={{ required: "請選擇開始時段" }}
+                      render={({ field }) => (
+                        <Select
+                          id="start_hour"
+                          // imgSrc={locationIcon}
+                          label="開始時"
+                          options={HOUR_OPTIONS}
+                          {...field} // 這會自動傳入 value 和 onChange
+                          error={errors?.start_hour}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-12 col-md-6">
+                    <Controller
+                      name="start_minute"
+                      control={control}
+                      rules={{ required: "請選擇開始時段" }}
+                      render={({ field }) => (
+                        <Select
+                          id="start_minute"
+                          // imgSrc={locationIcon}
+                          label="開始分"
+                          options={MINUTE_OPTIONS}
+                          {...field} // 這會自動傳入 value 和 onChange
+                          error={errors?.start_minute}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* 中間的 －（只桌機要） */}
+                <span
+                  className="mx-2 flex-shrink-0"
+                  style={{ color: "#FF8400", fontWeight: 700 }}
+                >
+                  －
+                </span>
+
+                <div className="row gx-3 col-12 col-md-6">
+                  <div className="col-12 col-md-6">
+                    <Controller
+                      name="end_hour"
+                      control={control}
+                      rules={{ required: "請選擇結束時段" }}
+                      render={({ field }) => (
+                        <Select
+                          id="end_hour"
+                          // imgSrc={locationIcon}
+                          label="結束時"
+                          options={HOUR_OPTIONS}
+                          {...field} // 這會自動傳入 value 和 onChange
+                          error={errors?.start_hour}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-12 col-md-6">
+                    <Controller
+                      name="end_minute"
+                      control={control}
+                      rules={{ required: "請選擇結束時段" }}
+                      render={({ field }) => (
+                        <Select
+                          id="end_minute"
+                          // imgSrc={locationIcon}
+                          label="結束分"
+                          options={MINUTE_OPTIONS}
+                          {...field} // 這會自動傳入 value 和 onChange
+                          error={errors?.start_minute}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-3">
+                <label className="form-label">
+                  價格 {label}
+                </label>
+                {fieldName ? (
+                  <>
+                    <input
+                      type="number"
+                      className="form-control rounded-pill border border-warning"
+                      {...register(fieldName, {
+                        required: `請輸入${label}價格`,
+                        min: { value: 0, message: "價格不能低於 0 元" }
+                      })}
+                      placeholder="請輸入金額"
+                    />
+                    <p className="text-danger">{errors[fieldName]?.message}</p>
+                  </>
+                ) : (
+                  <input
+                    type="text"
+                    className="form-control rounded-pill border border-secondary"
+                    disabled
+                    placeholder="請先選擇服務類別"
+                  />
+                )}
+              </div>
+
+              <div className="col-9">
                 <div className="d-flex">
                   <label className="form-label">服務簡述</label>
-                  {errors.description && <p className="ms-3">{errors.description.message}</p>}
+                  {errors.description && <p className="text-danger ms-3">{errors.description.message}</p>}
                 </div>
                 <textarea
                   {...register("description", { required: "請簡述服務" })}
                   className="form-control border border-warning"
-                  style={{ backgroundColor: "#FEF3E2" }}
+
                   rows="4"
                 // error={errors?.description}
                 // value={newPet.note}
