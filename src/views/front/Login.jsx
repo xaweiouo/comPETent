@@ -58,8 +58,8 @@ function Login() {
       <div className=" bg-secondary" style={{
         '--bs-bg-opacity': .2
       }}>
-        <img src={top_dec} alt="" className="w-100 d-none d-sm-block" />
-        <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none" />
+        <img src={top_dec} alt="decoration" className="w-100 d-none d-sm-block" />
+        <img src={mb_top_dec} alt="decoration" className="w-100 d-block d-sm-none" />
         <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
           <div className="d-flex justify-content-center align-items-center">
 
@@ -100,8 +100,8 @@ function Login() {
 
           </div>
         </div>
-        <img src={bot_dec} alt="" className="w-100 d-none d-sm-block" />
-        <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none" />
+        <img src={bot_dec} alt="decoration" className="w-100 d-none d-sm-block" />
+        <img src={mb_bot_dec} alt="decoration" className="w-100 d-block d-sm-none" />
       </div>
     </>
   )

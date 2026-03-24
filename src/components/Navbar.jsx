@@ -135,22 +135,22 @@ const Navbar = () => {
           {/* 中間：導覽連結 (PC 置中 / Mobile 置中) */}
           <ul className="nav-links">
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="feetIcon" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="flowIcon" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/lookforpetsitter" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={searchIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></NavLink>
+              <NavLink className="nav-link" to="/lookforpetsitter" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={searchIcon} className="me-2" alt="searchIcon" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="becomeIcon" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="shieldIcon" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
             </li>
           </ul>
 
@@ -222,7 +222,7 @@ const Navbar = () => {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle navigation"
         >
-          <img src={stroke} alt="" />
+          <img src={stroke} alt="stroke" />
         </button>
       </div>
     </nav>
