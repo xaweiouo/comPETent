@@ -21,6 +21,6 @@ export const starRating = (rating,height) => {
   });
 
     return stars.map((star, index) => (
-    <img key={index} src={star} alt="" className='me-1' style={{height:height}}/>
+    <img key={index} src={star} alt="star" className='me-1' style={{height:height}}/>
   ));
 };

@@ -306,23 +306,7 @@ const SitterServiceDetail = () => {
               onToggleDone={onToggleDone}
             />
 
-            {/* {isFavorite ? (
-              <div
-                className="ms-8 me-3 align-self-center"
-                style={{ cursor: 'pointer' }}
-                onClick={handleToggleFavorite}
-              >
-                <img src={love_icon} alt="" />
-              </div>
-            ) : (
-              <div
-                className="ms-8 me-3 align-self-centers"
-                style={{ cursor: 'pointer' }}
-                onClick={handleToggleFavorite}
-              >
-                <img src={empt_heart_icon} alt="" />
-              </div>
-            )} */}
+            
 
           </div>
 

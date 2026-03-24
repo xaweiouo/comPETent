@@ -135,22 +135,22 @@ const Navbar = () => {
           {/* 中間：導覽連結 (PC 置中 / Mobile 置中) */}
           <ul className="nav-links">
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="feetIcon" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="flowIcon" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/lookforpetsitter" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={searchIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></NavLink>
+              <NavLink className="nav-link" to="/lookforpetsitter" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={searchIcon} className="me-2" alt="searchIcon" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="becomeIcon" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="shieldIcon" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
+              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
             </li>
           </ul>
 
@@ -159,10 +159,14 @@ const Navbar = () => {
             <div className="nav-auth">
               <div className="dropdown">
                 <a className="dropdown-toggle d-flex align-items-center gap-2 text-black text-decoration-none" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" onClick={(e) => { toggleDropdown(e); toggleSection(null) }}>
-                  <div className='rounded-circle overflow-hidden'>
-                    <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
-                  </div>
-                  <span className="fw-bold fs-5">{userNickName}</span>
+                  {userImg && userNickName && (
+                    <>
+                      <div className='rounded-circle overflow-hidden'>
+                        <img src={userImg} alt="會員照片" style={{ width: "36px", height: "36px" }} />
+                      </div>
+                      <span className="fw-bold fs-5">{userNickName}</span>
+                    </>
+                  )}
                 </a>
                 {/* 下拉選單 */}
                 <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
@@ -172,7 +176,7 @@ const Navbar = () => {
                   )} */}
                   <li onClick={() => toggleSection('owner')}>
                     <a className="dropdown-item">
-                      我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="botChevron" className='align-self-center ms-1' />
+                      我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
                   </li>
                   <ul className={openSection === 'owner' ? 'd-block' : 'd-none'}>
@@ -184,7 +188,7 @@ const Navbar = () => {
                   )} */}
                   <li onClick={() => toggleSection('sitter')}>
                     <a className="dropdown-item">
-                      我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="botChevron" className='align-self-center ms-1' />
+                      我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
                   </li>
                   <ul className={openSection === 'sitter' ? 'd-block' : 'd-none'}>
@@ -202,7 +206,11 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="nav-auth">
-              <button className="btn-login" onClick={() => { navigate("/login"), setIsMenuOpen(!isMenuOpen) }}>登入 / 註冊</button>
+              <button className="btn-login" onClick={() => {
+                navigate("/login", {
+                  state: { from: location }
+                }), setIsMenuOpen(!isMenuOpen)
+              }}>登入 / 註冊</button>
             </div>
           )}
 
@@ -214,7 +222,7 @@ const Navbar = () => {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle navigation"
         >
-          <img src={stroke} alt="" />
+          <img src={stroke} alt="stroke" />
         </button>
       </div>
     </nav>

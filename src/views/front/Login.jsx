@@ -4,7 +4,7 @@ import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.p
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 // import { authListener, setRole } from '../../slices/authSlice';
 import { supabase } from "../../lib/supabaseClient";
@@ -13,6 +13,8 @@ function Login() {
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  let from = location.state?.from?.pathname || "/";
 
   const {
     register,
@@ -38,12 +40,17 @@ function Login() {
 
       await dispatch(fetchUserPermissions(authData.user)).unwrap();
       console.log(authData)
-      navigate('/');
+      navigate(from, { replace: true });
 
     } catch (err) {
       setError(err.message || '登入失敗，請檢查帳號密碼');
     }
   };
+
+  // 防止迴圈：如果來源是登入或註冊頁，一律改回首頁或其他特定頁面（如寵物服務頁）
+  if (from === "/login" || from === "/signup") {
+    from = "/"; // 或者你希望的預設頁面
+  }
 
 
   return (
@@ -51,8 +58,8 @@ function Login() {
       <div className=" bg-secondary" style={{
         '--bs-bg-opacity': .2
       }}>
-        <img src={top_dec} alt="" className="w-100 d-none d-sm-block" />
-        <img src={mb_top_dec} alt="" className="w-100 d-block d-sm-none" />
+        <img src={top_dec} alt="decoration" className="w-100 d-none d-sm-block" />
+        <img src={mb_top_dec} alt="decoration" className="w-100 d-block d-sm-none" />
         <div className="container" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
           <div className="d-flex justify-content-center align-items-center">
 
@@ -68,7 +75,7 @@ function Login() {
             <div className="container my-5">
               <div className="row justify-content-center">
                 <div className="col-md-6">
-                  {error && <div className="alert alert-danger">{error}</div>}
+                  {/* {error && <div className="alert alert-danger">{error}</div>} */}
                   <form onSubmit={handleSubmit(handleLogin)}>
                     <div className="mb-3">
                       <label className="form-label">Email</label>
@@ -93,8 +100,8 @@ function Login() {
 
           </div>
         </div>
-        <img src={bot_dec} alt="" className="w-100 d-none d-sm-block" />
-        <img src={mb_bot_dec} alt="" className="w-100 d-block d-sm-none" />
+        <img src={bot_dec} alt="decoration" className="w-100 d-none d-sm-block" />
+        <img src={mb_bot_dec} alt="decoration" className="w-100 d-block d-sm-none" />
       </div>
     </>
   )
