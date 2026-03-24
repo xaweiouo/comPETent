@@ -26,9 +26,9 @@ function App() {
     // 2. 監聽狀態變動：如登入、登出、密碼更改
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        console.log('test')
+        
         dispatch(fetchUserPermissions(session.user));
-        console.log(session)
+        
       } else {
         dispatch(setLogout());
       }

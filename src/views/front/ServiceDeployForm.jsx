@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabaseClient";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { useLocations } from "../../utils/useLocations";
@@ -13,10 +13,11 @@ import workIcon from "../../images/icons/work_icon.png";
 
 import { SITTER_SERVICE_OPTIONS, PET_SPECIES_OPTIONS, WEEKDAY_OPTIONS, HOUR_OPTIONS, MINUTE_OPTIONS } from "../../utils/options";
 import Select from "../../components/Select";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 const ServiceDeployForm = () => {
   // const [isChecking, setIsChecking] = useState(true);
-
+  const dispatch=useDispatch();
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [userId, setUserId] = useState(null);
   const { locations, cityOptions } = useLocations();
@@ -103,11 +104,7 @@ const ServiceDeployForm = () => {
     try {
       const formattedStartTime = `${data.start_hour}:${data.start_minute}:00`;
       const formattedEndtTime = `${data.end_hour}:${data.end_minute}:00`;
-
-
-
       const dataToSave = { category: data.category };
-      console.log("準備寫入的資料內容：", JSON.stringify(dataToSave));
 
       // 寫入 services 主表
       const { error: sError } = await supabase
@@ -135,8 +132,7 @@ const ServiceDeployForm = () => {
       reset();
       setTempCity('');
     } catch (error) {
-      console.log(error);
-      alert("提交失敗，請檢查網路或格式");
+      dispatch(createAsyncMessage(error));
     }
   };
 

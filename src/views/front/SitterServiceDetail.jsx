@@ -163,7 +163,7 @@ const SitterServiceDetail = () => {
 
         }
       } catch (error) {
-        console.log('Error fetching details:', error.message);
+        dispatch(createAsyncMessage(error));
       } finally {
         // 無論成功或失敗、登入或沒登入，都要關閉 Loading
         setIsChecking(false);

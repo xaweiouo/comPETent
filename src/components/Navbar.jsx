@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import { supabase } from "../lib/supabaseClient";
 import { useSelector, useDispatch } from 'react-redux';
 import { setLogout } from '../slices/authSlice';
+import { createAsyncMessage } from '../slices/messageSlice';
 
 const Navbar = () => {
   const location = useLocation()
@@ -51,26 +52,9 @@ const Navbar = () => {
         throw logoutError
       }
     } catch (error) {
-      console.log(error)
+      dispatch(createAsyncMessage(error));
     }
   }
-
-  // useEffect(() => {
-  //   //初始化簡查
-  //   const initAuth = async () => {
-  //     try {
-  //       const { data: authData, erro: authError } = await supabase.auth.getSession();
-  //       if (authData.session) {
-  //         setUserEmail(authData.session.user.email)
-  //         dispatch(authListener(authData));
-  //       }
-  //       if (authError) throw authError;
-  //     } catch (error) {
-  //       console.log(error.message)
-  //     }
-  //   };
-  //   initAuth()
-  // }, [])
 
   // //想要在登入後再取得會員照片、姓名，重新渲染於navbar
   useEffect(() => {
@@ -89,7 +73,7 @@ const Navbar = () => {
           `)
           .eq('email', user.email)
           .maybeSingle();
-        console.log(userData)
+
         if (userData) {
           setUserNickName(userData.nickname)
           setUserImg(userData.avatar_url)
@@ -109,7 +93,9 @@ const Navbar = () => {
         // // 3. 驗證成功，寫入 Redux
         // dispatch(setRole(roleData))
       } catch (error) {
-        console.log(error.message)
+       
+        dispatch(createAsyncMessage(error));
+
       }
     };
     initRole()

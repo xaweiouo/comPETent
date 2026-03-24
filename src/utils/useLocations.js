@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useDispatch } from 'react-redux';
+import { createAsyncMessage } from '../slices/messageSlice';
+
 export function useLocations() {
   const [locations, setLocations] = useState([]);
   const [cityOptions, setCityOptions] = useState([]);
   // const [loading, setLoading] = useState(true);
+  const dispatch=useDispatch();
 
   useEffect(() => {
     async function fetchLocations() {
@@ -20,12 +24,12 @@ export function useLocations() {
 
         // 產生唯一的縣市列表
         const cities = Array.from(
-          new Set((data || []).map((item) =>item.city))
+          new Set((data || []).map((item) => item.city))
         );
-        const cityOptions=cities.map(city=>({value:city ,label:city}));
+        const cityOptions = cities.map(city => ({ value: city, label: city }));
         setCityOptions(cityOptions);
       } catch (error) {
-        console.error("載入接送地點失敗", error.message);
+        dispatch(createAsyncMessage(error));
       } finally {
         // setLoading(false);
       }

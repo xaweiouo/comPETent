@@ -82,10 +82,9 @@ function OwnerProfile() {
           setLoading(false);
           reset({...data});
 
-          console.log("✅ 資料同步完成：", ownerProfile); 
         }
       } catch (error) {
-        console.error("❌ 抓取初始化資料失敗：", error.message);
+        dispatch(createAsyncMessage(error));
       }
     };
     // 登入後，只在初始化時跑這一次
@@ -159,9 +158,7 @@ function OwnerProfile() {
 
       newProfileRef.current.show();
 
-    } else {
-      console.error("找不到 Modal DOM 或 Bootstrap 未載入");
-    }
+    } 
   }
 
   const openPetModal = () => {
@@ -184,9 +181,7 @@ function OwnerProfile() {
 
       newPetModalRef.current.show();
 
-    } else {
-      console.error("找不到 Modal DOM 或 Bootstrap 未載入");
-    }
+    } 
   };
 
   const closePetModal = () => {
@@ -210,7 +205,7 @@ function OwnerProfile() {
   const cardOnClick = (pet) => {
     openPetModal();
     handleView(pet);
-    console.log(pet)
+    
     // setSelectedPet(pet);
   }
 
