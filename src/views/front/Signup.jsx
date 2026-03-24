@@ -24,7 +24,6 @@ function Signup() {
 
 
   const handleSignup = async (signupInfo) => {
-    // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       const { error } = await supabase.auth.signOut();
@@ -34,7 +33,6 @@ function Signup() {
         password: signupInfo.password,
       });
 
-      console.log(authData)
       if (authError) throw authError;
 
       // const { data: userData } = await supabase

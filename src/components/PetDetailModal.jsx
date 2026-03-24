@@ -53,8 +53,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
       closeModal();
 
     } catch (error) {
-      console.error("❌ 寵物資料更新失敗：", error.message);
-      alert('更新失敗，請稍後再試。');
+      dispatch(createAsyncMessage(error));
     }
   };
 

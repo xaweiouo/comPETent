@@ -23,7 +23,6 @@ function AdminLogin() {
   });
 
   const handleLogin = async (loginInfo) => {
-    // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       // 1. 執行 Supabase 登入
@@ -73,52 +72,6 @@ function AdminLogin() {
     }
   };
 
-  //old------------------
-  // const handleLogin = async (loginInfo) => {
-  //   // console.log("正在嘗試登入的資料:", loginInfo);
-
-  //   try {
-  //     // 1. 執行 Supabase 登入
-  //     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-  //       email:loginInfo.email,
-  //       password:loginInfo.password,
-  //     });
-
-  //     if (authError) throw authError;
-
-  //     const { data: userData } = await supabase
-  //         .from('users')
-  //         .select('id')
-  //         .eq('email', authData.user.email)
-  //         .maybeSingle();
-
-  //     const userId = userData.id; 
-
-
-
-  //     // 2. 檢查是否為 admin 角色
-  //     const { data: roleData, error: roleError } = await supabase
-  //       .from('user_roles')
-  //       .select('role')
-  //       .eq('user_id', userId)
-  //       .eq('role', 'admin')
-  //       .single();
-
-  //     if (roleError || !roleData) {
-  //       // 如果不是管理員，強制登出並阻擋
-  //       await supabase.auth.signOut();
-  //       throw new Error('權限不足：您不是管理員');
-  //     }
-
-  //     // 3. 驗證成功，寫入 Redux 並跳轉
-  //     dispatch(setAdminLogin(authData.user));
-  //     navigate('/admin/adminbookings');
-
-  //   } catch (err) {
-  //     setError(err.message || '登入失敗，請檢查帳號密碼');
-  //   }
-  // };
-  //old end----------------------------
   return (
     <>
       <div className="container mt-5">

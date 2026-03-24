@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 // import { authListener, setRole } from '../../slices/authSlice';
 import { supabase } from "../../lib/supabaseClient";
 import { fetchUserPermissions } from '../../slices/authSlice';
+import { createAsyncMessage } from '../../slices/messageSlice';
 function Login() {
   const [error, setError] = useState('');
   const dispatch = useDispatch();
@@ -27,7 +28,6 @@ function Login() {
 
 
   const handleLogin = async (loginInfo) => {
-    // console.log("正在嘗試登入的資料:", loginInfo);
 
     try {
       // 1. 執行 Supabase 登入
@@ -39,11 +39,12 @@ function Login() {
       if (authError) throw authError;
 
       await dispatch(fetchUserPermissions(authData.user)).unwrap();
-      console.log(authData)
+      dispatch(createAsyncMessage({text:'登入成功'}));
       navigate(from, { replace: true });
 
     } catch (err) {
-      setError(err.message || '登入失敗，請檢查帳號密碼');
+      // setError(err.message || '登入失敗，請檢查帳號密碼');
+      dispatch(createAsyncMessage(err));
     }
   };
 

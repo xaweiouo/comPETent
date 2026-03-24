@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 function AdminBookings() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const dispatch=useDispatch();
 
   useEffect(() => {
     const fetchOrders = async () => {
-    setLoading(true);
-    // 使用 Supabase 關聯查詢取得所需資料
-    // 注意：因 owner_id 和 sitter_id 皆指向 users，需依照 Supabase 外鍵規則指定關聯名稱
-    const { data, error } = await supabase
-      .from('bookings')
-      .select(`
+      setLoading(true);
+      // 使用 Supabase 關聯查詢取得所需資料
+      // 注意：因 owner_id 和 sitter_id 皆指向 users，需依照 Supabase 外鍵規則指定關聯名稱
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
         id,
         order_number,
         arrival_date, arrival_time,
@@ -26,47 +29,17 @@ function AdminBookings() {
         service:services(category),
         location:locations(city, district)
       `)
-      .order('created_at', { ascending: false }); // 新訂單在上面
+        .order('created_at', { ascending: false }); // 新訂單在上面
 
-    if (error) {
-      console.error('獲取訂單失敗:', error);
-    } else {
-      setOrders(data);
-    }
-    setLoading(false);
-  };
+      if (error) {
+        dispatch(createAsyncMessage(error));
+      } else {
+        setOrders(data);
+      }
+      setLoading(false);
+    };
     fetchOrders();
   }, []);
-
-  // const fetchOrders = async () => {
-  //   setLoading(true);
-  //   // 使用 Supabase 關聯查詢取得所需資料
-  //   // 注意：因 owner_id 和 sitter_id 皆指向 users，需依照 Supabase 外鍵規則指定關聯名稱
-  //   const { data, error } = await supabase
-  //     .from('bookings')
-  //     .select(`
-  //       id,
-  //       order_number,
-  //       arrival_date, arrival_time,
-  //       departure_date, departure_time,
-  //       total_price,
-  //       status,
-  //       pickup_address_detail,
-  //       owner:users!bookings_owner_id_fkey(name),
-  //       sitter:users!bookings_sitter_id_fkey(name),
-  //       pet:pets(name),
-  //       service:services(category),
-  //       location:locations(city, district)
-  //     `)
-  //     .order('created_at', { ascending: false }); // 新訂單在上面
-
-  //   if (error) {
-  //     console.error('獲取訂單失敗:', error);
-  //   } else {
-  //     setOrders(data);
-  //   }
-  //   setLoading(false);
-  // };
 
   // 狀態對應的 Bootstrap 徽章顏色
   const getStatusBadge = (status) => {

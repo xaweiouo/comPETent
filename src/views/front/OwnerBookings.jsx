@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { TailSpin } from "react-loader-spinner";
+import { createAsyncMessage } from "../../slices/messageSlice";
 
 function OwnerBookings() {
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
@@ -10,6 +11,7 @@ function OwnerBookings() {
   const [ownerBooking, setOwnerBooking] = useState({});
   const [ownerPets, setOwnerPets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const dispatch=useDispatch();
 
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
@@ -52,11 +54,9 @@ function OwnerBookings() {
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
           setLoading(false);
-
-          console.log("✅ 資料同步完成：", data);
         }
       } catch (error) {
-        console.error("❌ 抓取初始化資料失敗：", error.message);
+        dispatch(createAsyncMessage(error));
       }
     };
     // 登入後，只在初始化時跑這一次

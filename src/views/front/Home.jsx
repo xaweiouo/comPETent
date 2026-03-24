@@ -13,6 +13,8 @@ import faqIcon from "../../images/icons/faq_icon.png"
 import { useNavigate } from 'react-router';
 import { supabase } from "../../lib/supabaseClient";
 import { PET_SPECIES_OPTIONS } from "../../utils/options"
+import { useDispatch } from 'react-redux';
+import { createAsyncMessage } from '../../slices/messageSlice';
 // import { createClient } from "@supabase/supabase-js";
 
 // const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -23,7 +25,8 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
   const [startIndex, setStartIndex] = useState(0);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch=useDispatch();
   const faqList = [
     {
       question: '我可以使用現金付款嗎？',
@@ -77,9 +80,9 @@ const Home = () => {
       )
         .eq("users.good_citizen_status", "approved")
         .gt("rating", 4.9)
-      // console.log(data)
+
       if (error) {
-        console.log(error)
+        dispatch(createAsyncMessage(error));
       }
       const formattedData = data.map((item) => ({
         serviceId: item.id,
@@ -124,7 +127,7 @@ const Home = () => {
       }))
       setReviews(formattedData)
       if (error) {
-        console.log(error)
+        dispatch(createAsyncMessage(error));
       }
     }
     getSitterData()

@@ -276,7 +276,7 @@ function LookForPetSitter() {
         .single();
 
       if (userError || !userRow) {
-        // console.error("找不到對應的 users 資料", userError);
+        dispatch(createAsyncMessage(userError));
         setOwnerId(null);
         return;
       }

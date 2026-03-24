@@ -31,8 +31,7 @@ export function FavoriteButton({
       });
 
       if (error) {
-        console.error("insert favorite error", error);
-        alert("收藏失敗，請稍後再試");
+        dispatch(createAsyncMessage(error));
         return;
       }
     } else {
@@ -44,8 +43,7 @@ export function FavoriteButton({
         .eq("sitter_id", sitterId);
 
       if (error) {
-        console.error("delete favorite error", error);
-        alert("取消收藏失敗，請稍後再試");
+        dispatch(createAsyncMessage(error));
         return;
       }
     }
