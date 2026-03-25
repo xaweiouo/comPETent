@@ -20,6 +20,7 @@ import { createAsyncMessage } from "../../slices/messageSlice";
 function LookForPetSitter() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [ownerId, setOwnerId] = useState(null);
 
@@ -160,13 +161,15 @@ function LookForPetSitter() {
   // const [totalCount, setTotalCount] = useState(0);
 
   async function fetchServicesWithFilters(overrideSortBy, overrideFilters) {
-    const sortBy = overrideSortBy ?? filters.sortBy;
-    const effectiveFilters = overrideFilters ?? filters;
+  setIsLoading(true);
 
-    let query = supabase
-      .from("services")
-      .select(
-        `
+  const sortBy = overrideSortBy ?? filters.sortBy;
+  const effectiveFilters = overrideFilters ?? filters;
+
+  let query = supabase
+    .from("services")
+    .select(
+      `
       id,
       sitter_id,
       category,
@@ -186,138 +189,134 @@ function LookForPetSitter() {
         district
       )
     `
-      )
-      .eq("users.good_citizen_status", "approved");
+    )
+    .eq("users.good_citizen_status", "approved");
 
-    // 若只顯示收藏保姆，則 favorites.owner_id = ownerId
-    if (isShowFavoritesOnly && ownerId) {
-      query = query.eq("favorites.owner_id", ownerId);
-    }
-
-    // 日期 → 轉成 day_of_week
-    const dow = getDowFromDate(effectiveFilters.date);
-    if (dow) {
-      query = query.eq("day_of_week", dow);
-    }
-
-    // 由 startHour/startMinute/endHour/endMinute 推導出時間字串
-    const startTime = getStartTime();
-    const endTime = getEndTime();
-
-    // 時間重疊：service_start < userEnd 且 service_end > userStart
-    if (startTime && endTime) {
-      query = query.lt("start_time", endTime).gt("end_time", startTime);
-    }
-
-    if (effectiveFilters.category) query = query.eq("category", effectiveFilters.category);
-    if (effectiveFilters.species) query = query.eq("species", effectiveFilters.species);
-
-    if (effectiveFilters.city) {
-      query = query.eq("loc.city", effectiveFilters.city).not("loc.city", "is", null);
-    }
-
-    if (effectiveFilters.district) {
-      query = query.eq("loc.district", effectiveFilters.district);
-    }
-
-    // 排序：評分交給後端；價格等一下前端處理
-    if (sortBy === "rating") {
-      query = query.order("rating", { ascending: false });
-    } else {
-      query = query.order("id", { ascending: true });
-    }
-
-    // 移除 .range(from, to)，一次拿全部資料
-    const { data, error } = await query;
-
-    if (error) {
-      console.error(error);
-      setAllCards([]);
-      setCards([]);
-      setTotalCount(0);
-      return;
-    }
-    if (!data) {
-      setAllCards([]);
-      setCards([]);
-      setTotalCount(0);
-      return;
-    }
-
-    // 直接用 Supabase 回傳的 data（不去重）
-    const baseCards = data.map((row) => ({
-      serviceId: row.id,
-      sitterId: row.sitter_id,
-      sitterName: row.users.nickname,
-      rating: row.rating,
-      isFavorite: false,
-      category: row.category,
-      species: row.species,
-      city: row.loc?.city ?? "",
-      district: row.loc?.district ?? "",
-      distanceKm: null,
-      description: row.description,
-      pricePer30min: row.price_per_30min,
-      pricePerDay: row.price_per_day,
-      pricePerSession: row.price_per_session,
-      imageUrl: row.photo_url,
-    }));
-
-    // 先記下總筆數
-    setTotalCount(baseCards.length);
-
-    // 未登入：不用查 favorites
-    if (!isAuthenticated || !user || !ownerId) {
-      let finalList = baseCards;
-      if (isShowFavoritesOnly) {
-        // 未登入又按「只看收藏」→ 顯示空列表
-        finalList = [];
-      }
-
-      setAllCards(finalList);
-      const firstPageCards = finalList.slice(0, PAGE_SIZE);
-      setCards(firstPageCards);
-      return;
-    }
-
-    // 🔸 已登入：先查這個 owner 收藏了哪些 sitter
-    const { data: favRows, error: favError } = await supabase
-      .from("favorites")
-      .select("sitter_id")
-      .eq("owner_id", ownerId);
-
-    if (favError) {
-      // 查 favorites 爆掉時，至少先顯示卡片（若只看收藏就顯示空）
-      let finalList = baseCards;
-      if (isShowFavoritesOnly) {
-        finalList = [];
-      }
-      setAllCards(finalList);
-      const firstPageCards = finalList.slice(0, PAGE_SIZE);
-      setCards(firstPageCards);
-      return;
-    }
-
-    const favoriteSitterIdSet = new Set(
-      (favRows ?? []).map((row) => row.sitter_id)
-    );
-
-    let mergedCards = baseCards.map((card) => ({
-      ...card,
-      isFavorite: favoriteSitterIdSet.has(card.sitterId),
-    }));
-
-    // 如果目前是「只看收藏」，就先 filter 一次
-    if (isShowFavoritesOnly) {
-      mergedCards = mergedCards.filter((card) => card.isFavorite);
-    }
-
-    setAllCards(mergedCards);
-    const firstPageCards = mergedCards.slice(0, PAGE_SIZE);
-    setCards(firstPageCards);
-
-
+  // 日期 → 轉成 day_of_week
+  const dow = getDowFromDate(effectiveFilters.date);
+  if (dow) {
+    query = query.eq("day_of_week", dow);
   }
+
+  // 時間
+  const startTime = getStartTime();
+  const endTime = getEndTime();
+  if (startTime && endTime) {
+    query = query.lt("start_time", endTime).gt("end_time", startTime);
+  }
+
+  // 類別 / 寵物
+  if (effectiveFilters.category) query = query.eq("category", effectiveFilters.category);
+  if (effectiveFilters.species) query = query.eq("species", effectiveFilters.species);
+
+  // 地點
+  if (effectiveFilters.city) {
+    query = query.eq("loc.city", effectiveFilters.city).not("loc.city", "is", null);
+  }
+  if (effectiveFilters.district) {
+    query = query.eq("loc.district", effectiveFilters.district);
+  }
+
+  // 排序：評分交給後端；價格等一下前端處理
+  if (sortBy === "rating") {
+    query = query.order("rating", { ascending: false });
+  } else {
+    query = query.order("id", { ascending: true });
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(error);
+    setAllCards([]);
+    setCards([]);
+    setTotalCount(0);
+    setIsLoading(false);
+    return;
+  }
+  if (!data) {
+    setAllCards([]);
+    setCards([]);
+    setTotalCount(0);
+    setIsLoading(false);
+    return;
+  }
+
+  // 先做「只套 Supabase 篩選，不含收藏」的基本列表
+  const baseCards = data.map((row) => ({
+    serviceId: row.id,
+    sitterId: row.sitter_id,
+    sitterName: row.users.nickname,
+    rating: row.rating,
+    isFavorite: false,
+    category: row.category,
+    species: row.species,
+    city: row.loc?.city ?? "",
+    district: row.loc?.district ?? "",
+    distanceKm: null,
+    description: row.description,
+    pricePer30min: row.price_per_30min,
+    pricePerDay: row.price_per_day,
+    pricePerSession: row.price_per_session,
+    imageUrl: row.photo_url,
+  }));
+
+  // 未登入：不用查 favorites，這次搜尋的結果就是 baseCards
+  if (!isAuthenticated || !user || !ownerId) {
+    let finalList = baseCards;
+
+    // 如果此時開啟「只看收藏」，未登入時就顯示空列表
+    if (isShowFavoritesOnly) {
+      finalList = [];
+    }
+
+    setAllCards(finalList);
+    setCards(finalList.slice(0, PAGE_SIZE));
+    setTotalCount(finalList.length);
+    setIsLoading(false);
+    return;
+  }
+
+  // 已登入：補收藏資料
+  const { data: favRows, error: favError } = await supabase
+    .from("favorites")
+    .select("sitter_id")
+    .eq("owner_id", ownerId);
+
+  if (favError) {
+    // 收藏查不到時，至少顯示 baseCards
+    let finalList = baseCards;
+    if (isShowFavoritesOnly) {
+      finalList = [];
+    }
+    setAllCards(finalList);
+    setCards(finalList.slice(0, PAGE_SIZE));
+    setTotalCount(finalList.length);
+    setIsLoading(false);
+    return;
+  }
+
+  const favoriteSitterIdSet = new Set(
+    (favRows ?? []).map((row) => row.sitter_id)
+  );
+
+  let mergedCards = baseCards.map((card) => ({
+    ...card,
+    isFavorite: favoriteSitterIdSet.has(card.sitterId),
+  }));
+
+  // 如果目前是「只看收藏」，在這裡 filter
+  if (isShowFavoritesOnly) {
+    mergedCards = mergedCards.filter((card) => card.isFavorite);
+  }
+
+  // 🔹 這次搜尋真正的結果集合：mergedCards
+  setAllCards(mergedCards);
+  setCards(mergedCards.slice(0, PAGE_SIZE));
+  setTotalCount(mergedCards.length);  // ✅ totalCount 永遠對齊這次結果
+
+  setIsLoading(false);
+}
 
 
 
@@ -427,40 +426,23 @@ function LookForPetSitter() {
 
 
   const handleSearch = async () => {
-    const sortByNow = filters.sortBy;
+  const sortByNow = filters.sortBy;
 
-    // 先依排序種類抓整包（不考慮「只看收藏」，只標記 isFavorite）
-    if (sortByNow === "rating") {
-      await fetchServicesWithFilters("rating");
-    } else {
-      await fetchServicesWithFilters(undefined);
-    }
+  // 只決定要用什麼排序方式呼叫 fetch
+  if (sortByNow === "rating") {
+    await fetchServicesWithFilters("rating");
+  } else {
+    await fetchServicesWithFilters(undefined);
+  }
 
-    // 取得目前要顯示的資料來源：全部 or 只看收藏
-    let source = allCards;
-    if (isShowFavoritesOnly) {
-      source = source.filter((c) => c.isFavorite);
-    }
-
-    // 再依價格或預設排序決定顯示順序
-    if (sortByNow === "price") {
-      const sorted = [...source].sort((a, b) => {
-        const priceA =
-          a.pricePer30min ?? a.pricePerDay ?? a.pricePerSession ?? 0;
-        const priceB =
-          b.pricePer30min ?? b.pricePerDay ?? b.pricePerSession ?? 0;
-        return priceA - priceB;
-      });
-      setAllCards(sorted);              // 整包以價格排序
-      setCards(sorted.slice(0, PAGE_SIZE)); // 第一頁
-      setTotalCount(sorted.length);
-    } else {
-      setCards(source.slice(0, PAGE_SIZE)); // 第一頁
-      setTotalCount(source.length);
-    }
-
+  // 價格排序：在 fetch 抓回的 allCards 上再做一次排序
+  if (sortByNow === "price") {
+    sortCardsByPrice(1);  // 會更新 allCards + cards + currentPage
+  } else {
+    // 非價格排序，fetch 已經幫你切好第一頁和 totalCount，不用再動
     setCurrentPage(1);
-  };
+  }
+};
 
 
 
@@ -927,6 +909,13 @@ function LookForPetSitter() {
             />
             <h2 className="text-primary d-inline-block mb-0">附近的保姆</h2>
           </div>
+
+          {/* 載入中提示 */}
+          {isLoading && (
+            <p className="text-center text-muted mb-3">
+              服務載入中，請稍候...
+            </p>
+          )}
 
           <div className="row mb-3">
             <div className="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
