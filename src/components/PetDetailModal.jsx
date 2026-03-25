@@ -10,17 +10,9 @@ import calendarIcon from '../../src/images/icons/calendar_icon.png'
 import { useDispatch } from 'react-redux';
 import { createAsyncMessage } from '../slices/messageSlice';
 
-function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
-  // const petModalRef = useRef(null);
-  // const newPetModalRef = useRef(null);
-  // const [selectedPet,setSelectedPet]=useState({});
-  const [isEditing, setIsEditing] = useState(false);
+function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
 
-  // const [modalMode, setModalMode] = useState({
-  //   // show: false,
-  //   mode: 'create', // 'create' | 'edit' | 'view'
-  //   // data: null      // 存放要編輯的那筆資料
-  // });
+  const [isEditing, setIsEditing] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -41,7 +33,7 @@ function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets
       if (mode === 'create') {
         // --- 新增模式 ---
         // 注意：這裡可能需要補上 owner_id，通常從 redux 的 user 抓
-        const newPetData = { ...formData,owner_id:ownerId };
+        const newPetData = { ...formData, owner_id: ownerId };
         delete newPetData.id; // 新增時不需要傳入 id
 
         result = await supabase
@@ -80,60 +72,43 @@ function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets
     }
   };
 
-  // const onSubmit = async (formData) => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('pets')
-  //       .update(formData)
-  //       .eq('id', formData.id)
-  //       .select() // 重要：加上 .select() 讓它回傳更新後的完整資料
-  //       .single();
+  const onDelete = async () => {
+    // 1. 確認使用者是否真的要刪除（尤其是編輯/查看模式時）
+    // if (!pet?.id) return;
 
-  //     if (error) throw error;
+    // const confirmDelete = window.confirm(`確定要刪除 ${pet.name} 的資料嗎？此動作無法復原。`);
+    // if (!confirmDelete) return;
 
-  //     setOwnerPets((prevPets) =>
-  //       prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
-  //     );
+    try {
+      // 2. 呼叫 Supabase 刪除資料
+      const { error } = await supabase
+        .from('pets')
+        .delete()
+        .eq('id', pet.id);
 
-  //     dispatch(createAsyncMessage(data && { text: '修改成功' } || error));
-  //     closeModal();
+      if (error) throw error;
 
-  //   } catch (error) {
-  //     dispatch(createAsyncMessage(error));
-  //   }
-  // };
+      // 3. 更新父元件列表：過濾掉被刪除的那一筆
+      setOwnerPets((prevPets) => prevPets.filter((p) => p.id !== pet.id));
 
-  // 點擊「新增」
-  // const handleAdd = () => {
-  //   setModalMode({
-  //     // show: true,
-  //     mode: 'create',
-  //     // data: { name: '', email: '' } // 預設空值
-  //   });
-  // };
+      // 4. 發送成功訊息
+      dispatch(createAsyncMessage({ text: '寵物資料已刪除' }));
 
-  // 點擊「編輯」
-  const handleEdit = (user) => {
-    setIsEditing(true);
-    setModalMode({
-      // show: true,
-      mode: 'edit',
-      // data: user // 傳入當前那列的資料
-    });
+      // 5. 關閉 Modal
+      closeModal();
+    } catch (error) {
+      dispatch(createAsyncMessage({ text: `刪除失敗: ${error.message}`, type: 'error' }));
+    }
   };
 
-  // 點擊「查看」
-  // const handleView = (user) => {
+  // 點擊「編輯」
+  // const handleEdit = (user) => {
+  //   setIsEditing(true);
   //   setModalMode({
   //     // show: true,
-  //     mode: 'view',
-  //     // data: user
+  //     mode: 'edit',
+  //     // data: user // 傳入當前那列的資料
   //   });
-  // };
-
-  // 關閉 Modal
-  // const handleClose = () => {
-  //   setModalConfig((prev) => ({ ...prev, show: false }));
   // };
 
   // 標題動態切換
@@ -144,23 +119,25 @@ function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets
   };
 
   useEffect(() => {
-    if(mode==='create'){reset(
-      {
-      name: '',
-      species: '',
-      size: '',
-      birth_date: '',
-      last_vaccination_date: '',
-      gender: '',
-      is_neutered: '',
-      note: '',
-      photo_url: '' // 如果有預設圖片網址也可以放這
-    }
-    )}else if(pet) {
+    if (mode === 'create') {
+      reset(
+        {
+          name: '',
+          species: '',
+          size: '',
+          birth_date: '',
+          last_vaccination_date: '',
+          gender: '',
+          is_neutered: '',
+          note: '',
+          photo_url: 'https://images2.imgbox.com/9b/a2/d1N0JkEJ_o.jpg' // 如果有預設圖片網址也可以放這
+        }
+      )
+    } else if (pet) {
       // setSelectedPet({...pet})
       reset({ ...pet, is_neutered: pet.is_neutered === null ? "" : String(pet.is_neutered) })
     }
-  }, [pet,mode,reset])
+  }, [pet, mode, reset])
 
   return (
     <>
@@ -192,7 +169,7 @@ function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets
                     <div className="w-100 mb-3">
                       <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                         <img
-                          src={pet?.photo_url}
+                          src={pet?.photo_url || 'https://images2.imgbox.com/9b/a2/d1N0JkEJ_o.jpg'}
                           alt={pet?.name || "new pet"}
                           className="w-100 h-100 rounded-4"
                           style={{ objectFit: "cover" }}
@@ -492,7 +469,11 @@ function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets
               </form>
             </div>
             <div className="modal-footer justify-content-between">
-              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">刪除此寵物</button>
+              {mode !== 'create' ? <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={onDelete}>
+                刪除此寵物
+              </button> : <div></div>}
+
+
               {mode === 'view' ? <button
                 key='edit'
                 type="button"

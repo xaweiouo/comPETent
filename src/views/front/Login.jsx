@@ -2,8 +2,8 @@ import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
 import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 // import { authListener, setRole } from '../../slices/authSlice';
@@ -16,6 +16,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   let from = location.state?.from?.pathname || "/";
+  // const{isAuthenticated}=useSelector(state=>state.auth);
 
   const {
     register,
@@ -53,6 +54,26 @@ function Login() {
   if (from === "/login" || from === "/signup") {
     from = "/"; // 或者你希望的預設頁面
   }
+
+//   useEffect(() => {
+//   if (isAuthenticated) {
+//     const timer = setTimeout(() => {
+//       navigate('/', { replace: true });
+//     }, 3000);
+
+//     // 記得清除 timer，避免元件卸載後還在執行跳轉
+//     return () => clearTimeout(timer);
+//   }
+// }, [isAuthenticated, navigate]);
+
+//   if(isAuthenticated){
+//     return (
+//     <>
+//       <h1 className="text-center mt-9">您已登入</h1>
+//       <p className="text-center">三秒後跳轉至首頁</p>
+//     </>
+//   );
+//   }
 
 
   return (
