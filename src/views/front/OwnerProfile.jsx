@@ -289,19 +289,19 @@ function OwnerProfile() {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">修改基本資料</h5>
-                  <button type="button" className="btn-close" ></button>
+                  <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="modal-body">
                     {/* 封面相片與大頭照展示區 */}
-                    <div className="position-relative mb-5" style={{ height: '200px' }}>
+                    {/* <div className="position-relative mb-5" style={{ height: '200px' }}>
                       <div className="w-100 h-100 bg-light border rounded overflow-hidden">
-                        {/* 這裡可放置封面圖預覽 */}
+                       
                         <div className="text-center mt-5 text-muted">封面相片預覽區</div>
                       </div>
 
-                      {/* 圓形大頭照 */}
+                      
                       <div
                         className="position-absolute start-0 bottom-0 translate-middle-y ms-4"
                         style={{
@@ -317,11 +317,11 @@ function OwnerProfile() {
                           大頭照
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* 表單欄位 */}
                     <div className="row g-3 mt-4">
-                      <div className="col-md-12 mb-3">
+                      {/* <div className="col-md-12 mb-3">
                         <label className="form-label">封面相片 URL</label>
                         <input type="text" className="form-control" {...register("coverUrl")} />
                       </div>
@@ -329,7 +329,7 @@ function OwnerProfile() {
                       <div className="col-md-12 mb-3">
                         <label className="form-label">大頭照 URL</label>
                         <input type="text" className="form-control" {...register("avatarUrl")} />
-                      </div>
+                      </div> */}
 
                       <div className="col-md-6 mb-3">
                         <label className="form-label">姓名</label>
@@ -361,13 +361,13 @@ function OwnerProfile() {
 
                       <div className="col-12">
                         <label className="form-label">地址</label>
-                        <input className="form-control" {...register("address")} />
+                        <input className="form-control" {...register("default_pickup_address_detail")} />
                       </div>
                     </div>
                   </div>
 
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary">取消</button>
+                    {/* <button type="button" className="btn btn-secondary">取消</button> */}
                     <button type="submit" className="btn btn-primary">儲存變更</button>
                   </div>
                 </form>

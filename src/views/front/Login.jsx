@@ -43,8 +43,9 @@ function Login() {
       navigate(from, { replace: true });
 
     } catch (err) {
-      // setError(err.message || '登入失敗，請檢查帳號密碼');
-      dispatch(createAsyncMessage(err));
+     
+      dispatch(createAsyncMessage({title:'失敗', type:'danger' , text:'登入失敗，請檢查帳號密碼'}));
+      
     }
   };
 

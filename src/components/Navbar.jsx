@@ -172,7 +172,7 @@ const Navbar = () => {
                   {/* 保母 */}
                   {/* {(role === "sitter" || role === "admin") && (
                   )} */}
-                  <li onClick={() => toggleSection('sitter')}>
+                  {/* <li onClick={() => toggleSection('sitter')}>
                     <a className="dropdown-item">
                       我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
@@ -180,7 +180,7 @@ const Navbar = () => {
                   <ul className={openSection === 'sitter' ? 'd-block' : 'd-none'}>
                     <li>查看個人資料</li>
                     <li><Link to='sitter/bookings/25' className='text-decoration-none text-reset'>查看訂單</Link></li>
-                  </ul>
+                  </ul> */}
 
                   {/* 管理平台 */}
                   {role === "admin" && (
