@@ -19,11 +19,11 @@ function OwnerProfile() {
   const [loading, setLoading] = useState(true);
 
   // 狀態驅動：控制目前顯示的角色，預設為 'sitter'
-  const [activeTab, setActiveTab] = useState('pets');
+  // const [activeTab, setActiveTab] = useState('pets');
   // const [userId, setUserId] = useState(null);
   const [ownerProfile, setOwnerProfile] = useState(null);
   const [ownerPets, setOwnerPets] = useState([]);
-  const [ownerBooking, setOwnerBooking] = useState(null);
+  // const [ownerBooking, setOwnerBooking] = useState(null);
 
   // 建立一個狀態來儲存當前點選的寵物物件
   const [selectedPet, setSelectedPet] = useState(null);
@@ -78,7 +78,7 @@ function OwnerProfile() {
           // 拆分資料存入不同的 State
           setOwnerProfile(data);
           setOwnerPets(data.pets || []);
-          setOwnerBooking(data.bookings || []);
+          // setOwnerBooking(data.bookings || []);
           setLoading(false);
           reset({ ...data });
 

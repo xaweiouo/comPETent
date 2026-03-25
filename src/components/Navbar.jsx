@@ -22,7 +22,7 @@ const Navbar = () => {
   const dispatch = useDispatch()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, role } = useSelector(state => state.auth)
-  const [userEmail, setUserEmail] = useState("")
+  // const [userEmail, setUserEmail] = useState("")
   const [userNickName, setUserNickName] = useState("")
   const [userImg, setUserImg] = useState("")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -99,7 +99,7 @@ const Navbar = () => {
       }
     };
     initRole()
-  }, [user])
+  }, [user,dispatch])
 
   // 每當 URL 路徑改變時，就關閉所有選單
   useEffect(() => {

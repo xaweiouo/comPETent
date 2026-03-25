@@ -36,7 +36,7 @@ export function useLocations() {
     }
 
     fetchLocations();
-  }, []);
+  }, [dispatch]);
 
   // 回傳你需要的資料與狀態
   return { locations, cityOptions };

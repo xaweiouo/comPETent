@@ -2,8 +2,8 @@ import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
 import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {  useState } from "react";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 // import { authListener, setRole } from '../../slices/authSlice';
@@ -11,7 +11,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { fetchUserPermissions } from '../../slices/authSlice';
 import { createAsyncMessage } from '../../slices/messageSlice';
 function Login() {
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,7 +45,7 @@ function Login() {
 
     } catch (err) {
      
-      dispatch(createAsyncMessage({title:'失敗', type:'danger' , text:'登入失敗，請檢查帳號密碼'}));
+      dispatch(createAsyncMessage(err));
       
     }
   };

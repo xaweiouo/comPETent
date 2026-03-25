@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
-import * as bootstrap from 'bootstrap';
-import { useRef, useEffect, useState } from 'react';
+// import * as bootstrap from 'bootstrap';
+import {  useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import feetIcon from '../../src/images/icons/feet_icon.png'
@@ -12,7 +12,7 @@ import { createAsyncMessage } from '../slices/messageSlice';
 
 function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
 
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -20,7 +20,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    // formState: { errors }
   } = useForm({
     defaultValues: pet || {},
     // mode: 'onChange'

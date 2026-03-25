@@ -39,7 +39,7 @@ function AdminBookings() {
       setLoading(false);
     };
     fetchOrders();
-  }, []);
+  }, [dispatch]);
 
   // 狀態對應的 Bootstrap 徽章顏色
   const getStatusBadge = (status) => {

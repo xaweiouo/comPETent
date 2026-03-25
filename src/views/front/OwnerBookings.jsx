@@ -11,7 +11,7 @@ function OwnerBookings() {
   const [ownerBooking, setOwnerBooking] = useState({});
   const [ownerPets, setOwnerPets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
@@ -62,7 +62,30 @@ function OwnerBookings() {
     // 登入後，只在初始化時跑這一次
     fetchInitialData();
 
-  }, [isAuthenticated, isAuthLoading, navigate, user]);
+  }, [isAuthenticated, isAuthLoading,user, navigate,dispatch]);
+
+  const handleDelete = async (bookingId) => {
+    // if (!window.confirm("確定要取消這筆預約嗎？此操作無法復原。")) return;
+
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      // 成功後，同步更新本地 State，讓該筆訂單從畫面消失
+      setOwnerBooking(prev => prev.filter(b => b.id !== bookingId));
+
+      // 可以發送成功訊息
+      dispatch(createAsyncMessage({ text: "預約已成功刪除", type: "success" }));
+
+    } catch (error) {
+      console.error("刪除失敗:", error);
+      dispatch(createAsyncMessage({ text: "刪除失敗，請稍後再試", type: "danger" }));
+    }
+  };
 
 
   if (!isAuthenticated) {
@@ -90,18 +113,26 @@ function OwnerBookings() {
               <div>
                 <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
                 <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                <p className="text-muted mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}</p>
-                <p>服務對象：{petMap[b.pet_id]}</p>
+                <p className="fs-6 mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}</p>
+                <p className="fs-6">服務對象：{petMap[b.pet_id]}</p>
               </div>
-              <div className="text-end">
+              <div className="text-end d-flex flex-column align-items-end">
                 <h5 className="fw-bold mb-2 text-primary" >NT$ {b.total_price}</h5>
-                <button
-                  className="btn btn-sm btn-outline-secondary rounded-pill"
-                  onClick={() => navigate(`/owner/bookings/${b.id}`)}
-                >
-                  查看詳情
-                </button>
-                {/* <button className="btn btn-sm btn-outline-secondary rounded-pill">查看詳情</button> */}
+                <div className="d-flex flex-column gap-2" style={{width:'80px'}}>
+                  <button
+                    className="btn btn-sm btn-outline-primary rounded-pill"
+                    onClick={() => navigate(`/owner/bookings/${b.id}`)}
+                  >
+                    查看詳情
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-danger rounded-pill"
+                    onClick={() => handleDelete(b.id)}
+                  >
+                    刪除訂單
+                  </button>
+                </div>
+
               </div>
             </div>
           </div>

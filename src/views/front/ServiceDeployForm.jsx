@@ -104,7 +104,7 @@ const ServiceDeployForm = () => {
     try {
       const formattedStartTime = `${data.start_hour}:${data.start_minute}:00`;
       const formattedEndtTime = `${data.end_hour}:${data.end_minute}:00`;
-      const dataToSave = { category: data.category };
+      // const dataToSave = { category: data.category };
 
       // 寫入 services 主表
       const { error: sError } = await supabase
@@ -242,7 +242,7 @@ const ServiceDeployForm = () => {
                   render={({ field }) => (
                     <Select
                       id="星期"
-                      imgSrc={locationIcon}
+                      imgSrc={calendarIcon}
                       label="服務星期"
                       options={WEEKDAY_OPTIONS}
                       {...field} // 這會自動傳入 value 和 onChange
