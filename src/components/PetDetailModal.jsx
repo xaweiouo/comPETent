@@ -10,7 +10,7 @@ import calendarIcon from '../../src/images/icons/calendar_icon.png'
 import { useDispatch } from 'react-redux';
 import { createAsyncMessage } from '../slices/messageSlice';
 
-function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
+function PetDetailModal({ key,ownerId,pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
   // const petModalRef = useRef(null);
   // const newPetModalRef = useRef(null);
   // const [selectedPet,setSelectedPet]=useState({});
@@ -36,26 +36,72 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
 
   const onSubmit = async (formData) => {
     try {
-      const { data, error } = await supabase
-        .from('pets')
-        .update(formData)
-        .eq('id', formData.id)
-        .select() // 重要：加上 .select() 讓它回傳更新後的完整資料
-        .single();
+      let result;
 
-      if (error) throw error;
+      if (mode === 'create') {
+        // --- 新增模式 ---
+        // 注意：這裡可能需要補上 owner_id，通常從 redux 的 user 抓
+        const newPetData = { ...formData,owner_id:ownerId };
+        delete newPetData.id; // 新增時不需要傳入 id
 
-      setOwnerPets((prevPets) =>
-        prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
-      );
+        result = await supabase
+          .from('pets')
+          .insert([newPetData])
+          .select()
+          .single();
 
-      dispatch(createAsyncMessage(data && { text: '修改成功' } || error));
-      closeModal();
+        if (result.error) throw result.error;
 
+        // 更新父元件列表：將新寵物加進陣列
+        setOwnerPets((prev) => [...prev, result.data]);
+        dispatch(createAsyncMessage({ text: '新增成功' }));
+
+      } else {
+        // --- 編輯模式 ---
+        result = await supabase
+          .from('pets')
+          .update(formData)
+          .eq('id', formData.id)
+          .select()
+          .single();
+
+        if (result.error) throw result.error;
+
+        // 更新父元件列表：替換掉舊的那一筆
+        setOwnerPets((prevPets) =>
+          prevPets.map((prevPet) => (prevPet.id === formData.id ? result.data : prevPet))
+        );
+        dispatch(createAsyncMessage({ text: '修改成功' }));
+      }
+
+      closeModal(); // 成功後關閉
     } catch (error) {
       dispatch(createAsyncMessage(error));
     }
   };
+
+  // const onSubmit = async (formData) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('pets')
+  //       .update(formData)
+  //       .eq('id', formData.id)
+  //       .select() // 重要：加上 .select() 讓它回傳更新後的完整資料
+  //       .single();
+
+  //     if (error) throw error;
+
+  //     setOwnerPets((prevPets) =>
+  //       prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
+  //     );
+
+  //     dispatch(createAsyncMessage(data && { text: '修改成功' } || error));
+  //     closeModal();
+
+  //   } catch (error) {
+  //     dispatch(createAsyncMessage(error));
+  //   }
+  // };
 
   // 點擊「新增」
   // const handleAdd = () => {
@@ -98,15 +144,28 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
   };
 
   useEffect(() => {
-    if (pet) {
+    if(mode==='create'){reset(
+      {
+      name: '',
+      species: '',
+      size: '',
+      birth_date: '',
+      last_vaccination_date: '',
+      gender: '',
+      is_neutered: '',
+      note: '',
+      photo_url: '' // 如果有預設圖片網址也可以放這
+    }
+    )}else if(pet) {
       // setSelectedPet({...pet})
       reset({ ...pet, is_neutered: pet.is_neutered === null ? "" : String(pet.is_neutered) })
     }
-  }, [pet, reset])
+  }, [pet,mode,reset])
 
   return (
     <>
       <div
+        key={key}
         className="modal fade"
         ref={innerRef}
         tabIndex="-1"

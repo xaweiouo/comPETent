@@ -28,10 +28,10 @@ function OwnerProfile() {
   // 建立一個狀態來儲存當前點選的寵物物件
   const [selectedPet, setSelectedPet] = useState(null);
   const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'create'
-  const [isPetModalOpen, setIsPetModalOpen] = useState(false);
+  // const [isPetModalOpen, setIsPetModalOpen] = useState(false);
 
   const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   const petMap = useMemo(() => {
     return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
@@ -80,7 +80,7 @@ function OwnerProfile() {
           setOwnerPets(data.pets || []);
           setOwnerBooking(data.bookings || []);
           setLoading(false);
-          reset({...data});
+          reset({ ...data });
 
         }
       } catch (error) {
@@ -92,6 +92,12 @@ function OwnerProfile() {
 
   }, [isAuthenticated, isAuthLoading, navigate, user]);
 
+//   useEffect(() => {
+//   if (mode === 'create' && selectedPet === null) {
+//     openPetModal();
+//   }
+// }, [mode, selectedPet]);
+
   const {
     register,
     handleSubmit,
@@ -102,14 +108,14 @@ function OwnerProfile() {
     // mode: 'onChange'
   });
 
-  const onSubmit=async(formData)=>{
+  const onSubmit = async (formData) => {
     try {
       const updateData = {
-      name: formData.name,
-      nickname: formData.nickname,
-      email: formData.email,
-      phone: formData.phone,
-    };
+        name: formData.name,
+        nickname: formData.nickname,
+        email: formData.email,
+        phone: formData.phone,
+      };
       const { data, error } = await supabase
         .from('users')
         .update(updateData)
@@ -120,19 +126,20 @@ function OwnerProfile() {
       if (error) throw error;
 
       if (data) {
-      // 更新本地的 State，讓 UI 即時顯示新資料
-      setOwnerProfile(data); 
-      dispatch(updateUserInfo({
-        name: data.name,
-        nickname: data.nickname,}))
-      
-      dispatch(createAsyncMessage({ text: "更新成功"}));
+        // 更新本地的 State，讓 UI 即時顯示新資料
+        setOwnerProfile(data);
+        dispatch(updateUserInfo({
+          name: data.name,
+          nickname: data.nickname,
+        }))
 
-      // 4. 自動關閉 Modal (如果你的 newProfileRef 已定義)
-      if (newProfileRef.current) {
-        newProfileRef.current.hide();
+        dispatch(createAsyncMessage({ text: "更新成功" }));
+
+        // 4. 自動關閉 Modal (如果你的 newProfileRef 已定義)
+        if (newProfileRef.current) {
+          newProfileRef.current.hide();
+        }
       }
-    }
     } catch (error) {
       dispatch(createAsyncMessage(error))
     }
@@ -158,7 +165,7 @@ function OwnerProfile() {
 
       newProfileRef.current.show();
 
-    } 
+    }
   }
 
   const openPetModal = () => {
@@ -167,13 +174,16 @@ function OwnerProfile() {
 
     if (element) {
       // 1. 檢查是否已經初始化過，沒有才 new
-      // if (!newPetModalRef.current) {
+      if (!newPetModalRef.current) {
       newPetModalRef.current = new bootstrap.Modal(element, {
         keyboard: false
       });
-      // }
+      }
 
       element.addEventListener('hide.bs.modal', () => {
+        // 關閉時清空狀態，下次點擊才會觸發 useEffect
+        setMode('view'); 
+        setSelectedPet(null);
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
@@ -181,31 +191,33 @@ function OwnerProfile() {
 
       newPetModalRef.current.show();
 
-    } 
+    }
   };
 
   const closePetModal = () => {
     newPetModalRef.current.hide();
+    setSelectedPet(null);
   }
 
   // 點擊寵物卡：看詳細資料
   const handleView = (pet) => {
     setSelectedPet({ ...pet });
     setMode('view');
-    setIsPetModalOpen(true);
+    // setIsPetModalOpen(true);
   };
 
   // 點擊新增：給予空資料
   const handleAdd = () => {
     setSelectedPet(null); // 清空
     setMode('create');
-    setIsPetModalOpen(true);
+    openPetModal();
+    // setIsPetModalOpen(true);
   };
 
   const cardOnClick = (pet) => {
     openPetModal();
     handleView(pet);
-    
+
     // setSelectedPet(pet);
   }
 
@@ -396,8 +408,19 @@ function OwnerProfile() {
 
           <div className="row px-2">
             <h2 className="text-black text-center mb-4">我的寵物</h2>
+            <button
+              type="button"
+              className="btn border-0 bg-transparent d-inline-flex align-items-center p-0 mt-1 me-3"
+              onClick={() => {
+                handleAdd()
+                // setIsAddingPet(true);
+                // setSelectedPetId(null);   // 詳細區顯示空白表單
+              }}
+            >
+              <i className="bi bi-file-plus">新增寵物</i>
+            </button>
             <div className="">
-              <PetDetailModal pet={selectedPet} innerRef={petModalRef} closeModal={closePetModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
+              <PetDetailModal ownerId={ownerProfile.id} pet={selectedPet} innerRef={petModalRef} closeModal={closePetModal} mode={mode} setMode={setMode} setOwnerPets={setOwnerPets} />
               <div className="row g-3">
                 {ownerPets?.map(pet => (
                   <PetCard
