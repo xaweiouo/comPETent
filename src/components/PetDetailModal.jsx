@@ -419,7 +419,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 備註 */}
-                      <div>
+                      <div className="col-12">
                         <label className="form-label">備註</label>
                         <textarea
                           className="form-control"

@@ -560,7 +560,7 @@ function OwnerBookingDetail() {
                           </div>
 
                           {/* 名字 */}
-                          <div>
+                          <div className="col-12">
                             <label className="form-label">名字</label>
                             <div
                               className="form-control border-0 rounded-pill d-flex align-items-center"
@@ -709,7 +709,7 @@ function OwnerBookingDetail() {
 
 
                             {/* 備註 */}
-                            <div>
+                            <div className="col-12">
                               <label className="form-label">備註</label>
                               <div
                                 className="form-control border-0 rounded-4"
@@ -745,7 +745,7 @@ function OwnerBookingDetail() {
                     {/* 內容 */}
                     <div className="row g-3 align-items-center booking-service-time-row">
                       {/* 從 */}
-                      <div className="d-flex align-items-center mb-1">
+                      <div className="col-12 d-flex align-items-center mb-1">
                         <span className="me-3 fw-bold">從</span>
 
                         {/* 日期 */}
@@ -765,7 +765,7 @@ function OwnerBookingDetail() {
                       </div>
 
                       {/* 到 */}
-                      <div className="d-flex align-items-center">
+                      <div className="col-12 d-flex align-items-center">
                         <span className="me-3 fw-bold">到</span>
 
                         {/* 日期 */}
