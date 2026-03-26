@@ -757,10 +757,10 @@ useEffect(() => {
               </div>
             </div>
             {/* 服務時間：起訖 - 手機版（兩行滿版） */}
-            <div className="d-block d-md-none">
+            <div className="col-12 d-block d-md-none">
               <div className="row g-2">
                 {/* 第一行：開始 時 + 分 */}
-                <div>
+                 <div className="col-12">
                   <div className="d-flex align-items-center w-100">
                     {/* 開始：時 */}
                     <div className="d-flex align-items-center flex-fill me-2">
@@ -800,7 +800,7 @@ useEffect(() => {
                 </div>
 
                 {/* 第二行：結束 時 + 分 */}
-                <div>
+                <div className="col-12">
                   <div className="d-flex align-items-center w-100">
                     {/* 結束：時 */}
                     <div className="d-flex align-items-center flex-fill me-2">
@@ -916,7 +916,7 @@ useEffect(() => {
           )}
 
           <div className="row mb-3">
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div className="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
               {/* 左側：總筆數文字 */}
               <small className="text-muted mb-2 mb-md-0">
                 共 {totalCount} 位保姆符合條件
@@ -961,7 +961,7 @@ useEffect(() => {
             {cards.map((card) => (
               <div
                 key={card.serviceId}
-                className="mb-4"
+                className="col-12 mb-4"
               >
                 <div className="card border-0 shadow-sm rounded-3 px-3 py-3 sitter-card h-100">
                   <div className="row g-3 align-items-center">

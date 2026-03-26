@@ -1048,7 +1048,7 @@ function SitterBookingForm() {
                     >
                       <div className="row g-4 align-items-start">
                         {/* 左側：照片 + 名字 */}
-                        <div className="col-12 col-md-3 d-flex flex-column align-items-center">
+                        <div className="col-md-3 d-flex flex-column align-items-center">
                           <div className="w-100 mb-3">
                             <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                               <img
@@ -1077,10 +1077,10 @@ function SitterBookingForm() {
                         </div>
 
                         {/* 右側欄位：種類 / 體型 / 出生日期 / 疫苗日期 / 性別 / 是否結紮 / 備註 */}
-                        <div className="col-12 col-md-9">
+                        <div className="col-md-9">
                           <div className="row g-3">
                             {/* 種類 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">種類</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span
@@ -1117,7 +1117,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 體型 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">體型</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span
@@ -1148,7 +1148,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 出生日期 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">出生日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span
@@ -1175,7 +1175,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 上次施打疫苗日期 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">上次施打疫苗日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span
@@ -1205,7 +1205,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 性別 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">性別</label>
                               <div className="btn-group" role="group" aria-label="pet gender">
                                 <input
@@ -1244,7 +1244,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 是否結紮 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">是否結紮</label>
                               <div className="btn-group" role="group" aria-label="pet neuter">
                                 <input
@@ -1327,7 +1327,7 @@ function SitterBookingForm() {
                     <div className="rounded-4 p-4" style={{ backgroundColor: "#FFB22C33" }}>
                       <div className="row g-4 align-items-start">
                         {/* 左側：照片 + 名字 */}
-                        <div className="col-12 col-md-3 d-flex flex-column align-items-center">
+                        <div className="col-md-3 d-flex flex-column align-items-center">
                           <div className="w-100 mb-3">
                             <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                               <img
@@ -1364,10 +1364,10 @@ function SitterBookingForm() {
                         </div>
 
                         {/* 右側欄位 */}
-                        <div className="col-12 col-md-9">
+                        <div className="col-md-9">
                           <div className="row g-3">
                             {/* 種類 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">種類</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
@@ -1394,7 +1394,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 體型 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">體型</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
@@ -1416,7 +1416,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 出生年（改用 date） */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">出生日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
@@ -1435,7 +1435,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 上次施打疫苗日期 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">上次施打疫苗日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning">
                                 <span className="input-group-text border-0" style={{ backgroundColor: "#FEF3E2" }}>
@@ -1454,7 +1454,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 性別 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">性別</label>
                               <div className="btn-group" role="group" aria-label="pet gender">
                                 <input
@@ -1488,7 +1488,7 @@ function SitterBookingForm() {
                             </div>
 
                             {/* 是否結紮 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">是否結紮</label>
                               <div className="btn-group" role="group" aria-label="pet neuter">
                                 <input
@@ -1613,7 +1613,7 @@ function SitterBookingForm() {
                   {/* 內容 */}
                   <div className="row g-3 align-items-center booking-service-time-row">
                     {/* 從 */}
-                    <div className="col-12 d-flex align-items-center mb-1">
+                    <div className="booking-service-time-col d-flex align-items-center mb-1">
                       <span className="me-3 fw-bold">從</span>
 
 
@@ -1704,7 +1704,7 @@ function SitterBookingForm() {
 
 
                     {/* 到 */}
-                    <div className="col-12 d-flex align-items-center">
+                    <div className="booking-service-time-col d-flex align-items-center">
                       <span className="me-3 fw-bold">到</span>
 
 
@@ -1812,7 +1812,7 @@ function SitterBookingForm() {
                   {/* 內容：縣市 + 地區 +（可選）詳細地址 */}
                   <div className="row g-3 align-items-center booking-location-row">
                     {/* 縣市 */}
-                    <div className="col-12 col-sm-4">
+                    <div className="col-sm-4">
                       <div className="input-group rounded-pill overflow-hidden border border-warning">
                         <select
                           className="form-select border-0 background-transparent"
@@ -1831,7 +1831,7 @@ function SitterBookingForm() {
                     </div>
 
                     {/* 地區 */}
-                    <div className="col-12 col-sm-4">
+                    <div className="col-sm-4">
                       <div className="input-group rounded-pill overflow-hidden border border-warning">
                         <select
                           className="form-select border-0 background-transparent"
@@ -1853,7 +1853,7 @@ function SitterBookingForm() {
                     </div>
 
                     {/* 詳細地址（如果你還想留門牌） */}
-                    <div className="col-12 col-sm-4">
+                    <div className="col-sm-4">
                       <input
                         type="text"
                         className="form-control rounded-pill border border-warning background-transparent"
