@@ -375,7 +375,7 @@ function LookForPetSitter() {
     }
 
     fetchLocations();
-  }, []);
+  }, [dispatch]);
 
   // 初次載入抓整包，再切第一頁
   useEffect(() => {
