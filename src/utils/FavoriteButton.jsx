@@ -1,5 +1,7 @@
 // src/utils/FavoriteButton.jsx
 import { supabase } from "../lib/supabaseClient";
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../slices/messageSlice";
 
 export function FavoriteButton({
   sitterId,
@@ -9,6 +11,7 @@ export function FavoriteButton({
   user,
   onToggleDone,
 }) {
+  const dispatch = useDispatch();
   const handleClick = async () => {
     // 未登入：只做前端效果
     if (!isAuthenticated || !user) {
@@ -17,7 +20,12 @@ export function FavoriteButton({
     }
 
     if (!ownerId) {
-      alert("找不到對應使用者資料，請重新登入再試一次");
+      dispatch(
+        createAsyncMessage({
+          type: "danger",
+          text: "找不到對應使用者資料，請重新登入再試一次",
+        })
+      );
       return;
     }
 
@@ -31,8 +39,7 @@ export function FavoriteButton({
       });
 
       if (error) {
-        console.error("insert favorite error", error);
-        alert("收藏失敗，請稍後再試");
+        dispatch(createAsyncMessage(error));
         return;
       }
     } else {
@@ -44,8 +51,7 @@ export function FavoriteButton({
         .eq("sitter_id", sitterId);
 
       if (error) {
-        console.error("delete favorite error", error);
-        alert("取消收藏失敗，請稍後再試");
+        dispatch(createAsyncMessage(error));
         return;
       }
     }

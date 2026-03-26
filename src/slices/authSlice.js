@@ -1,9 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+// import { setRole } from "./userAuthSlice";
+import { createAsyncMessage } from "./messageSlice";
+import { supabase } from "../lib/supabaseClient";
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: null,
+    role:null,
     isAuthenticated: false,
     isAuthLoading: true, // 預設為 true，代表正在確認身分
   },
@@ -19,13 +23,55 @@ const authSlice = createSlice({
 
       state.isAuthLoading = false; // 收到資料了，結束讀取狀態
     },
-    clearUser: (state) => {
+    setRole: (state, action) => {
+      state.role = action.payload[0].role;
+    },
+    updateUserInfo: (state, action) => {
+     
+        // 將新的資料（如 nickname, name）合併進原本的 user 物件
+        state.user = { ...state.user, ...action.payload };
+      
+    },
+    setLogout: (state) => {
       state.user = null;
+      state.role = null;
       state.isAuthenticated = false;
       state.isAuthLoading = false; // 確定沒登入，也結束讀取狀態
     },
   },
 });
 
-export const { setUser, clearUser } = authSlice.actions;
+// 建立非同步 Thunk
+export const fetchUserPermissions = createAsyncThunk(
+  "auth/fetchUserPermissions",
+  async (payload, { dispatch }) => {
+    try {
+      // 1. 用 Email 抓取 ID
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", payload.email)
+        .single();
+
+      if (userError || !userData) throw new Error("找不到使用者資料");
+
+      // 2. 用 ID 抓取 Roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.id);
+
+      if (rolesError) throw rolesError;
+
+      dispatch(setUser(payload))
+      dispatch(setRole(rolesData))
+
+    } catch (error) {
+      // return rejectWithValue(error.message);
+      dispatch(createAsyncMessage(error))
+    }
+  }
+);
+
+export const { setUser, setLogout,setRole,updateUserInfo } = authSlice.actions;
 export default authSlice.reducer;

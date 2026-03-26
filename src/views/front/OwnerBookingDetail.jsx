@@ -13,6 +13,12 @@ import clockIcon from "../../images/icons/clock_icon.png";
 import locationIcon from "../../images/icons/location_icon.png";
 import infoIcon from "../../images/icons/info_icon.png";
 
+import { useDispatch } from "react-redux";
+import { createAsyncMessage } from "../../slices/messageSlice";
+
+
+
+
 /* 共用 formatter：直接複製你現在的 */
 function formatBookingStatus(status) {
   switch (status) {
@@ -92,6 +98,7 @@ function formatSpecies(species) {
 }
 
 function OwnerBookingDetail() {
+  const dispatch = useDispatch();
   const { id } = useParams();
   const bookingId = id;
   const navigate = useNavigate();
@@ -113,9 +120,7 @@ function OwnerBookingDetail() {
       .single();
 
     if (error) {
-      console.log("fetch booking detail error", error);
-      alert("載入訂單資料失敗，請稍後再試");
-      return;
+      throw error;
     }
 
     // 接送地點
@@ -147,7 +152,7 @@ function OwnerBookingDetail() {
     if (data.owner_id) {
       const { data: owner, error: ownerError } = await supabase
         .from("users")
-        .select("id, name, email, phone, avatar_url")
+        .select("id, name, nickname, email, phone, avatar_url")
         .eq("id", data.owner_id)
         .single();
       if (!ownerError) ownerData = owner;
@@ -158,7 +163,7 @@ function OwnerBookingDetail() {
     if (data.sitter_id) {
       const { data: sitter, error: sitterError } = await supabase
         .from("users")
-        .select("id, name, email, phone, avatar_url")
+        .select("id, name, nickname, email, phone, avatar_url")
         .eq("id", data.sitter_id)
         .single();
       if (!sitterError) sitterData = sitter;
@@ -209,18 +214,23 @@ function OwnerBookingDetail() {
       try {
         const data = await fetchOwnerBookingDetail(bookingId);
         setBookingData(data);
-      } catch (err) {
-        console.log("loadBooking error", err);
+      } catch {
+        dispatch(
+          createAsyncMessage({
+            message: "載入訂單資料時發生錯誤，請稍後再試。", // 這邊用 message = 失敗
+          })
+        );
       }
     }
     loadBooking();
-  }, [bookingId]);
+  }, [bookingId, dispatch]);
 
   /* 2. 飼主視角的動作：提交預約（其實在別頁）、付款、取消、評價 */
 
   // 付款：status pending/accepted -> paid
   async function handlePayBooking() {
     if (!bookingId) return;
+
     const { data, error } = await supabase
       .from("bookings")
       .update({ status: "paid" })
@@ -229,24 +239,33 @@ function OwnerBookingDetail() {
       .single();
 
     if (error) {
-      console.log("pay booking error", error);
-      alert("付款失敗，請稍後再試");
+      dispatch(
+        createAsyncMessage({
+          message: "付款失敗，請稍後再試。", // 有 message => danger / 失敗
+        })
+      );
       return;
     }
 
     setBookingData((prev) =>
       prev
         ? {
-            ...prev,
-            booking: {
-              ...prev.booking,
-              status: data.status || "paid",
-            },
-          }
+          ...prev,
+          booking: {
+            ...prev.booking,
+            status: data.status || "paid",
+          },
+        }
         : prev
     );
-    alert("付款成功！");
+
+    dispatch(
+      createAsyncMessage({
+        text: "已完成付款，感謝你的使用。", // 只有 text => success / 成功
+      })
+    );
   }
+
 
   // 飼主取消訂單：任何非完成/已評價狀態都可取消
   async function handleCancelBooking() {
@@ -266,27 +285,38 @@ function OwnerBookingDetail() {
       .single();
 
     if (error) {
-      console.log("cancel booking error", error);
-      alert("取消訂單失敗，請稍後再試");
+      // 失敗 → 用 message（會變成 danger + 失敗）
+      dispatch(
+        createAsyncMessage({
+          message: "取消訂單失敗，請稍後再試。",
+        })
+      );
       return;
     }
 
     setBookingData((prev) =>
       prev
         ? {
-            ...prev,
-            booking: {
-              ...prev.booking,
-              status: data.status || "cancelled",
-              cancelled_at: now,
-              cancelled_by: "owner",
-              cancel_reason: cancelReason,
-            },
-          }
+          ...prev,
+          booking: {
+            ...prev.booking,
+            status: data.status || "cancelled",
+            cancelled_at: now,
+            cancelled_by: "owner",
+            cancel_reason: cancelReason,
+          },
+        }
         : prev
     );
-    alert("已取消訂單");
+
+    // 成功 → 用 text（會變成 success + 成功）
+    dispatch(
+      createAsyncMessage({
+        text: "已取消訂單，期待下次再為你服務。",
+      })
+    );
   }
+
 
   // 評分 / 評論：這裡先做假 handler，之後你可以接真正的評論表單
   async function handleRateBooking() {
@@ -300,24 +330,35 @@ function OwnerBookingDetail() {
       .single();
 
     if (error) {
-      console.log("rate booking error", error);
-      alert("送出評價失敗，請稍後再試");
+      // 失敗 → 用 message，會變成 danger / 失敗
+      dispatch(
+        createAsyncMessage({
+          message: "送出評價失敗，請稍後再試。",
+        })
+      );
       return;
     }
 
     setBookingData((prev) =>
       prev
         ? {
-            ...prev,
-            booking: {
-              ...prev.booking,
-              status: data.status || "rated",
-            },
-          }
+          ...prev,
+          booking: {
+            ...prev.booking,
+            status: data.status || "rated",
+          },
+        }
         : prev
     );
-    alert("已送出評分與評論！");
+
+    // 成功 → 用 text，會變成 success / 成功
+    dispatch(
+      createAsyncMessage({
+        text: "已送出評分與評論！",
+      })
+    );
   }
+
 
   /* 3. 飼主版：根據狀態顯示不同按鈕 */
 
@@ -360,22 +401,22 @@ function OwnerBookingDetail() {
           </div>
         );
 
-   case "paid":
-  // 已付款，等保母完成服務，可以取消（例如要提前改變行程）
-  return (
-    <div className="d-flex flex-column gap-3">
-      <p className="mb-1 fw-bold">已付款，等待保母完成服務</p>
+      case "paid":
+        // 已付款，等保母完成服務，可以取消（例如要提前改變行程）
+        return (
+          <div className="d-flex flex-column gap-3">
+            <p className="mb-1 fw-bold">已付款，等待保母完成服務</p>
 
-      <button
-        type="button"
-        className="btn btn-outline-danger rounded-pill px-4 py-2"
-        data-bs-toggle="modal"
-        data-bs-target="#cancelBookingModal"
-      >
-        取消預約
-      </button>
-    </div>
-  );
+            <button
+              type="button"
+              className="btn btn-outline-danger rounded-pill px-4 py-2"
+              data-bs-toggle="modal"
+              data-bs-target="#cancelBookingModal"
+            >
+              取消預約
+            </button>
+          </div>
+        );
 
 
       case "completed":
@@ -437,7 +478,7 @@ function OwnerBookingDetail() {
                   className="rounded-circle border border-1 border-warning"
                   alt={
                     bookingData?.sitter
-                      ? `${bookingData.sitter.name} 保母頭像`
+                      ? `${bookingData.sitter.nickname} 保母頭像`
                       : "保母頭像"
                   }
                   style={{
@@ -452,7 +493,7 @@ function OwnerBookingDetail() {
                   style={{ minWidth: "110px" }}
                 >
                   <h2 className="mb-0 fw-bold sitter-name">
-                    {bookingData?.sitter?.name || "保母"}
+                    {bookingData?.sitter?.nickname || "保母"}
                   </h2>
                   <span className="border-primary sitter-role-badge border border-2 rounded-pill px-3 py-2">
                     保母
@@ -487,408 +528,408 @@ function OwnerBookingDetail() {
 
             {/* 本次預約的寵物（直接複製你現在的排版） */}
             {/* ... 這裡可以沿用你 SitterBookingDetail 裡「本次預約的寵物」那一整段 JSX */}
-             <section className="booking-pet mt-5">
-            
-            
-                                        {/* 毛小孩詳細資料表單 */}
-                                        <section className="booking-pet-form">
-                                            <div className="card border-0 rounded-4 background-transparent">
-                                                <div className="card-body px-0 py-2">
-                                                    <div className="d-flex align-items-center mb-4">
-                                                        <img
-                                                            src={feetIcon}
-                                                            alt="feet" width="20" height="20" className="me-2" />
-                                                        <h4 className="text-primary mb-0">本次預約的寵物</h4>
-                                                    </div>
-            
-                                                    {/* 毛小孩詳細資料卡片內容 */}
-                                                    <div className="rounded-4 p-4" style={{ backgroundColor: "#FFB22C33" }}>
-                                                        <div className="row g-4 align-items-start">
-                                                            {/* 左側：照片 + 名字 */}
-                                                            <div className="col-12 col-md-3 d-flex flex-column align-items-center">
-                                                                <div className="w-100 mb-3">
-                                                                    <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
-                                                                        <img
-                                                                            src={bookingData?.pet?.photo_url ? bookingData.pet.photo_url
-                                                                                : { feetIcon }}
-                                                                            alt={bookingData?.pet?.name || "寵物照片"}
-                                                                            className="w-100 h-100 rounded-4"
-                                                                            style={{ objectFit: "cover" }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-            
-                                                                {/* 名字 */}
-                                                                <div className="col-12">
-                                                                    <label className="form-label">名字</label>
-                                                                    <div
-                                                                        className="form-control border-0 rounded-pill d-flex align-items-center"
-                                                                        style={{ backgroundColor: "#FEF3E2" }}
-                                                                    >
-                                                                        {bookingData?.pet?.name ?? "未填寫"}
-                                                                    </div>
-                                                                </div>
-            
-            
-                                                            </div>
-            
-                                                            {/* 右側欄位 */}
-                                                            <div className="col-12 col-md-9">
-                                                                <div className="row g-3">
-                                                                    {/* 種類 */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label">種類</label>
-                                                                        <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                            <span
-                                                                                className="input-group-text border-0"
-                                                                                style={{ backgroundColor: "#FEF3E2" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={feetIcon}
-                                                                                    alt="feet" width="20" height="20" />
-                                                                            </span>
-                                                                            <div className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                                {formatSpecies(bookingData?.pet?.species)}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-            
-                                                                    {/* 體型 */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label">體型</label>
-                                                                        <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                            <span
-                                                                                className="input-group-text border-0"
-                                                                                style={{ backgroundColor: "#FEF3E2" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={dogIcon}
-                                                                                    alt="dog" width="20" height="20" />
-                                                                            </span>
-                                                                            <div className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                                {formatSize(bookingData?.pet?.size)}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-            
-                                                                    {/* 出生年（改用 date） */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label">出生日期</label>
-                                                                        <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                            <span
-                                                                                className="input-group-text border-0"
-                                                                                style={{ backgroundColor: "#FEF3E2" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={cakeIcon}
-                                                                                    alt="cake" width="20" height="20" />
-                                                                            </span>
-                                                                            <p className="mb-1 d-flex align-items-center">{bookingData?.pet?.birth_date ?? "未填寫"}</p>
-                                                                        </div>
-                                                                    </div>
-            
-                                                                    {/* 上次施打疫苗日期 */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label">上次施打疫苗日期</label>
-                                                                        <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                            <span
-                                                                                className="input-group-text border-0"
-                                                                                style={{ backgroundColor: "#FEF3E2" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={calendarIcon}
-                                                                                    alt="calendar" width="20" height="20" />
-                                                                            </span>
-                                                                            <p className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
-                                                                                {bookingData?.pet?.last_vaccination_date ?? "未填寫"}
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-            
-                                                                    {/* 性別 */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label d-block">性別</label>
-                                                                        <div className="btn-group" role="group" aria-label="pet gender">
-                                                                            <input
-                                                                                type="radio"
-                                                                                className="btn-check"
-                                                                                name="petGenderReadonly"
-                                                                                id="petGenderMaleReadonly"
-                                                                                checked={bookingData?.pet?.gender === "male"}
-                                                                                readOnly
-                                                                            />
-                                                                            <label className="btn pet-toggle-pill" htmlFor="petGenderMaleReadonly">
-                                                                                公
-                                                                            </label>
-            
-                                                                            <input
-                                                                                type="radio"
-                                                                                className="btn-check"
-                                                                                name="petGenderReadonly"
-                                                                                id="petGenderFemaleReadonly"
-                                                                                checked={bookingData?.pet?.gender === "female"}
-                                                                                readOnly
-                                                                            />
-                                                                            <label className="btn pet-toggle-pill" htmlFor="petGenderFemaleReadonly">
-                                                                                母
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-            
-            
-                                                                    {/* 是否結紮 */}
-                                                                    <div className="col-12 col-sm-6">
-                                                                        <label className="form-label d-block">是否結紮</label>
-                                                                        <div className="btn-group" role="group" aria-label="pet neuter">
-                                                                            <input
-                                                                                type="radio"
-                                                                                className="btn-check"
-                                                                                name="petNeuterReadonly"
-                                                                                id="petNeuterYesReadonly"
-                                                                                checked={bookingData?.pet?.is_neutered === true}
-                                                                                readOnly
-                                                                            />
-                                                                            <label className="btn pet-toggle-pill" htmlFor="petNeuterYesReadonly">
-                                                                                是
-                                                                            </label>
-            
-                                                                            <input
-                                                                                type="radio"
-                                                                                className="btn-check"
-                                                                                name="petNeuterReadonly"
-                                                                                id="petNeuterNoReadonly"
-                                                                                checked={bookingData?.pet?.is_neutered === false}
-                                                                                readOnly
-                                                                            />
-                                                                            <label className="btn pet-toggle-pill" htmlFor="petNeuterNoReadonly">
-                                                                                否
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-            
-            
-                                                                    {/* 備註 */}
-                                                                    <div className="col-12">
-                                                                        <label className="form-label">備註</label>
-                                                                        <div
-                                                                            className="form-control border-0 rounded-4"
-                                                                            style={{ backgroundColor: "#FEF3E2", minHeight: "120px" }}
-                                                                        >
-                                                                            {bookingData?.pet?.note ?? "未填寫"}
-                                                                        </div>
-                                                                    </div>
-            
-            
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    {/* /毛小孩詳細資料卡片內容 */}
-                                                </div>
-                                            </div>
-                                        </section>
-            
-                                        {/* 預約表單時間+地點+備註 */}
-                                        <section className="booking-pet-form mt-5">
-                                            {/* 服務時間 */}
-                                            <section className="booking-service-time">
-                                                <div className="px-4 py-4">
-                                                    {/* 標題 */}
-                                                    <div className="d-flex align-items-center mb-3">
-                                                        <img
-                                                            src={clockIcon}
-                                                            alt="service time" width="20" height="20" className="me-2" />
-                                                        <h4 className="text-primary mb-0">服務時間</h4>
-                                                    </div>
-            
-                                                    {/* 內容 */}
-                                                    <div className="row g-3 align-items-center booking-service-time-row">
-                                                        {/* 從 */}
-                                                        <div className="col-12 d-flex align-items-center mb-1">
-                                                            <span className="me-3 fw-bold">從</span>
-            
-                                                            {/* 日期 */}
-                                                            <div className="flex-grow-1 me-3">
-                                                                <div className="input-group rounded-pill overflow-hidden border border-warning">
-                                                                    <span className="input-group-text border-0 background-transparent">
-                                                                        <img
-                                                                            src={calendarIcon}
-                                                                            alt="date" width="20" height="20" />
-                                                                    </span>
-            
-                                                                    <div className="form-control border-0 background-transparent d-flex align-items-center">
-                                                                        {bookingData?.booking.arrival_date} {bookingData?.booking.arrival_time}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-            
-                                                        {/* 到 */}
-                                                        <div className="col-12 d-flex align-items-center">
-                                                            <span className="me-3 fw-bold">到</span>
-            
-                                                            {/* 日期 */}
-                                                            <div className="flex-grow-1 me-3">
-                                                                <div className="input-group rounded-pill overflow-hidden border border-warning">
-                                                                    <span className="input-group-text border-0 background-transparent">
-                                                                        <img
-                                                                            src={calendarIcon}
-                                                                            alt="date" width="20" height="20" />
-                                                                    </span>
-                                                                    <div className="form-control border-0 background-transparent d-flex align-items-center">
-                                                                        {bookingData?.booking.departure_date} {bookingData?.booking.departure_time}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </section>
-            
-                                            {/* 接送地點 */}
-                                            <section className="booking-location">
-                                                <div className="px-4 py-4">
-                                                    {/* 標題 */}
-                                                    <div className="d-flex align-items-center mb-3">
-                                                        <img
-                                                            src={locationIcon}
-                                                            alt="location" width="20" height="20" className="me-2" />
-                                                        <h4 className="text-primary mb-0">接送地點</h4>
-                                                    </div>
-            
-                                                    {/* 內容 */}
-                                                    <div className="row g-3 align-items-center booking-location-row">
-                                                        {/* 縣市 */}
-                                                        <div className="col-12 col-sm-3">
-                                                            <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
-                                                                {bookingData?.location?.city
-                                                                    ? bookingData.location.city
-                                                                    : "（無縣市資訊）"}
-                                                            </div>
-                                                        </div>
-            
-                                                        {/* 地區 */}
-                                                        <div className="col-12 col-sm-3">
-                                                            <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
-                                                                {bookingData?.location?.district
-                                                                    ? bookingData.location.district
-                                                                    : "（無地區資訊）"}
-                                                            </div>
-                                                        </div>
-            
-                                                        {/* 詳細地址（吃剩餘寬度） */}
-                                                        <div className="col-12 col-sm-6">
-                                                            <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
-                                                                {bookingData?.booking.pickup_address_detail || "（無詳細地址資訊）"}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-            
-                                                </div>
-                                            </section>
-            
-                                            {/* 備註 */}
-                                            <section className="booking-notes">
-                                                <div className="px-4 py-4">
-                                                    {/* 標題 */}
-                                                    <div className="d-flex align-items-center mb-3">
-                                                        <img
-                                                            src={infoIcon}
-                                                            alt="notes" width="20" height="20" className="me-2" />
-                                                        <h4 className="text-primary mb-0">備註</h4>
-                                                    </div>
-            
-                                                    {/* 內容 */}
-                                                    <div className="form-control booking-notes-textarea border border-warning background-transparent">
-                                                        {bookingData?.booking.note || "（此訂單沒有備註）"}
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </section>
-                                    </section>
-          </div>
+            <section className="booking-pet mt-5">
 
-       
-           {/* 電腦版-右半：費用總覽卡片 手機版-固定在下方可收放 */}
-                    <aside className=" col-lg-3 booking-price ">
-                        {/* 桌機版卡片（md 以上顯示） */}
-                        {/*<div className="d-none d-lg-block">*/}
-                        <div className="">
-                            <div className="card border-0 rounded-4 shadow-sm">
-                                <div className="card-body px-4 py-4">
-                                    <h3 className="text-center text-primary fw-bold mb-4">費用</h3>
 
-                                    <div className="mb-4">
-                                        <div className="d-flex justify-content-between mb-3">
-                                            <span className="fw-bold">基本費用</span>
-                                            <span className="fw-bold"> {bookingData?.service?.price_per_30min
-                                                ? `NT$ ${bookingData.service.price_per_30min} / 30 分鐘`
-                                                : bookingData?.service?.price_per_day
-                                                    ? `NT$ ${bookingData.service.price_per_day} / 每日`
-                                                    : bookingData?.service?.price_per_session
-                                                        ? `NT$ ${bookingData.service.price_per_session} / 每次`
-                                                        : "—"}</span>
-                                        </div>
+              {/* 毛小孩詳細資料表單 */}
+              <section className="booking-pet-form">
+                <div className="card border-0 rounded-4 background-transparent">
+                  <div className="card-body px-0 py-2">
+                    <div className="d-flex align-items-center mb-4">
+                      <img
+                        src={feetIcon}
+                        alt="feet" width="20" height="20" className="me-2" />
+                      <h4 className="text-primary mb-0">本次預約的寵物</h4>
+                    </div>
 
-                                        {/* 天數：只有 per_day 時一定有意義，其餘可選擇要不要顯示 */}
-                                        {bookingData?.service?.price_per_day && (
-                                            <div className="d-flex justify-content-between mb-3">
-                                                <span className="fw-bold">天數</span>
-                                                <span className="fw-bold">x{bookingData?.booking?.service_days ?? 0}</span>
-                                            </div>
-                                        )}
-
-                                        {/* 30 分鐘單位：只有 per_30min 顯示 */}
-                                        {bookingData?.service?.price_per_30min && (
-                                            <div className="d-flex justify-content-between mb-3">
-                                                <span className="fw-bold">服務時間 (每 30 分鐘)</span>
-                                                <span className="fw-bold">x{bookingData?.booking?.service_units ?? 0}</span>
-                                            </div>
-                                        )}
-
-                                        {/* 一次性服務：每次收費 */}
-                                        {bookingData?.service?.price_per_session && (
-                                            <div className="d-flex justify-content-between mb-3">
-                                                <span className="fw-bold">服務次數</span>
-                                                <span className="fw-bold">x{bookingData?.booking?.service_units ?? 0}</span>
-                                            </div>
-                                        )}
-
-                                        <hr className="my-4 border-primary border-2" />
-
-                                        <div className="d-flex justify-content-between align-items-end">
-                                            <span className="fw-bold">總金額</span>
-                                            <span className="fw-bold fs-3 text-primary">NT$ {bookingData?.booking.total_price ?? 0}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        {renderActionSection(bookingData?.booking.status)}
-                                    </div>
-
-                                    <div>
-                                        <div className="d-flex align-items-center mb-2">
-                                            <i className="bi bi-info-circle-fill text-primary me-2"></i>
-                                            <span className="fw-bold text-primary">注意事項</span>
-                                        </div>
-                                        <ul className="mb-0 ps-3">
-                                            <li className="mb-2">
-                                                點擊接受預約按鈕即代表接受訂單，
-                                                等待飼主付款。
-                                                預約請求都可以隨時取消。
-                                            </li>
-                                            <li>
-                                                服務預約及付款必須在我能寵平台上操作，才能享有平台提供的所有服務保障。
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                    {/* 毛小孩詳細資料卡片內容 */}
+                    <div className="rounded-4 p-4" style={{ backgroundColor: "#FFB22C33" }}>
+                      <div className="row g-4 align-items-start">
+                        {/* 左側：照片 + 名字 */}
+                        <div className="col-md-3 d-flex flex-column align-items-center">
+                          <div className="w-100 mb-3">
+                            <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
+                              <img
+                                src={bookingData?.pet?.photo_url ? bookingData.pet.photo_url
+                                  : { feetIcon }}
+                                alt={bookingData?.pet?.name || "寵物照片"}
+                                className="w-100 h-100 rounded-4"
+                                style={{ objectFit: "cover" }}
+                              />
                             </div>
+                          </div>
+
+                          {/* 名字 */}
+                          <div className="col-12">
+                            <label className="form-label">名字</label>
+                            <div
+                              className="form-control border-0 rounded-pill d-flex align-items-center"
+                              style={{ backgroundColor: "#FEF3E2" }}
+                            >
+                              {bookingData?.pet?.name ?? "未填寫"}
+                            </div>
+                          </div>
+
+
                         </div>
 
-                        {/* 手機版固定在下方的費用卡片（lg 以下顯示） */}
+                        {/* 右側欄位 */}
+                        <div className="col-md-9">
+                          <div className="row g-3">
+                            {/* 種類 */}
+                            <div className="col-sm-6">
+                              <label className="form-label">種類</label>
+                              <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
+                                <span
+                                  className="input-group-text border-0"
+                                  style={{ backgroundColor: "#FEF3E2" }}
+                                >
+                                  <img
+                                    src={feetIcon}
+                                    alt="feet" width="20" height="20" />
+                                </span>
+                                <div className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
+                                  {formatSpecies(bookingData?.pet?.species)}
+                                </div>
+                              </div>
+                            </div>
 
-                    </aside>
+                            {/* 體型 */}
+                            <div className="col-sm-6">
+                              <label className="form-label">體型</label>
+                              <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
+                                <span
+                                  className="input-group-text border-0"
+                                  style={{ backgroundColor: "#FEF3E2" }}
+                                >
+                                  <img
+                                    src={dogIcon}
+                                    alt="dog" width="20" height="20" />
+                                </span>
+                                <div className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
+                                  {formatSize(bookingData?.pet?.size)}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* 出生年（改用 date） */}
+                            <div className="col-sm-6">
+                              <label className="form-label">出生日期</label>
+                              <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
+                                <span
+                                  className="input-group-text border-0"
+                                  style={{ backgroundColor: "#FEF3E2" }}
+                                >
+                                  <img
+                                    src={cakeIcon}
+                                    alt="cake" width="20" height="20" />
+                                </span>
+                                <p className="mb-1 d-flex align-items-center">{bookingData?.pet?.birth_date ?? "未填寫"}</p>
+                              </div>
+                            </div>
+
+                            {/* 上次施打疫苗日期 */}
+                            <div className="col-sm-6">
+                              <label className="form-label">上次施打疫苗日期</label>
+                              <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
+                                <span
+                                  className="input-group-text border-0"
+                                  style={{ backgroundColor: "#FEF3E2" }}
+                                >
+                                  <img
+                                    src={calendarIcon}
+                                    alt="calendar" width="20" height="20" />
+                                </span>
+                                <p className="mb-1 d-flex align-items-center" style={{ backgroundColor: "#FEF3E2" }}>
+                                  {bookingData?.pet?.last_vaccination_date ?? "未填寫"}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* 性別 */}
+                            <div className="col-sm-6">
+                              <label className="form-label d-block">性別</label>
+                              <div className="btn-group" role="group" aria-label="pet gender">
+                                <input
+                                  type="radio"
+                                  className="btn-check"
+                                  name="petGenderReadonly"
+                                  id="petGenderMaleReadonly"
+                                  checked={bookingData?.pet?.gender === "male"}
+                                  readOnly
+                                />
+                                <label className="btn pet-toggle-pill" htmlFor="petGenderMaleReadonly">
+                                  公
+                                </label>
+
+                                <input
+                                  type="radio"
+                                  className="btn-check"
+                                  name="petGenderReadonly"
+                                  id="petGenderFemaleReadonly"
+                                  checked={bookingData?.pet?.gender === "female"}
+                                  readOnly
+                                />
+                                <label className="btn pet-toggle-pill" htmlFor="petGenderFemaleReadonly">
+                                  母
+                                </label>
+                              </div>
+                            </div>
+
+
+                            {/* 是否結紮 */}
+                            <div className="col-sm-6">
+                              <label className="form-label d-block">是否結紮</label>
+                              <div className="btn-group" role="group" aria-label="pet neuter">
+                                <input
+                                  type="radio"
+                                  className="btn-check"
+                                  name="petNeuterReadonly"
+                                  id="petNeuterYesReadonly"
+                                  checked={bookingData?.pet?.is_neutered === true}
+                                  readOnly
+                                />
+                                <label className="btn pet-toggle-pill" htmlFor="petNeuterYesReadonly">
+                                  是
+                                </label>
+
+                                <input
+                                  type="radio"
+                                  className="btn-check"
+                                  name="petNeuterReadonly"
+                                  id="petNeuterNoReadonly"
+                                  checked={bookingData?.pet?.is_neutered === false}
+                                  readOnly
+                                />
+                                <label className="btn pet-toggle-pill" htmlFor="petNeuterNoReadonly">
+                                  否
+                                </label>
+                              </div>
+                            </div>
+
+
+                            {/* 備註 */}
+                            <div className="col-12">
+                              <label className="form-label">備註</label>
+                              <div
+                                className="form-control border-0 rounded-4"
+                                style={{ backgroundColor: "#FEF3E2", minHeight: "120px" }}
+                              >
+                                {bookingData?.pet?.note ?? "未填寫"}
+                              </div>
+                            </div>
+
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* /毛小孩詳細資料卡片內容 */}
+                  </div>
+                </div>
+              </section>
+
+              {/* 預約表單時間+地點+備註 */}
+              <section className="booking-pet-form mt-5">
+                {/* 服務時間 */}
+                <section className="booking-service-time">
+                  <div className="px-4 py-4">
+                    {/* 標題 */}
+                    <div className="d-flex align-items-center mb-3">
+                      <img
+                        src={clockIcon}
+                        alt="service time" width="20" height="20" className="me-2" />
+                      <h4 className="text-primary mb-0">服務時間</h4>
+                    </div>
+
+                    {/* 內容 */}
+                    <div className="row g-3 align-items-center booking-service-time-row">
+                      {/* 從 */}
+                      <div className="col-12 d-flex align-items-center mb-1">
+                        <span className="me-3 fw-bold">從</span>
+
+                        {/* 日期 */}
+                        <div className="flex-grow-1 me-3">
+                          <div className="input-group rounded-pill overflow-hidden border border-warning">
+                            <span className="input-group-text border-0 background-transparent">
+                              <img
+                                src={calendarIcon}
+                                alt="date" width="20" height="20" />
+                            </span>
+
+                            <div className="form-control border-0 background-transparent d-flex align-items-center">
+                              {bookingData?.booking.arrival_date} {bookingData?.booking.arrival_time}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 到 */}
+                      <div className="col-12 d-flex align-items-center">
+                        <span className="me-3 fw-bold">到</span>
+
+                        {/* 日期 */}
+                        <div className="flex-grow-1 me-3">
+                          <div className="input-group rounded-pill overflow-hidden border border-warning">
+                            <span className="input-group-text border-0 background-transparent">
+                              <img
+                                src={calendarIcon}
+                                alt="date" width="20" height="20" />
+                            </span>
+                            <div className="form-control border-0 background-transparent d-flex align-items-center">
+                              {bookingData?.booking.departure_date} {bookingData?.booking.departure_time}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 接送地點 */}
+                <section className="booking-location">
+                  <div className="px-4 py-4">
+                    {/* 標題 */}
+                    <div className="d-flex align-items-center mb-3">
+                      <img
+                        src={locationIcon}
+                        alt="location" width="20" height="20" className="me-2" />
+                      <h4 className="text-primary mb-0">接送地點</h4>
+                    </div>
+
+                    {/* 內容 */}
+                    <div className="row g-3 align-items-center booking-location-row">
+                      {/* 縣市 */}
+                      <div className="col-sm-3">
+                        <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
+                          {bookingData?.location?.city
+                            ? bookingData.location.city
+                            : "（無縣市資訊）"}
+                        </div>
+                      </div>
+
+                      {/* 地區 */}
+                      <div className="col-sm-3">
+                        <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
+                          {bookingData?.location?.district
+                            ? bookingData.location.district
+                            : "（無地區資訊）"}
+                        </div>
+                      </div>
+
+                      {/* 詳細地址（吃剩餘寬度） */}
+                      <div className="col-sm-6">
+                        <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
+                          {bookingData?.booking.pickup_address_detail || "（無詳細地址資訊）"}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </section>
+
+                {/* 備註 */}
+                <section className="booking-notes">
+                  <div className="px-4 py-4">
+                    {/* 標題 */}
+                    <div className="d-flex align-items-center mb-3">
+                      <img
+                        src={infoIcon}
+                        alt="notes" width="20" height="20" className="me-2" />
+                      <h4 className="text-primary mb-0">備註</h4>
+                    </div>
+
+                    {/* 內容 */}
+                    <div className="form-control booking-notes-textarea border border-warning background-transparent">
+                      {bookingData?.booking.note || "（此訂單沒有備註）"}
+                    </div>
+                  </div>
+                </section>
+              </section>
+            </section>
+          </div>
+
+
+          {/* 電腦版-右半：費用總覽卡片 手機版-固定在下方可收放 */}
+          <aside className=" col-lg-3 booking-price ">
+            {/* 桌機版卡片（md 以上顯示） */}
+            {/*<div className="d-none d-lg-block">*/}
+            <div className="">
+              <div className="card border-0 rounded-4 shadow-sm">
+                <div className="card-body px-4 py-4">
+                  <h3 className="text-center text-primary fw-bold mb-4">費用</h3>
+
+                  <div className="mb-4">
+                    <div className="d-flex justify-content-between mb-3">
+                      <span className="fw-bold">基本費用</span>
+                      <span className="fw-bold"> {bookingData?.service?.price_per_30min
+                        ? `NT$ ${bookingData.service.price_per_30min} / 30 分鐘`
+                        : bookingData?.service?.price_per_day
+                          ? `NT$ ${bookingData.service.price_per_day} / 每日`
+                          : bookingData?.service?.price_per_session
+                            ? `NT$ ${bookingData.service.price_per_session} / 每次`
+                            : "—"}</span>
+                    </div>
+
+                    {/* 天數：只有 per_day 時一定有意義，其餘可選擇要不要顯示 */}
+                    {bookingData?.service?.price_per_day && (
+                      <div className="d-flex justify-content-between mb-3">
+                        <span className="fw-bold">天數</span>
+                        <span className="fw-bold">x{bookingData?.booking?.service_days ?? 0}</span>
+                      </div>
+                    )}
+
+                    {/* 30 分鐘單位：只有 per_30min 顯示 */}
+                    {bookingData?.service?.price_per_30min && (
+                      <div className="d-flex justify-content-between mb-3">
+                        <span className="fw-bold">服務時間 (每 30 分鐘)</span>
+                        <span className="fw-bold">x{bookingData?.booking?.service_units ?? 0}</span>
+                      </div>
+                    )}
+
+                    {/* 一次性服務：每次收費 */}
+                    {bookingData?.service?.price_per_session && (
+                      <div className="d-flex justify-content-between mb-3">
+                        <span className="fw-bold">服務次數</span>
+                        <span className="fw-bold">x{bookingData?.booking?.service_units ?? 0}</span>
+                      </div>
+                    )}
+
+                    <hr className="my-4 border-primary border-2" />
+
+                    <div className="d-flex justify-content-between align-items-end">
+                      <span className="fw-bold">總金額</span>
+                      <span className="fw-bold fs-3 text-primary">NT$ {bookingData?.booking.total_price ?? 0}</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    {renderActionSection(bookingData?.booking.status)}
+                  </div>
+
+                  <div>
+                    <div className="d-flex align-items-center mb-2">
+                      <i className="bi bi-info-circle-fill text-primary me-2"></i>
+                      <span className="fw-bold text-primary">注意事項</span>
+                    </div>
+                    <ul className="mb-0 ps-3">
+                      <li className="mb-2">
+                        點擊接受預約按鈕即代表接受訂單，
+                        等待飼主付款。
+                        預約請求都可以隨時取消。
+                      </li>
+                      <li>
+                        服務預約及付款必須在我能寵平台上操作，才能享有平台提供的所有服務保障。
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 手機版固定在下方的費用卡片（lg 以下顯示） */}
+
+          </aside>
         </section>
       </main>
 
