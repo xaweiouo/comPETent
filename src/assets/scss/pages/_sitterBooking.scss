@@ -107,12 +107,12 @@ $black-800: #353535;
 
 @media (max-width: 768px) {
   /* 讓整行有空間換行，但保持主方向橫排 */
-  .booking-service-time-row .col-12 {
+  .booking-service-time-row .booking-service-time-col {
     flex-wrap: wrap;
   }
 
   /* 日期區塊：在手機寬度縮小 & 預留給時分一點空間 */
-  .booking-service-time-row .col-12 > .flex-grow-1 {
+  .booking-service-time-row .booking-service-time-col > .flex-grow-1 {
     flex: 1 1 60%;     /* 日期大約佔 60% 寬 */
     margin-right: 0.5rem;
   }
