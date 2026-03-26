@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect,useRef } from "react";
 import * as bootstrap from 'bootstrap';
 import { supabase } from "../../lib/supabaseClient";
 // import { starRating } from "../../utils/starRating";
@@ -33,64 +33,16 @@ function OwnerProfile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const petMap = useMemo(() => {
-    return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
-  }
-    , [ownerPets]);
+  // const petMap = useMemo(() => {
+  //   return ownerPets.reduce((acc, pet) => ({ ...acc, [pet.id]: pet.name }), {})
+  // }
+  //   , [ownerPets]);
 
   const petModalRef = useRef(null);
   const newPetModalRef = useRef(null);
 
   const profileRef = useRef(null);
   const newProfileRef = useRef(null);
-
-  useEffect(() => {
-    if (isAuthLoading) return;
-
-    if (!isAuthenticated) {
-      const timer = setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-
-    const fetchInitialData = async () => {
-      try {
-        // 從 users 出發，一次拉回 bookings 和 services
-        const { data, error } = await supabase
-          .from('users')
-          .select(`
-        *,
-        pets (*),
-        bookings!bookings_owner_id_fkey (
-          *,
-          services (
-          *,
-          users (name, nickname, avatar_url))
-        )
-      `)
-          .eq('email', user.email)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          // 拆分資料存入不同的 State
-          setOwnerProfile(data);
-          setOwnerPets(data.pets || []);
-          // setOwnerBooking(data.bookings || []);
-          setLoading(false);
-          reset({ ...data });
-
-        }
-      } catch (error) {
-        dispatch(createAsyncMessage(error));
-      }
-    };
-    // 登入後，只在初始化時跑這一次
-    fetchInitialData();
-
-  }, [isAuthenticated, isAuthLoading, navigate, user]);
 
 //   useEffect(() => {
 //   if (mode === 'create' && selectedPet === null) {
@@ -220,6 +172,54 @@ function OwnerProfile() {
 
     // setSelectedPet(pet);
   }
+
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    if (!isAuthenticated) {
+      const timer = setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+
+    const fetchInitialData = async () => {
+      try {
+        // 從 users 出發，一次拉回 bookings 和 services
+        const { data, error } = await supabase
+          .from('users')
+          .select(`
+        *,
+        pets (*),
+        bookings!bookings_owner_id_fkey (
+          *,
+          services (
+          *,
+          users (name, nickname, avatar_url))
+        )
+      `)
+          .eq('email', user.email)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          // 拆分資料存入不同的 State
+          setOwnerProfile(data);
+          setOwnerPets(data.pets || []);
+          // setOwnerBooking(data.bookings || []);
+          setLoading(false);
+          reset({ ...data });
+
+        }
+      } catch (error) {
+        dispatch(createAsyncMessage(error));
+      }
+    };
+    // 登入後，只在初始化時跑這一次
+    fetchInitialData();
+
+  }, [isAuthenticated, isAuthLoading,user,navigate,dispatch,reset]);
 
   if (!isAuthenticated) {
     return (

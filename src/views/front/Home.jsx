@@ -132,7 +132,7 @@ const Home = () => {
     }
     getSitterData()
     getReviews()
-  }, [])
+  }, [dispatch])
 
   return (
     <>

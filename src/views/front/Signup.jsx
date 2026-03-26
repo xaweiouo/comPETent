@@ -3,15 +3,15 @@ import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+// import { useDispatch } from "react-redux";
+// import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { authListener, setRole, setLogout } from '../../slices/userAuthSlice';
+// import { authListener, setRole, setLogout } from '../../slices/userAuthSlice';
 import { supabase } from "../../lib/supabaseClient";
 function Signup() {
   const [error, setError] = useState('');
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
 
   const {
     register,
@@ -26,9 +26,9 @@ function Signup() {
   const handleSignup = async (signupInfo) => {
 
     try {
-      const { error } = await supabase.auth.signOut();
+      // const { error } = await supabase.auth.signOut();
       // 1. 執行 Supabase 登入
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email: signupInfo.email,
         password: signupInfo.password,
       });
@@ -41,8 +41,8 @@ function Signup() {
         
 
 
-    } catch (err) {
-      setError(err.message || '登入失敗，請檢查帳號密碼');
+    } catch (error) {
+      setError(error.message || '登入失敗，請檢查帳號密碼');
     }
   };
 

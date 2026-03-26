@@ -2,7 +2,7 @@ import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
 import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
 import mb_top_dec from '../../images/service_detail_img/good_review_mb_top_dec.png'
 import mb_bot_dec from '../../images/service_detail_img/good_review_mb_bot_dec.png'
-import {  useState } from "react";
+// import {  useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";

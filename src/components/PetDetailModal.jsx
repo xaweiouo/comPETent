@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 // import * as bootstrap from 'bootstrap';
-import {  useEffect, useState } from 'react';
+import {  useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import feetIcon from '../../src/images/icons/feet_icon.png'
