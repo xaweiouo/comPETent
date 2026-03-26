@@ -182,7 +182,8 @@ function LookForPetSitter() {
       photo_url,
       users!inner (
         nickname,
-        good_citizen_status
+        good_citizen_status,
+        avatar_url
       ),
       loc:locations!inner (
         city,
@@ -247,6 +248,7 @@ function LookForPetSitter() {
     serviceId: row.id,
     sitterId: row.sitter_id,
     sitterName: row.users.nickname,
+    sitterAvatar: row.users.avatar_url, 
     rating: row.rating,
     isFavorite: false,
     category: row.category,
@@ -395,34 +397,25 @@ function LookForPetSitter() {
   }, []);
 
 
-  // ownerId 或 currentPage 改變時，用目前頁碼抓資料
-  useEffect(() => {
-    if (!ownerId) return;
+  // ownerId 改變（登入完成）後，重新依目前篩選抓一次資料
+useEffect(() => {
+  if (!ownerId) return;
 
-    let isMounted = true;
+  async function loadOnOwnerChange() {
+    await fetchServicesWithFilters(undefined);
 
-    async function loadOnOwnerChange() {
-      await fetchServicesWithFilters(undefined);
-      // 如果目前是價格排序，重排一次整包
-      if (filters.sortBy === "price") {
-        sortCardsByPrice(1); // 從第 1 頁開始
-      } else {
-        // 不是價格，就切出第 1 頁
-        const firstPage = allCards.slice(0, PAGE_SIZE);
-        setCards(firstPage);
-        setCurrentPage(1);
-      }
+    // 如果目前是價格排序，重排一次整包
+    if (filters.sortBy === "price") {
+      sortCardsByPrice(1);
+    } else {
+      // 非價格排序，fetchServicesWithFilters 已經切好第一頁，不用再動
+      setCurrentPage(1);
     }
+  }
 
-    if (isMounted) {
-      loadOnOwnerChange();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ownerId]);
+  loadOnOwnerChange();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [ownerId]);
 
 
   const handleSearch = async () => {
@@ -509,6 +502,11 @@ function LookForPetSitter() {
 
     setCards(source.slice(from, to));
     setCurrentPage(page);
+    // 移動到保姆區塊
+  const section = document.getElementById("nearby-sitter-section");
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   };
 
 
@@ -897,7 +895,7 @@ function LookForPetSitter() {
       </section>
 
       {/* 保姆卡片 */}
-      <section className="lookfor-sitter-list py-4">
+      <section id="nearby-sitter-section" className="lookfor-sitter-list py-4">
         <div className="container">
           <div className="text-center mb-3">
             <img
@@ -970,7 +968,7 @@ function LookForPetSitter() {
                     <div className="col-12 col-md-3 d-flex justify-content-center">
                       <div className="sitter-card-img-wrapper rounded-3 overflow-hidden">
                         <img
-                          src={card.imageUrl}
+                          src={card.sitterAvatar || card.imageUrl}
                           className="sitter-card-img"
                           alt="保姆"
                         />
