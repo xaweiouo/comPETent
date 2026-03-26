@@ -8,7 +8,7 @@ import { router } from "./router";
 import { useDispatch } from "react-redux";
 // import { store } from "./store/store";
 import { useEffect } from "react";
-import { setLogout, fetchUserPermissions, setUser } from "./slices/authSlice";
+import { setLogout, fetchUserPermissions } from "./slices/authSlice";
 import MessageToast from "./components/MessageToast";
 
 

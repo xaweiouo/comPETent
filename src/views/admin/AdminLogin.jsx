@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { setAdminLogin } from "../../slices/adminAuthSlice";
+// import { setAdminLogin } from "../../slices/adminAuthSlice";
 import { supabase } from "../../lib/supabaseClient";
-import { fetchUserPermissions, setLogout } from "../../slices/authSlice";
+import { fetchUserPermissions } from "../../slices/authSlice";
 
 function AdminLogin() {
   // const [email, setEmail] = useState('');
   // const [password, setPassword] = useState('');
-  const { role } = useSelector(state => state.auth);
+  // const { role } = useSelector(state => state.auth);
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();

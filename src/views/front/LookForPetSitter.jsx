@@ -228,7 +228,7 @@ function LookForPetSitter() {
   const { data, error } = await query;
 
   if (error) {
-    console.error(error);
+    dispatch(createAsyncMessage(error));
     setAllCards([]);
     setCards([]);
     setTotalCount(0);
@@ -361,7 +361,7 @@ function LookForPetSitter() {
         .is("deleted_at", null); // 只拿還在用的
 
       if (error) {
-        console.error("載入地區清單失敗", error);
+        dispatch(createAsyncMessage(error));
         return;
       }
 
@@ -522,7 +522,7 @@ useEffect(() => {
 
           <div className="row g-3 align-items-end">
             {/* 服務類別 */}
-            <div className="col-12 col-md-3">
+            <div className="col-md-3">
               <label htmlFor="serviceType" className="form-label mb-2">
                 服務類別
               </label>
@@ -555,7 +555,7 @@ useEffect(() => {
             </div>
 
             {/* 寵物類別 */}
-            <div className="col-12 col-md-3">
+            <div className="col-md-3">
               <label htmlFor="petType" className="form-label mb-2">
                 寵物類別
               </label>
@@ -591,7 +591,7 @@ useEffect(() => {
             </div>
 
             {/* 服務地區：縣市 */}
-            <div className="col-12 col-md-3">
+            <div className="col-md-3">
               <label htmlFor="city" className="form-label mb-2">
                 服務地區
               </label>
@@ -623,7 +623,7 @@ useEffect(() => {
             </div>
 
             {/* 服務地區：地區 */}
-            <div className="col-12 col-md-3">
+            <div className="col-md-3">
               <label htmlFor="district" className="form-label mb-2">
                 服務地區
               </label>
@@ -650,7 +650,7 @@ useEffect(() => {
             </div>
 
             {/* 服務時間：日期 */}
-            <div className="col-12 col-md-3">
+            <div className="col-md-3">
               <label htmlFor="serviceDate" className="form-label mb-2">
                 服務時間
               </label>
@@ -675,7 +675,7 @@ useEffect(() => {
             </div>
 
             {/* 服務時間：起訖 - 桌機版 */}
-            <div className="col-12 col-md-6 d-none d-md-block">
+            <div className="col-md-6 d-none d-md-block">
               <div className="d-flex align-items-center w-100">
                 {/* 開始：時 */}
                 <div className="d-flex align-items-center flex-fill me-3">
@@ -757,10 +757,10 @@ useEffect(() => {
               </div>
             </div>
             {/* 服務時間：起訖 - 手機版（兩行滿版） */}
-            <div className="col-12 d-block d-md-none">
+            <div className="d-block d-md-none">
               <div className="row g-2">
                 {/* 第一行：開始 時 + 分 */}
-                <div className="col-12">
+                <div>
                   <div className="d-flex align-items-center w-100">
                     {/* 開始：時 */}
                     <div className="d-flex align-items-center flex-fill me-2">
@@ -800,7 +800,7 @@ useEffect(() => {
                 </div>
 
                 {/* 第二行：結束 時 + 分 */}
-                <div className="col-12">
+                <div>
                   <div className="d-flex align-items-center w-100">
                     {/* 結束：時 */}
                     <div className="d-flex align-items-center flex-fill me-2">
@@ -844,7 +844,7 @@ useEffect(() => {
 
 
             {/* 按鈕 */}
-            <div className="col-12 col-md-3 d-flex justify-content-md-end mt-3 mt-md-0">
+            <div className="col-md-3 d-flex justify-content-md-end mt-3 mt-md-0">
               <button
                 type="button"
                 onClick={handleSearch}
@@ -854,7 +854,7 @@ useEffect(() => {
               </button>
             </div>
             {/* 清除按鈕 */}
-            <div className="col-12 col-md-6 mt-2">
+            <div className="col-md-6 mt-2">
               <button
                 type="button"
                 onClick={handleClearAll}
@@ -863,7 +863,7 @@ useEffect(() => {
                 清除全部篩選與排序
               </button>
             </div>
-            <div className="col-12 col-md-6 mt-2">
+            <div className="col-md-6 mt-2">
               <button
                 type="button"
                 onClick={() => {
@@ -916,12 +916,12 @@ useEffect(() => {
           )}
 
           <div className="row mb-3">
-            <div className="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
               {/* 左側：總筆數文字 */}
               <small className="text-muted mb-2 mb-md-0">
                 共 {totalCount} 位保姆符合條件
               </small>
-              <div className="col-12 col-md-2">
+              <div className="col-md-2">
                 {/* 排序 select */}
                 <select
                   id="sortBy"
@@ -961,11 +961,11 @@ useEffect(() => {
             {cards.map((card) => (
               <div
                 key={card.serviceId}
-                className="col-12 mb-4"
+                className="mb-4"
               >
                 <div className="card border-0 shadow-sm rounded-3 px-3 py-3 sitter-card h-100">
                   <div className="row g-3 align-items-center">
-                    <div className="col-12 col-md-3 d-flex justify-content-center">
+                    <div className="col-md-3 d-flex justify-content-center">
                       <div className="sitter-card-img-wrapper rounded-3 overflow-hidden">
                         <img
                           src={card.sitterAvatar || card.imageUrl}
@@ -975,7 +975,7 @@ useEffect(() => {
                       </div>
                     </div>
 
-                    <div className="col-12 col-md-9 d-flex">
+                    <div className="col-md-9 d-flex">
                       <div className="card-body p-0 d-flex flex-column justify-content-between w-100">
                         <div>
                           <div className="card-header-row d-flex justify-content-between align-items-start mb-3">

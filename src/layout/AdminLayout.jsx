@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router";
 // import { setAdminLogout } from "../slices/adminAuthSlice";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { setLogout } from "../slices/authSlice";
 
 function AdminLayout() {

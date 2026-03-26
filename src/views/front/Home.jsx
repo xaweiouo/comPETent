@@ -132,7 +132,7 @@ const Home = () => {
     }
     getSitterData()
     getReviews()
-  }, [])
+  }, [dispatch])
 
   return (
     <>
@@ -141,7 +141,7 @@ const Home = () => {
           <div className="col-md-6 text-center text-md-start">
             <h1 className="mt-4 mb-10 mb-md-7 fw-bold text-primary">comPETent 我能寵</h1>
             <h3 className="mb-8 fw-bold">從不認識到放心託付，comPETent 幫您把關每一步！</h3>
-            <button type="button" className="fw-bold me-3 btn btn-gradient-secondary py-3 px-4">當保母</button>
+            <button type="button" className="fw-bold me-3 btn btn-gradient-secondary py-3 px-4" onClick={() => navigate("/servicedeploy")}>當保母</button>
             <button type="button" className="fw-bold btn btn-primary btn-gradient-primary py-3 px-4" onClick={() => navigate("/lookforpetsitter")}>找服務</button>
           </div>
           <div className="col-md-5 text-center">
@@ -149,7 +149,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <section className="container mb-9">
+      <section id='aboutUs' className="container mb-9">
         <div className="row justify-content-center text-center mb-5">
           <div className="col-md-6">
             <h2 className="mb-8 text-primary fw-bold"><img src={feetIcon} className="me-3" alt="feetIcon" width="32" />關於 comPETent 我能寵</h2>
@@ -171,7 +171,7 @@ const Home = () => {
               <h5 className="mb-10 fw-bold">自由接案</h5>
               <p className="h5">comPETent 提供保母一個自由接案的平台，讓您有機會嶄現您的專業，提供寵物無微不至的照顧。</p>
             </div>
-            <button type="button" className="btn btn-primary text-white fw-bold position-absolute top-100 start-50 translate-middle">當保母<i className="bi bi-arrow-right ms-2"></i></button>
+            <button type="button" className="btn btn-primary text-white fw-bold position-absolute top-100 start-50 translate-middle" onClick={() => navigate("/servicedeploy")}>當保母<i className="bi bi-arrow-right ms-2"></i></button>
           </div>
           <div className="col-md-4 position-relative mb-6 mb-md-0">
             <div className="bg-white rounded-4 p-7 pb-md-8 h-100">
@@ -234,7 +234,7 @@ const Home = () => {
           <button type="button" className="btn btn-primary text-white fw-bold" onClick={() => navigate("/lookforpetsitter")}>查看更多<i className="bi bi-arrow-right ms-2"></i></button>
         </div>
       </section>
-      <section className="container mb-9">
+      <section id='procedure' className="container mb-9">
         <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={flowIcon} className="me-3" alt="flowIcon" width="32" />服務流程</h2>
         <div className="row">
           <div className="col-6">
@@ -447,15 +447,17 @@ const Home = () => {
         </div>
 
       </section >
-      <section className="container mb-9">
+      <section id='faq' className="container mb-9">
         <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={faqIcon} className="me-3" alt="faqIcon" width="32" />FAQ</h2>
         <div className="row mb-7">
           <h4 className="text-info fw-bold title-owner mb-10">我是飼主</h4>
           {faqList.map((sitter, index) => (
-            <div key={index} className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10 ">
+            <div key={index} className="bg-white rounded-5 mb-7 ps-6 pe-7 py-10 ">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="mb-1 fw-bold">{sitter.question}</span>
-                <button className="btn" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse_${index}`} aria-expanded="false" aria-controls={`collapse_${index}`} onClick={() => setActiveIndex(activeIndex === index ? null : index)}>
+                <button className="btn" type="button" 
+                // data-bs-toggle="collapse" data-bs-target={`#collapse_${index}`} aria-expanded="false" aria-controls={`collapse_${index}`} 
+                onClick={() => setActiveIndex(activeIndex === index ? null : index)}>
                   <i className={`bi ${activeIndex === index ? "bi-dash-lg" : "bi-plus-lg"} text-primary fs-4`}></i>
                 </button>
               </div>
@@ -469,9 +471,11 @@ const Home = () => {
         </div>
         <div className="row">
           <h4 className="text-info fw-bold title-owner mb-10">我是保母</h4>
-          <div className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10">
+          <div className="bg-white rounded-5 mb-7 ps-6 pe-7 py-10">
             <div className="d-flex justify-content-between align-items-center">
-              <span className="mb-1 fw-bold">comPETent 的保母值得信任嗎？</span><button className="btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_01" aria-expanded="false" aria-controls="collapse_01" onClick={() => setOpen(!open)}>
+              <span className="mb-1 fw-bold">comPETent 的保母值得信任嗎？</span><button className="btn" type="button" 
+              // data-bs-toggle="collapse" data-bs-target="#collapse_01" aria-expanded="false" aria-controls="collapse_01" 
+              onClick={() => setOpen(!open)}>
                 <i className={`bi ${open ? "bi-dash-lg" : "bi-plus-lg"} text-primary fs-4`}></i>
               </button>
             </div>

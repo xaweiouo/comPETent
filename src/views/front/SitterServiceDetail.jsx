@@ -13,8 +13,8 @@ import { mandarinPetSpecies } from "../../utils/mandarinPetSpecies";
 import { useDispatch, useSelector } from "react-redux";
 
 import left_chevron_icon from '../../images/icons/left_chevron_icon.png';
-import love_icon from '../../images/icons/love_icon.png';
-import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
+// import love_icon from '../../images/icons/love_icon.png';
+// import empt_heart_icon from '../../images/icons/empt_heart_icon.png';
 import location_icon from '../../images/icons/location_icon.png';
 import top_dec from '../../images/service_detail_img/good_review_top_dec.png'
 import bot_dec from '../../images/service_detail_img/good_review_bot_dec.png'
@@ -170,7 +170,7 @@ const SitterServiceDetail = () => {
       }
     };
     fetchData();
-  }, [id, user]);
+  }, [id, user,dispatch]);
 
   // 1. 第一層守門員：正在與資料庫通訊中
   if (isChecking) {

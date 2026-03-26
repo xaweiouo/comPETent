@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
-import * as bootstrap from 'bootstrap';
-import { useRef, useEffect, useState } from 'react';
+// import * as bootstrap from 'bootstrap';
+import {  useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import feetIcon from '../../src/images/icons/feet_icon.png'
@@ -10,17 +10,9 @@ import calendarIcon from '../../src/images/icons/calendar_icon.png'
 import { useDispatch } from 'react-redux';
 import { createAsyncMessage } from '../slices/messageSlice';
 
-function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
-  // const petModalRef = useRef(null);
-  // const newPetModalRef = useRef(null);
-  // const [selectedPet,setSelectedPet]=useState({});
-  const [isEditing, setIsEditing] = useState(false);
+function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPets, closeModal }) {
 
-  // const [modalMode, setModalMode] = useState({
-  //   // show: false,
-  //   mode: 'create', // 'create' | 'edit' | 'view'
-  //   // data: null      // 存放要編輯的那筆資料
-  // });
+  // const [isEditing, setIsEditing] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -28,7 +20,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    // formState: { errors }
   } = useForm({
     defaultValues: pet || {},
     // mode: 'onChange'
@@ -36,58 +28,87 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
 
   const onSubmit = async (formData) => {
     try {
-      const { data, error } = await supabase
-        .from('pets')
-        .update(formData)
-        .eq('id', formData.id)
-        .select() // 重要：加上 .select() 讓它回傳更新後的完整資料
-        .single();
+      let result;
 
-      if (error) throw error;
+      if (mode === 'create') {
+        // --- 新增模式 ---
+        // 注意：這裡可能需要補上 owner_id，通常從 redux 的 user 抓
+        const newPetData = { ...formData, owner_id: ownerId };
+        delete newPetData.id; // 新增時不需要傳入 id
 
-      setOwnerPets((prevPets) =>
-        prevPets.map((prevPet) => (prevPet.id === formData.id ? formData : prevPet))
-      );
+        result = await supabase
+          .from('pets')
+          .insert([newPetData])
+          .select()
+          .single();
 
-      dispatch(createAsyncMessage(data && { text: '修改成功' } || error));
-      closeModal();
+        if (result.error) throw result.error;
 
+        // 更新父元件列表：將新寵物加進陣列
+        setOwnerPets((prev) => [...prev, result.data]);
+        dispatch(createAsyncMessage({ text: '新增成功' }));
+
+      } else {
+        // --- 編輯模式 ---
+        result = await supabase
+          .from('pets')
+          .update(formData)
+          .eq('id', formData.id)
+          .select()
+          .single();
+
+        if (result.error) throw result.error;
+
+        // 更新父元件列表：替換掉舊的那一筆
+        setOwnerPets((prevPets) =>
+          prevPets.map((prevPet) => (prevPet.id === formData.id ? result.data : prevPet))
+        );
+        dispatch(createAsyncMessage({ text: '修改成功' }));
+      }
+
+      closeModal(); // 成功後關閉
     } catch (error) {
       dispatch(createAsyncMessage(error));
     }
   };
 
-  // 點擊「新增」
-  // const handleAdd = () => {
-  //   setModalMode({
-  //     // show: true,
-  //     mode: 'create',
-  //     // data: { name: '', email: '' } // 預設空值
-  //   });
-  // };
+  const onDelete = async () => {
+    // 1. 確認使用者是否真的要刪除（尤其是編輯/查看模式時）
+    // if (!pet?.id) return;
 
-  // 點擊「編輯」
-  const handleEdit = (user) => {
-    setIsEditing(true);
-    setModalMode({
-      // show: true,
-      mode: 'edit',
-      // data: user // 傳入當前那列的資料
-    });
+    // const confirmDelete = window.confirm(`確定要刪除 ${pet.name} 的資料嗎？此動作無法復原。`);
+    // if (!confirmDelete) return;
+
+    try {
+      // 2. 呼叫 Supabase 刪除資料
+      const { error } = await supabase
+        .from('pets')
+        .delete()
+        .eq('id', pet.id);
+
+      if (error) throw error;
+
+      // 3. 更新父元件列表：過濾掉被刪除的那一筆
+      setOwnerPets((prevPets) => prevPets.filter((p) => p.id !== pet.id));
+
+      // 4. 發送成功訊息
+      dispatch(createAsyncMessage({ text: '寵物資料已刪除' }));
+
+      // 5. 關閉 Modal
+      closeModal();
+    } catch (error) {
+      dispatch(createAsyncMessage({ text: `刪除失敗: ${error.message}`, type: 'error' }));
+    }
   };
 
-  // 點擊「查看」
-  // const handleView = (user) => {
+  // 點擊「編輯」
+  // const handleEdit = (user) => {
+  //   setIsEditing(true);
   //   setModalMode({
   //     // show: true,
-  //     mode: 'view',
-  //     // data: user
+  //     mode: 'edit',
+  //     // data: user // 傳入當前那列的資料
   //   });
-  // };
-
-  // 關閉 Modal
-  // const handleClose = () => {
-  //   setModalConfig((prev) => ({ ...prev, show: false }));
   // };
 
   // 標題動態切換
@@ -98,15 +119,30 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
   };
 
   useEffect(() => {
-    if (pet) {
+    if (mode === 'create') {
+      reset(
+        {
+          name: '',
+          species: '',
+          size: '',
+          birth_date: '',
+          last_vaccination_date: '',
+          gender: '',
+          is_neutered: '',
+          note: '',
+          photo_url: 'https://images2.imgbox.com/9b/a2/d1N0JkEJ_o.jpg' // 如果有預設圖片網址也可以放這
+        }
+      )
+    } else if (pet) {
       // setSelectedPet({...pet})
       reset({ ...pet, is_neutered: pet.is_neutered === null ? "" : String(pet.is_neutered) })
     }
-  }, [pet, reset])
+  }, [pet, mode, reset])
 
   return (
     <>
       <div
+        key={key}
         className="modal fade"
         ref={innerRef}
         tabIndex="-1"
@@ -129,11 +165,11 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
               <form id="editForm" onSubmit={handleSubmit(onSubmit)}>
                 <div className="row g-4 align-items-start">
                   {/* 左側：照片 + 名字 */}
-                  <div className="col-12 col-md-3 d-flex flex-column align-items-center">
+                  <div className="col-md-3 d-flex flex-column align-items-center">
                     <div className="w-100 mb-3">
                       <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                         <img
-                          src={pet?.photo_url}
+                          src={pet?.photo_url || 'https://images2.imgbox.com/9b/a2/d1N0JkEJ_o.jpg'}
                           alt={pet?.name || "new pet"}
                           className="w-100 h-100 rounded-4"
                           style={{ objectFit: "cover" }}
@@ -161,10 +197,10 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                   </div>
 
                   {/* 右側欄位：種類 / 體型 / 出生日期 / 疫苗日期 / 性別 / 是否結紮 / 備註 */}
-                  <div className="col-12 col-md-9">
+                  <div className="col-md-9">
                     <div className="row g-3">
                       {/* 種類 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">種類</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -200,7 +236,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 體型 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">體型</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -235,7 +271,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 出生日期 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">出生日期</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -266,7 +302,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 上次施打疫苗日期 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">上次施打疫苗日期</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -300,7 +336,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 性別 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label d-block">性別</label>
                         <div className="btn-group" role="group" aria-label="pet gender">
                           <input
@@ -343,7 +379,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 是否結紮 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label d-block">是否結紮</label>
                         <div className="btn-group" role="group" aria-label="pet neuter">
                           <input
@@ -383,7 +419,7 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                       </div>
 
                       {/* 備註 */}
-                      <div className="col-12">
+                      <div>
                         <label className="form-label">備註</label>
                         <textarea
                           className="form-control"
@@ -401,39 +437,18 @@ function PetDetailModal({ pet, innerRef, mode, setMode, setOwnerPets, closeModal
                         />
                       </div>
 
-                      {/* 按鈕列 */}
-                      <div className="col-12 d-flex justify-content-end">
-                        {/* <button
-                          type="button"
-                          className="btn btn-secondary me-2"
-                          // onClick={() => {
-                          //   setIsAddingPet(false);
-                          //   setNewPet({
-                          //     name: "",
-                          //     species: "",
-                          //     size: "",
-                          //     birth_date: "",
-                          //     gender: "unknown",
-                          //     is_neutered: false,
-                          //     last_vaccination_date: "",
-                          //     note: "",
-                          //     photo_url: "",
-                          //   });
-                          // }}
-                        >
-                          取消
-                        </button> */}
-                        {/* <button type="submit" className="btn btn-primary">
-                          送出
-                        </button> */}
-                      </div>
+                      
                     </div>
                   </div>
                 </div>
               </form>
             </div>
             <div className="modal-footer justify-content-between">
-              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">刪除此寵物</button>
+              {mode !== 'create' ? <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={onDelete}>
+                刪除此寵物
+              </button> : <div></div>}
+
+
               {mode === 'view' ? <button
                 key='edit'
                 type="button"

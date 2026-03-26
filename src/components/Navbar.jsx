@@ -15,6 +15,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useSelector, useDispatch } from 'react-redux';
 import { setLogout } from '../slices/authSlice';
 import { createAsyncMessage } from '../slices/messageSlice';
+import { HashLink } from 'react-router-hash-link';
 
 const Navbar = () => {
   const location = useLocation()
@@ -22,7 +23,7 @@ const Navbar = () => {
   const dispatch = useDispatch()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, role } = useSelector(state => state.auth)
-  const [userEmail, setUserEmail] = useState("")
+  // const [userEmail, setUserEmail] = useState("")
   const [userNickName, setUserNickName] = useState("")
   const [userImg, setUserImg] = useState("")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -93,13 +94,13 @@ const Navbar = () => {
         // // 3. 驗證成功，寫入 Redux
         // dispatch(setRole(roleData))
       } catch (error) {
-       
+
         dispatch(createAsyncMessage(error));
 
       }
     };
     initRole()
-  }, [user])
+  }, [user, dispatch])
 
   // 每當 URL 路徑改變時，就關閉所有選單
   useEffect(() => {
@@ -121,22 +122,42 @@ const Navbar = () => {
           {/* 中間：導覽連結 (PC 置中 / Mobile 置中) */}
           <ul className="nav-links">
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="feetIcon" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></NavLink>
+              <HashLink scroll={(el) => {
+                // 稍微延遲 100ms，等 React 渲染穩定後再執行捲動
+                setTimeout(() => {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+              }} className="nav-link" to="/#aboutUs" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={feetIcon} className="me-2" alt="feetIcon" width="20" /><span className="fw-bold h5 mb-0">關於我們</span></HashLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="flowIcon" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></NavLink>
+              <HashLink scroll={(el) => {
+                // 稍微延遲，等 React 渲染穩定後再執行捲動
+                setTimeout(() => {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+              }} className="nav-link" to="/#procedure" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={flowIcon} className="me-2" alt="flowIcon" width="20" /><span className="fw-bold h5 mb-0">服務流程</span></HashLink>
             </li>
             <li className="nav-item">
               <NavLink className="nav-link" to="/lookforpetsitter" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={searchIcon} className="me-2" alt="searchIcon" width="20" /><span className="fw-bold h5 mb-0">尋找保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="becomeIcon" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
+              <NavLink className="nav-link" to="/servicedeploy" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={becomeIcon} className="me-2" alt="becomeIcon" width="20" /><span className="fw-bold h5 mb-0">成為保母</span></NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="shieldIcon" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></NavLink>
+              <HashLink scroll={(el) => {
+                // 稍微延遲 100ms，等 React 渲染穩定後再執行捲動
+                setTimeout(() => {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+              }} className="nav-link" to="/#aboutUs" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="shieldIcon" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></HashLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
+              <HashLink scroll={(el) => {
+                // 稍微延遲，等 React 渲染穩定後再執行捲動
+                setTimeout(() => {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+              }} className="nav-link" to="/#faq" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></HashLink>
             </li>
           </ul>
 
@@ -172,7 +193,7 @@ const Navbar = () => {
                   {/* 保母 */}
                   {/* {(role === "sitter" || role === "admin") && (
                   )} */}
-                  <li onClick={() => toggleSection('sitter')}>
+                  {/* <li onClick={() => toggleSection('sitter')}>
                     <a className="dropdown-item">
                       我是保母<img src={openSection === 'sitter' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
                     </a>
@@ -180,7 +201,7 @@ const Navbar = () => {
                   <ul className={openSection === 'sitter' ? 'd-block' : 'd-none'}>
                     <li>查看個人資料</li>
                     <li><Link to='sitter/bookings/25' className='text-decoration-none text-reset'>查看訂單</Link></li>
-                  </ul>
+                  </ul> */}
 
                   {/* 管理平台 */}
                   {role === "admin" && (
