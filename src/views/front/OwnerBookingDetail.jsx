@@ -152,7 +152,7 @@ function OwnerBookingDetail() {
     if (data.owner_id) {
       const { data: owner, error: ownerError } = await supabase
         .from("users")
-        .select("id, name, email, phone, avatar_url")
+        .select("id, name, nickname, email, phone, avatar_url")
         .eq("id", data.owner_id)
         .single();
       if (!ownerError) ownerData = owner;
@@ -163,7 +163,7 @@ function OwnerBookingDetail() {
     if (data.sitter_id) {
       const { data: sitter, error: sitterError } = await supabase
         .from("users")
-        .select("id, name, email, phone, avatar_url")
+        .select("id, name, nickname, email, phone, avatar_url")
         .eq("id", data.sitter_id)
         .single();
       if (!sitterError) sitterData = sitter;
@@ -478,7 +478,7 @@ function OwnerBookingDetail() {
                   className="rounded-circle border border-1 border-warning"
                   alt={
                     bookingData?.sitter
-                      ? `${bookingData.sitter.name} 保母頭像`
+                      ? `${bookingData.sitter.nickname} 保母頭像`
                       : "保母頭像"
                   }
                   style={{
@@ -493,7 +493,7 @@ function OwnerBookingDetail() {
                   style={{ minWidth: "110px" }}
                 >
                   <h2 className="mb-0 fw-bold sitter-name">
-                    {bookingData?.sitter?.name || "保母"}
+                    {bookingData?.sitter?.nickname || "保母"}
                   </h2>
                   <span className="border-primary sitter-role-badge border border-2 rounded-pill px-3 py-2">
                     保母

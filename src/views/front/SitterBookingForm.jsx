@@ -134,6 +134,7 @@ function calculatePriceForService(service, bookingForm) {
 }
 function SitterBookingForm() {
   const dispatch = useDispatch();
+  const [isChecking, setIsChecking] = useState(true);
 
   // 從網址查詢參數拿到 sitterId
   const location = useLocation();
@@ -177,7 +178,7 @@ function SitterBookingForm() {
     photo_url: "https://images2.imgbox.com/9b/a2/d1N0JkEJ_o.jpg",
   });
 
-  const [sitterInfo, setSitterInfo] = useState(null);
+  // const [sitterInfo, setSitterInfo] = useState(null);
   const [serviceDetail, setServiceDetail] = useState(null);
   //載入中／錯誤提示
   const [serviceLoading, setServiceLoading] = useState(false);
@@ -272,58 +273,89 @@ function SitterBookingForm() {
     fetchLocations();
   }, []);
 
-
-
-  //抓服務資訊的
   useEffect(() => {
-    if (!serviceId) return;
+    // 一進預約頁就把畫面捲回頂端，體感跟重新載入一樣
+    window.scrollTo(0, 0);
+  }, []);
+
+
+  // 抓服務資訊 + 控制整頁 loading
+  useEffect(() => {
+    // 沒有 serviceId 的話，直接結束，不要卡在 loading
+    if (!serviceId) {
+      setServiceError("找不到對應的服務，請回上一頁再試一次");
+      setIsChecking(false);
+      setServiceLoading(false);
+      return;
+    }
 
     async function fetchServiceDetail() {
+      // ⭐ 進到預約頁／重新載入服務時：開啟兩種 loading
+      // serviceLoading：如果之後要在區塊內顯示「資料載入中」可以用
+      // isChecking：整頁的 loading 守門員（像保母詳情一樣）
       setServiceLoading(true);
       setServiceError(null);
+      setIsChecking(true);
 
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("id", serviceId)
-        .single();
+      try {
+        // 先抓服務詳細資料
+        const { data, error } = await supabase
+          .from("services")
+          .select(`
+    *,
+    users!services_sitter_id_fkey (id, nickname, avatar_url),
+    locations (city, district)
+  `)
+          .eq("id", serviceId)
+          .single();
 
-      if (error) {
-        setServiceError("無法取得服務資料，請稍後再試");
-      } else {
+        if (error || !data) {
+          // 有錯誤或找不到資料
+          setServiceError("無法取得服務資料，請稍後再試");
+          // 這裡如果你有 notFound 狀態，也可以順便 setNotFound(true)
+          // setNotFound(true);
+          return;
+        }
+
+        // 正常拿到服務資料就塞進 state
         setServiceDetail(data);
-        // 一進來就先算一次價錢（如果表單有預設值的話）
-        // setPriceInfo((prev) => {
-        //     const price = calculatePriceForService(data, bookingForm);
-        //     return { ...prev, ...price };
-        // });
-      }
 
-      setServiceLoading(false);
+        // 如果你想一進來就算一次價錢，可以在這裡打開：
+        // const price = calculatePriceForService(data, bookingForm);
+        // setPriceInfo(price);
+      } catch {
+        // 這裡可以視情況丟給全局訊息系統
+        // dispatch(createAsyncMessage(err));
+        setServiceError("系統發生錯誤，請稍後再試");
+      } finally {
+        // ⭐ 無論成功或失敗，都要關掉 loading
+        setServiceLoading(false);
+        setIsChecking(false);
+      }
     }
 
     fetchServiceDetail();
-  }, [serviceId]); // 依賴 serviceId
+  }, [serviceId /*, dispatch */]); // 若有用 dispatch 記得加進依賴
 
   //抓保母資訊的 useEffect，依賴 sitterId
-  useEffect(() => {
-    if (!sitterId) return;
+  // useEffect(() => {
+  //   if (!sitterId) return;
 
-    async function fetchSitterInfo() {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, name")
-        .eq("id", sitterId)
-        .single();
+  //   async function fetchSitterInfo() {
+  //     const { data, error } = await supabase
+  //       .from("users")
+  //       .select("id, name")
+  //       .eq("id", sitterId)
+  //       .single();
 
-      if (error) {
-        return;
-      }
-      setSitterInfo(data);
-    }
+  //     if (error) {
+  //       return;
+  //     }
+  //     setSitterInfo(data);
+  //   }
 
-    fetchSitterInfo();
-  }, [sitterId]);
+  //   fetchSitterInfo();
+  // }, [sitterId]);
   // 從 category 字串轉換成中文（或其他顯示用字）
   function formatCategory(category) {
     switch (category) {
@@ -756,7 +788,17 @@ function SitterBookingForm() {
   // 判斷目前是否在編輯 selectedPetId 這隻寵物
   const isEditing = editingPetId === selectedPetId;
 
+  // 整頁 loading 守門員（像保姆詳情那樣）
+  if (isChecking) {
+    return (
+      <div className="d-flex flex-column align-items-center" style={{ minHeight: "60vh" }}>
+        <p className="text-center">正在載入預約資料...</p>
+        {/* 有 spinner 就放這裡，沒有就這樣也可以 */}
+      </div>
+    );
+  }
   return (
+
     <div className="container booking-page">
 
       <main className="booking-main container">
@@ -791,22 +833,31 @@ function SitterBookingForm() {
             <div className="d-flex flex-column gap-3 sitter-header">
               <div
                 className="
-                                       d-flex
-                                       align-items-center
-                                       gap-3
-                                       flex-wrap {/* 手機時允許換行 */}
-                                     "
+    d-flex
+    align-items-center
+    gap-3
+    flex-wrap {/* 手機時允許換行 */}
+  "
               >
                 <img
-                  src={sitterLogo}
+                  src={serviceDetail?.users?.avatar_url || sitterLogo}
                   className="rounded-circle border border-1 border-warning"
-                  alt={sitterInfo ? `${sitterInfo.name}保姆logo` : "保母logo"}
-                  style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+                  alt={
+                    serviceDetail?.users?.nickname
+                      ? `${serviceDetail.users.nickname}保母頭像`
+                      : "保母頭像"
+                  }
+                  style={{ width: "120px", height: "120px", objectFit: "cover" }}
                 />
 
                 {/* 名字 + 保母：給一個最小寬度，避免被擠到換行 */}
-                <div className="d-flex align-items-center gap-2" style={{ minWidth: '110px' }}>
-                  <h2 className="mb-0 fw-bold sitter-name"> {sitterInfo ? sitterInfo.name : "保母"}</h2>
+                <div
+                  className="d-flex align-items-center gap-2"
+                  style={{ minWidth: "110px" }}
+                >
+                  <h2 className="mb-0 fw-bold sitter-name">
+                    {serviceDetail?.users?.nickname || "保母"}
+                  </h2>
                   <span className="border-primary sitter-role-badge border border-2 rounded-pill px-3 py-2">
                     保母
                   </span>
