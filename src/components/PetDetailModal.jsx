@@ -165,7 +165,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
               <form id="editForm" onSubmit={handleSubmit(onSubmit)}>
                 <div className="row g-4 align-items-start">
                   {/* 左側：照片 + 名字 */}
-                  <div className="col-12 col-md-3 d-flex flex-column align-items-center">
+                  <div className="col-md-3 d-flex flex-column align-items-center">
                     <div className="w-100 mb-3">
                       <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                         <img
@@ -197,10 +197,10 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                   </div>
 
                   {/* 右側欄位：種類 / 體型 / 出生日期 / 疫苗日期 / 性別 / 是否結紮 / 備註 */}
-                  <div className="col-12 col-md-9">
+                  <div className="col-md-9">
                     <div className="row g-3">
                       {/* 種類 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">種類</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -236,7 +236,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 體型 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">體型</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -271,7 +271,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 出生日期 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">出生日期</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -302,7 +302,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 上次施打疫苗日期 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label">上次施打疫苗日期</label>
                         <div className="input-group rounded-pill overflow-hidden border border-warning">
                           <span
@@ -336,7 +336,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 性別 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label d-block">性別</label>
                         <div className="btn-group" role="group" aria-label="pet gender">
                           <input
@@ -379,7 +379,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 是否結紮 */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <label className="form-label d-block">是否結紮</label>
                         <div className="btn-group" role="group" aria-label="pet neuter">
                           <input
@@ -419,7 +419,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                       </div>
 
                       {/* 備註 */}
-                      <div className="col-12">
+                      <div>
                         <label className="form-label">備註</label>
                         <textarea
                           className="form-control"
@@ -437,32 +437,7 @@ function PetDetailModal({ key, ownerId, pet, innerRef, mode, setMode, setOwnerPe
                         />
                       </div>
 
-                      {/* 按鈕列 */}
-                      <div className="col-12 d-flex justify-content-end">
-                        {/* <button
-                          type="button"
-                          className="btn btn-secondary me-2"
-                          // onClick={() => {
-                          //   setIsAddingPet(false);
-                          //   setNewPet({
-                          //     name: "",
-                          //     species: "",
-                          //     size: "",
-                          //     birth_date: "",
-                          //     gender: "unknown",
-                          //     is_neutered: false,
-                          //     last_vaccination_date: "",
-                          //     note: "",
-                          //     photo_url: "",
-                          //   });
-                          // }}
-                        >
-                          取消
-                        </button> */}
-                        {/* <button type="submit" className="btn btn-primary">
-                          送出
-                        </button> */}
-                      </div>
+                      
                     </div>
                   </div>
                 </div>

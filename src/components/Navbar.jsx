@@ -152,7 +152,12 @@ const Navbar = () => {
               }} className="nav-link" to="/#aboutUs" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={shieldIcon} className="me-2" alt="shieldIcon" width="20" /><span className="fw-bold h5 mb-0">安心保障</span></HashLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></NavLink>
+              <HashLink scroll={(el) => {
+                // 稍微延遲，等 React 渲染穩定後再執行捲動
+                setTimeout(() => {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 200);
+              }} className="nav-link" to="/#faq" onClick={() => setIsMenuOpen(!isMenuOpen)}><img src={faqIcon} className="me-2" alt="faqIcon" width="20" /><span className="fw-bold h5 mb-0">FAQ</span></HashLink>
             </li>
           </ul>
 

@@ -371,7 +371,7 @@ function OwnerProfile() {
                         />
                       </div>
 
-                      <div className="col-12">
+                      <div>
                         <label className="form-label">地址</label>
                         <input className="form-control" {...register("default_pickup_address_detail")} />
                       </div>

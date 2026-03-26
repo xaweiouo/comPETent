@@ -546,7 +546,7 @@ function OwnerBookingDetail() {
                     <div className="rounded-4 p-4" style={{ backgroundColor: "#FFB22C33" }}>
                       <div className="row g-4 align-items-start">
                         {/* 左側：照片 + 名字 */}
-                        <div className="col-12 col-md-3 d-flex flex-column align-items-center">
+                        <div className="col-md-3 d-flex flex-column align-items-center">
                           <div className="w-100 mb-3">
                             <div className="ratio" style={{ "--bs-aspect-ratio": "133.33%" }}>
                               <img
@@ -560,7 +560,7 @@ function OwnerBookingDetail() {
                           </div>
 
                           {/* 名字 */}
-                          <div className="col-12">
+                          <div>
                             <label className="form-label">名字</label>
                             <div
                               className="form-control border-0 rounded-pill d-flex align-items-center"
@@ -574,10 +574,10 @@ function OwnerBookingDetail() {
                         </div>
 
                         {/* 右側欄位 */}
-                        <div className="col-12 col-md-9">
+                        <div className="col-md-9">
                           <div className="row g-3">
                             {/* 種類 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">種類</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
                                 <span
@@ -595,7 +595,7 @@ function OwnerBookingDetail() {
                             </div>
 
                             {/* 體型 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">體型</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
                                 <span
@@ -613,7 +613,7 @@ function OwnerBookingDetail() {
                             </div>
 
                             {/* 出生年（改用 date） */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">出生日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
                                 <span
@@ -629,7 +629,7 @@ function OwnerBookingDetail() {
                             </div>
 
                             {/* 上次施打疫苗日期 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label">上次施打疫苗日期</label>
                               <div className="input-group rounded-pill overflow-hidden border border-warning" style={{ backgroundColor: "#FEF3E2" }}>
                                 <span
@@ -647,7 +647,7 @@ function OwnerBookingDetail() {
                             </div>
 
                             {/* 性別 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">性別</label>
                               <div className="btn-group" role="group" aria-label="pet gender">
                                 <input
@@ -678,7 +678,7 @@ function OwnerBookingDetail() {
 
 
                             {/* 是否結紮 */}
-                            <div className="col-12 col-sm-6">
+                            <div className="col-sm-6">
                               <label className="form-label d-block">是否結紮</label>
                               <div className="btn-group" role="group" aria-label="pet neuter">
                                 <input
@@ -709,7 +709,7 @@ function OwnerBookingDetail() {
 
 
                             {/* 備註 */}
-                            <div className="col-12">
+                            <div>
                               <label className="form-label">備註</label>
                               <div
                                 className="form-control border-0 rounded-4"
@@ -745,7 +745,7 @@ function OwnerBookingDetail() {
                     {/* 內容 */}
                     <div className="row g-3 align-items-center booking-service-time-row">
                       {/* 從 */}
-                      <div className="col-12 d-flex align-items-center mb-1">
+                      <div className="d-flex align-items-center mb-1">
                         <span className="me-3 fw-bold">從</span>
 
                         {/* 日期 */}
@@ -765,7 +765,7 @@ function OwnerBookingDetail() {
                       </div>
 
                       {/* 到 */}
-                      <div className="col-12 d-flex align-items-center">
+                      <div className="d-flex align-items-center">
                         <span className="me-3 fw-bold">到</span>
 
                         {/* 日期 */}
@@ -800,7 +800,7 @@ function OwnerBookingDetail() {
                     {/* 內容 */}
                     <div className="row g-3 align-items-center booking-location-row">
                       {/* 縣市 */}
-                      <div className="col-12 col-sm-3">
+                      <div className="col-sm-3">
                         <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
                           {bookingData?.location?.city
                             ? bookingData.location.city
@@ -809,7 +809,7 @@ function OwnerBookingDetail() {
                       </div>
 
                       {/* 地區 */}
-                      <div className="col-12 col-sm-3">
+                      <div className="col-sm-3">
                         <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
                           {bookingData?.location?.district
                             ? bookingData.location.district
@@ -818,7 +818,7 @@ function OwnerBookingDetail() {
                       </div>
 
                       {/* 詳細地址（吃剩餘寬度） */}
-                      <div className="col-12 col-sm-6">
+                      <div className="col-sm-6">
                         <div className="form-control rounded-pill border border-warning background-transparent d-flex align-items-center">
                           {bookingData?.booking.pickup_address_detail || "（無詳細地址資訊）"}
                         </div>

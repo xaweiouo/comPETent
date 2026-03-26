@@ -447,12 +447,12 @@ const Home = () => {
         </div>
 
       </section >
-      <section className="container mb-9">
+      <section id='faq' className="container mb-9">
         <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={faqIcon} className="me-3" alt="faqIcon" width="32" />FAQ</h2>
         <div className="row mb-7">
           <h4 className="text-info fw-bold title-owner mb-10">我是飼主</h4>
           {faqList.map((sitter, index) => (
-            <div key={index} className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10 ">
+            <div key={index} className="bg-white rounded-5 mb-7 ps-6 pe-7 py-10 ">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="mb-1 fw-bold">{sitter.question}</span>
                 <button className="btn" type="button" 
@@ -471,7 +471,7 @@ const Home = () => {
         </div>
         <div className="row">
           <h4 className="text-info fw-bold title-owner mb-10">我是保母</h4>
-          <div className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10">
+          <div className="bg-white rounded-5 mb-7 ps-6 pe-7 py-10">
             <div className="d-flex justify-content-between align-items-center">
               <span className="mb-1 fw-bold">comPETent 的保母值得信任嗎？</span><button className="btn" type="button" 
               // data-bs-toggle="collapse" data-bs-target="#collapse_01" aria-expanded="false" aria-controls="collapse_01" 

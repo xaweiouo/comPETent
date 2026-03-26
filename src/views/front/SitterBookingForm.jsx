@@ -257,7 +257,7 @@ function SitterBookingForm() {
         .is("deleted_at", null); // 只拿還在用的
 
       if (error) {
-        console.error("載入接送地點失敗", error);
+        dispatch(createAsyncMessage(error));
         return;
       }
 
