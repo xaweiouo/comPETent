@@ -271,7 +271,7 @@ function SitterBookingForm() {
     }
 
     fetchLocations();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     // 一進預約頁就把畫面捲回頂端，體感跟重新載入一樣

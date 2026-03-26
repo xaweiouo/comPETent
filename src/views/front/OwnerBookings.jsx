@@ -81,8 +81,8 @@ function OwnerBookings() {
       // 可以發送成功訊息
       dispatch(createAsyncMessage({ text: "預約已成功刪除", type: "success" }));
 
-    } catch (error) {
-      dispatch(createAsyncMessage({ text: "刪除失敗，請稍後再試", type: "danger" }));
+    } catch {
+      dispatch(createAsyncMessage({ text: "出了點狀況，無法刪除預約", type: "danger" }));
     }
   };
 
