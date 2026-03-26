@@ -455,7 +455,9 @@ const Home = () => {
             <div key={index} className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10 ">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="mb-1 fw-bold">{sitter.question}</span>
-                <button className="btn" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse_${index}`} aria-expanded="false" aria-controls={`collapse_${index}`} onClick={() => setActiveIndex(activeIndex === index ? null : index)}>
+                <button className="btn" type="button" 
+                // data-bs-toggle="collapse" data-bs-target={`#collapse_${index}`} aria-expanded="false" aria-controls={`collapse_${index}`} 
+                onClick={() => setActiveIndex(activeIndex === index ? null : index)}>
                   <i className={`bi ${activeIndex === index ? "bi-dash-lg" : "bi-plus-lg"} text-primary fs-4`}></i>
                 </button>
               </div>
@@ -471,7 +473,9 @@ const Home = () => {
           <h4 className="text-info fw-bold title-owner mb-10">我是保母</h4>
           <div className="col-12 bg-white rounded-5 mb-7 ps-6 pe-7 py-10">
             <div className="d-flex justify-content-between align-items-center">
-              <span className="mb-1 fw-bold">comPETent 的保母值得信任嗎？</span><button className="btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_01" aria-expanded="false" aria-controls="collapse_01" onClick={() => setOpen(!open)}>
+              <span className="mb-1 fw-bold">comPETent 的保母值得信任嗎？</span><button className="btn" type="button" 
+              // data-bs-toggle="collapse" data-bs-target="#collapse_01" aria-expanded="false" aria-controls="collapse_01" 
+              onClick={() => setOpen(!open)}>
                 <i className={`bi ${open ? "bi-dash-lg" : "bi-plus-lg"} text-primary fs-4`}></i>
               </button>
             </div>
