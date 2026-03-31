@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import { createAsyncMessage } from "../../slices/messageSlice";
 import { starRating } from "../../utils/starRating";
 import { FavoriteButton } from "../../utils/FavoriteButton";
+import locationIcon from "../../images/icons/location_icon.png";
 function FavSitter() {
   const { id, user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
@@ -105,9 +106,8 @@ function FavSitter() {
 
   return (
     <>
-      {/* {JSON.stringify(favList)} */}
-      <h2 className="ms-3 text-primary text-center mb-6" >我收藏的保母</h2>
-      <section id="nearby-sitter-section" className="lookfor-sitter-list py-4">
+      <h2 className="ms-3 text-primary text-center">我收藏的保母</h2>
+      <section id="nearby-sitter-section" className="lookfor-sitter-list py-3">
         <div className="container">
 
           {/* 載入中提示 */}
@@ -190,7 +190,6 @@ function FavSitter() {
 
                               {card.rating != null && (
                                 <span className="text-warning small">
-                                  {/* {"★".repeat(Math.round(card.rating))}{" "} */}
                                   {starRating(card.rating)}
                                   <span className="text-muted">
                                     ({card.rating.toFixed(1)})
@@ -200,50 +199,54 @@ function FavSitter() {
                             </div>
                             <FavoriteButton
                               serviceId={card.serviceId}
-                              sitterId={card.sitterId}
+                              sitterId={card.sitter_id}
                               ownerId={id}
                               isFavorite={card.isFavorite}
                               isAuthenticated={isAuthenticated}
                               user={user}
-                              onToggleDone={(willFavorite) => {
-                                // 更新當前頁面的 cards
-                                setCards((prev) =>
-                                  prev.map((c) =>
-                                    c.serviceId === card.serviceId
-                                      ? { ...c, isFavorite: willFavorite }
-                                      : c
-                                  )
-                                );
-                                // 同步更新整包 allCards（避免換頁後收藏狀態跑掉）
-                                setAllCards((prev) =>
-                                  prev.map((c) =>
-                                    c.serviceId === card.serviceId
-                                      ? { ...c, isFavorite: willFavorite }
-                                      : c
-                                  )
-                                );
-                              }}
+                              onToggleDone={()=>{
+                                setFavList(prev=>prev.filter(item=>item.sitter_id !== card.sitter_id))
+                              }
+                              //   (willFavorite) => {
+                              //   // 更新當前頁面的 cards
+                              //   setCards((prev) =>
+                              //     prev.map((c) =>
+                              //       c.serviceId === card.serviceId
+                              //         ? { ...c, isFavorite: willFavorite }
+                              //         : c
+                              //     )
+                              //   );
+                              //   // 同步更新整包 allCards（避免換頁後收藏狀態跑掉）
+                              //   setAllCards((prev) =>
+                              //     prev.map((c) =>
+                              //       c.serviceId === card.serviceId
+                              //         ? { ...c, isFavorite: willFavorite }
+                              //         : c
+                              //     )
+                              //   );
+                              // }
+                            }
                             />
 
                           </div>
 
                           {/* 服務寵物 + 地區 */}
                           <div className="card-meta-row d-flex justify-content-between align-items-center mb-2">
-                            {/* <div className="d-flex align-items-center gap-2">
+                            <div className="d-flex align-items-center gap-2">
                               <span className="card-label-title">服務寵物</span>
                               <span className="border text-black badge rounded-pill card-chip">
-                                {speciesLabelMap[card.species] ?? card.species}
+                                {card.species}
                               </span>
-                            </div> */}
+                            </div>
                             <div className="d-flex align-items-center text-muted small gap-1">
                               <img
-                                // src={locationIcon}
+                                src={locationIcon}
                                 alt="location"
                                 width="16"
                                 height="16"
                               />
-                              <span>{card.city}</span>
-                              <span>{card.district}</span>
+                              <span>{card.location.city}</span>
+                              <span>{card.location.district}</span>
                             </div>
                           </div>
 
