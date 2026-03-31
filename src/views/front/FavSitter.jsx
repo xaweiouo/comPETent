@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabaseClient";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { TailSpin } from "react-loader-spinner";
 import { useNavigate } from "react-router";
 import { createAsyncMessage } from "../../slices/messageSlice";
@@ -11,8 +11,9 @@ function FavSitter() {
   const { id, user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [favList, setFavList] = useState(null);
+  // const [isBooking, setIsBooking] = useState(false);
+  // const [bookingData, setBookingData] = useState({});
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   //把價錢三元運算子抽成一個小函式
   const formatPrice = (card) => {
@@ -63,9 +64,12 @@ function FavSitter() {
         location:locations ( 
           city, 
           district 
+        ),bookings (
+          id
         )
       `)
-          .in('sitter_id', sitterIds); // 使用 .in 篩選
+          .in('sitter_id', sitterIds) // 使用 .in 篩選
+          .eq('bookings.owner_id', id);
 
         if (error) throw error;
 
@@ -77,14 +81,14 @@ function FavSitter() {
           imageUrl: item.photo_url,
           city: item.locations?.city,
           district: item.locations?.district,
-          isFavorite: true
+          isFavorite: true,
+          isBooking: item.bookings && item.bookings.length > 0
         }));
 
         setFavList(formattedData);
         setLoading(false);
       } catch (error) {
         createAsyncMessage(error);
-        console.error("Supabase Select Error Detail:", error.message);
       }
     };
     init(id);
@@ -204,28 +208,28 @@ function FavSitter() {
                               isFavorite={card.isFavorite}
                               isAuthenticated={isAuthenticated}
                               user={user}
-                              onToggleDone={()=>{
-                                setFavList(prev=>prev.filter(item=>item.sitter_id !== card.sitter_id))
+                              onToggleDone={() => {
+                                setFavList(prev => prev.filter(item => item.sitter_id !== card.sitter_id))
                               }
-                              //   (willFavorite) => {
-                              //   // 更新當前頁面的 cards
-                              //   setCards((prev) =>
-                              //     prev.map((c) =>
-                              //       c.serviceId === card.serviceId
-                              //         ? { ...c, isFavorite: willFavorite }
-                              //         : c
-                              //     )
-                              //   );
-                              //   // 同步更新整包 allCards（避免換頁後收藏狀態跑掉）
-                              //   setAllCards((prev) =>
-                              //     prev.map((c) =>
-                              //       c.serviceId === card.serviceId
-                              //         ? { ...c, isFavorite: willFavorite }
-                              //         : c
-                              //     )
-                              //   );
-                              // }
-                            }
+                                //   (willFavorite) => {
+                                //   // 更新當前頁面的 cards
+                                //   setCards((prev) =>
+                                //     prev.map((c) =>
+                                //       c.serviceId === card.serviceId
+                                //         ? { ...c, isFavorite: willFavorite }
+                                //         : c
+                                //     )
+                                //   );
+                                //   // 同步更新整包 allCards（避免換頁後收藏狀態跑掉）
+                                //   setAllCards((prev) =>
+                                //     prev.map((c) =>
+                                //       c.serviceId === card.serviceId
+                                //         ? { ...c, isFavorite: willFavorite }
+                                //         : c
+                                //     )
+                                //   );
+                                // }
+                              }
                             />
 
                           </div>
@@ -277,17 +281,27 @@ function FavSitter() {
                             >
                               詳情
                             </button>
-                            <button className="btn btn-gradint-primary btn-sm rounded-pill"
-                              onClick={() => {
-                                navigate(`/lookforpetsitter/${card.serviceId}/booking`, {
-                                  state: {
-                                    serviceId: card.serviceId,
-                                    sitterId: card.sitterId,
-                                  },
-                                });
-                              }}>
-                              預約
-                            </button>
+
+                            {/* {card.isBooking ? (
+                              <button className="btn btn-outline-primary btn-sm rounded-pill"
+                                onClick={() => {
+                                  navigate(`/owner/bookings/${card.bookings.id}`);
+                                }}>
+                                已預約，看訂單
+                              </button>
+                            ) : (
+                              <button className="btn btn-outline-primary btn-sm rounded-pill"
+                                onClick={() => {
+                                  navigate(`/lookforpetsitter/${card.serviceId}/booking`, {
+                                    state: {
+                                      serviceId: card.serviceId,
+                                      sitterId: card.sitterId,
+                                    },
+                                  });
+                                }}>
+                                預約
+                              </button>
+                            )} */}
                           </div>
                         </div>
 
