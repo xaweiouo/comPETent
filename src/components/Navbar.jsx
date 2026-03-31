@@ -189,6 +189,7 @@ const Navbar = () => {
                   <ul className={openSection === 'owner' ? 'd-block' : 'd-none'}>
                     <li><NavLink to='ownerprofile' className='text-decoration-none text-reset'>查看個人資料</NavLink></li>
                     <li><NavLink to='ownerbookings' className='text-decoration-none text-reset'>查看訂單</NavLink></li>
+                    <li><NavLink to='favsitter' className='text-decoration-none text-reset'>查看收藏的保母</NavLink></li>
                   </ul>
                   {/* 保母 */}
                   {/* {(role === "sitter" || role === "admin") && (
