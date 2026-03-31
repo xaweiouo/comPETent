@@ -477,7 +477,7 @@ const SitterServiceDetail = () => {
             >
 
               {/* 單一評論卡片 */}
-              {
+              {reviews && reviews.length > 0? (
                 reviews.map(review =>
                   <div key={review.id} className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
@@ -505,6 +505,7 @@ const SitterServiceDetail = () => {
                     </div>
                   </div>
                 )
+              ):(<p className="text-center text-primary fs-4">目前沒有評價，等您的預約與好評 !</p>)
               }
 
             </div>
