@@ -110,7 +110,7 @@ const Navbar = () => {
   }, [location.pathname]);    // 監聽路徑變化
 
   return (
-    <nav className="container">
+    <nav className="container sticky-top">
       <div className="nav-capsule mt-7 mb-6">
         {/* 左側：Logo */}
         <NavLink to="/">
@@ -177,7 +177,7 @@ const Navbar = () => {
                 </a>
                 {/* 下拉選單 */}
                 <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
-                  <li onClick={(e) => toggleDropdown(e)}><NavLink className="dropdown-item" to="ownerprofile">基本資料</NavLink></li>
+                  {/* <li onClick={(e) => toggleDropdown(e)}><NavLink className="dropdown-item" to="ownerprofile">基本資料</NavLink></li> */}
                   {/* 飼主 */}
                   {/* {(role === "owner" || role === "sitter" || role === "admin") && (
                   )} */}
