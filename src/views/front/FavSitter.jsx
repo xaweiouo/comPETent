@@ -3,12 +3,24 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TailSpin } from "react-loader-spinner";
 import { useNavigate } from "react-router";
+import { createAsyncMessage } from "../../slices/messageSlice";
+import { starRating } from "../../utils/starRating";
+import { FavoriteButton } from "../../utils/FavoriteButton";
 function FavSitter() {
-  const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
+  const { id, user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
-  const [ownerId, setOwnerId] = useState(null);
+  const [favList, setFavList] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  //把價錢三元運算子抽成一個小函式
+  const formatPrice = (card) => {
+    if (card.pricePer30min != null) return `NT$ ${card.pricePer30min} / 30分鐘`;
+    if (card.pricePerDay != null) return `NT$ ${card.pricePerDay} / 天`;
+    if (card.pricePerSession != null) return `NT$ ${card.pricePerSession} / 次`;
+    return "";
+  };
+
   useEffect(() => {
     if (isAuthLoading) return;
 
@@ -19,60 +31,63 @@ function FavSitter() {
       return () => clearTimeout(timer);
     }
 
-    // 有登入而且有 email 才去查 users.id
-    const init = async () => {
-      //又是可選鏈 
-      //如果 user 是 null 或 undefined，整個 user?.email 直接變成 undefined，不會因為去讀 user.email 而噴錯
-      // 如果還沒登入，或是雖然說登入了但 user 上沒有 email，就不要去查 users.id，直接當作 ownerId 無效，避免不必要的查詢和錯誤
-      if (!isAuthenticated || !user?.email) {
-        setOwnerId(null);
-        return;
+
+    const init = async (id) => {
+      try {
+        // 1. 抓取收藏清單中的所有保母 ID
+        const { data: favData, error: favError } = await supabase
+          .from('favorites')
+          .select('sitter_id')
+          .eq('owner_id', id);
+
+        if (favError) throw favError;
+        if (!favData || favData.length === 0) {
+          setFavList([]);
+          setLoading(false);
+          return;
+        }
+
+        const sitterIds = favData.map(f => f.sitter_id);
+
+        // 2. 根據保母 ID 抓取服務與相關資訊
+        const { data, error } = await supabase
+          .from('services')
+          .select(`
+        *,
+        sitter:users!services_sitter_id_fkey ( 
+          name,
+          nickname,
+          avatar_url
+        ),
+        location:locations ( 
+          city, 
+          district 
+        )
+      `)
+          .in('sitter_id', sitterIds); // 使用 .in 篩選
+
+        if (error) throw error;
+
+        const formattedData = data.map(item => ({
+          ...item,
+          serviceId: item.id,
+          sitterName: item.sitter?.nickname || item.sitter?.name,
+          sitterAvatar: item.sitter?.avatar_url,
+          imageUrl: item.photo_url,
+          city: item.locations?.city,
+          district: item.locations?.district,
+          isFavorite: true
+        }));
+
+        setFavList(formattedData);
+        setLoading(false);
+      } catch (error) {
+        createAsyncMessage(error);
+        console.error("Supabase Select Error Detail:", error.message);
       }
-
-      const { data: userRow, error: userError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("email", user.email)
-        .single();
-
-      if (userError || !userRow) {
-        dispatch(createAsyncMessage(userError));
-        setOwnerId(null);
-        return;
-      }
-
-      setOwnerId(userRow.id); // favorites.owner_id 要用的 int
     };
-
-    init();
-
-
-    // const fetchInitialData = async () => {
-    //   try {
-    //     // 從 users 出發
-    //     const { data, error } = await supabase
-    //       .from('users')
-    //       .select()
-    //       .eq('email', user.email)
-    //       .maybeSingle();
-
-    //     if (error) throw error;
-
-    //     if (data) {
-    //       // 拆分資料存入不同的 State
-    //       // setOwnerProfile(data);
-    //       setOwnerPets(data.pets || []);
-    //       setOwnerBooking(data.bookings || []);
-    //       setLoading(false);
-    //     }
-    //   } catch (error) {
-    //     dispatch(createAsyncMessage(error));
-    //   }
-    // };
-    // // 登入後，只在初始化時跑這一次
-    // fetchInitialData();
-
-  }, [isAuthenticated, isAuthLoading, user, navigate, dispatch]);
+    init(id);
+  }, [isAuthenticated, isAuthLoading, id, navigate]);
 
   if (!isAuthenticated) {
     return (
@@ -90,6 +105,7 @@ function FavSitter() {
 
   return (
     <>
+      {/* {JSON.stringify(favList)} */}
       <h2 className="ms-3 text-primary text-center mb-6" >我收藏的保母</h2>
       <section id="nearby-sitter-section" className="lookfor-sitter-list py-4">
         <div className="container">
@@ -144,7 +160,7 @@ function FavSitter() {
 
           {/* 卡片輪播 */}
           <div className="row">
-            {cards.map((card) => (
+            {favList.map((card) => (
               <div
                 key={card.serviceId}
                 className="col-12 mb-4"
@@ -185,7 +201,7 @@ function FavSitter() {
                             <FavoriteButton
                               serviceId={card.serviceId}
                               sitterId={card.sitterId}
-                              ownerId={ownerId}
+                              ownerId={id}
                               isFavorite={card.isFavorite}
                               isAuthenticated={isAuthenticated}
                               user={user}
@@ -213,15 +229,15 @@ function FavSitter() {
 
                           {/* 服務寵物 + 地區 */}
                           <div className="card-meta-row d-flex justify-content-between align-items-center mb-2">
-                            <div className="d-flex align-items-center gap-2">
+                            {/* <div className="d-flex align-items-center gap-2">
                               <span className="card-label-title">服務寵物</span>
                               <span className="border text-black badge rounded-pill card-chip">
                                 {speciesLabelMap[card.species] ?? card.species}
                               </span>
-                            </div>
+                            </div> */}
                             <div className="d-flex align-items-center text-muted small gap-1">
                               <img
-                                src={locationIcon}
+                                // src={locationIcon}
                                 alt="location"
                                 width="16"
                                 height="16"
@@ -283,70 +299,6 @@ function FavSitter() {
                 </div>
               </div>
             ))}
-          </div>
-
-
-
-
-
-          {/* 分頁按鈕 */}
-          <div className="d-flex justify-content-center align-items-center my-4">
-            {/* 左箭頭 */}
-            <button
-              type="button"
-              className="btn btn-link p-0 me-3"
-              disabled={currentPage === 1}
-              onClick={() => {
-                if (currentPage === 1) return;
-                const newPage = currentPage - 1;
-                goToPage(newPage);
-              }}
-              style={{ color: currentPage === 1 ? "#ccc" : "#ff6600" }}
-            >
-              <i className="bi bi-chevron-left" style={{ fontSize: "1.4rem" }}></i>
-            </button>
-
-            {/* 中間頁碼 */}
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                type="button"
-                className="btn mx-1"
-                onClick={() => {
-                  if (page === currentPage) return;
-                  goToPage(page);
-                }}
-                style={{
-                  borderRadius: "999px",
-                  minWidth: "36px",
-                  height: "36px",
-                  padding: 0,
-                  lineHeight: "36px",
-                  fontWeight: page === currentPage ? "600" : "400",
-                  backgroundColor:
-                    page === currentPage ? "#ff6600" : "transparent",
-                  color: page === currentPage ? "#fff" : "#333",
-                  border: "none",
-                }}
-              >
-                {page}
-              </button>
-            ))}
-
-            {/* 右箭頭 */}
-            <button
-              type="button"
-              className="btn btn-link p-0 ms-3"
-              disabled={currentPage === totalPages}
-              onClick={() => {
-                if (currentPage === totalPages) return;
-                const newPage = currentPage + 1;
-                goToPage(newPage);
-              }}
-              style={{ color: currentPage === totalPages ? "#ccc" : "#ff6600" }}
-            >
-              <i className="bi bi-chevron-right" style={{ fontSize: "1.4rem" }}></i>
-            </button>
           </div>
         </div>
       </section>

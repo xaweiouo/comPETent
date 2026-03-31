@@ -198,10 +198,22 @@ const SitterServiceDetail = () => {
 
   return (
     <>
-      <div className="">
-        <div className="container">
-          <img src={left_chevron_icon} alt="left_chevron_icon" />
-          <Link to='/lookforpetsitter' className="ms-2 text-decoration-none">返回</Link>
+      <div>
+        <div className="container d-flex align-items-center mb-2">
+          <img src={left_chevron_icon} alt="left_chevron_icon"/>
+          {/* <button className="btn btn-link p-0 booking-back-btn mb-3"
+              onClick={() => {
+                // 優先回上一頁
+                navigate(-1);
+              }}
+            >
+              <h5 className="ms-2">返回</h5>
+            </button> */}
+          <p onClick={() => {
+                navigate(-1);
+              }} className="text-primary ms-2"
+              style={{cursor:'pointer',marginBottom: '0px'}}
+              >返回</p>
         </div>
 
         {/* 輪播 */}
