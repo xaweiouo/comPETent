@@ -6,12 +6,16 @@ import { supabase } from "../lib/supabaseClient";
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
+    id: null,
     user: null,
     role:null,
     isAuthenticated: false,
     isAuthLoading: true, // 預設為 true，代表正在確認身分
   },
   reducers: {
+    setUserId:(state,action)=>{
+      state.id=action.payload;
+    },
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
@@ -33,6 +37,7 @@ const authSlice = createSlice({
       
     },
     setLogout: (state) => {
+      state.id = null;
       state.user = null;
       state.role = null;
       state.isAuthenticated = false;
@@ -63,6 +68,8 @@ export const fetchUserPermissions = createAsyncThunk(
 
       if (rolesError) throw rolesError;
 
+
+      dispatch(setUserId(userData.id))
       dispatch(setUser(payload))
       dispatch(setRole(rolesData))
 
@@ -73,5 +80,5 @@ export const fetchUserPermissions = createAsyncThunk(
   }
 );
 
-export const { setUser, setLogout,setRole,updateUserInfo } = authSlice.actions;
+export const { setUserId,setUser, setLogout,setRole,updateUserInfo } = authSlice.actions;
 export default authSlice.reducer;

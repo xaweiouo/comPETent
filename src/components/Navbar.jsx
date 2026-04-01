@@ -110,7 +110,7 @@ const Navbar = () => {
   }, [location.pathname]);    // 監聽路徑變化
 
   return (
-    <nav className="container">
+    <nav className="container sticky-top">
       <div className="nav-capsule mt-7 mb-6">
         {/* 左側：Logo */}
         <NavLink to="/">
@@ -177,18 +177,19 @@ const Navbar = () => {
                 </a>
                 {/* 下拉選單 */}
                 <ul className={`dropdown-menu ${isDropdownOpen ? 'show' : ''}`} aria-labelledby="dropdownMenuLink">
-                  <li onClick={(e) => toggleDropdown(e)}><NavLink className="dropdown-item" to="ownerprofile">基本資料</NavLink></li>
+                  {/* <li onClick={(e) => toggleDropdown(e)}><NavLink className="dropdown-item" to="ownerprofile">基本資料</NavLink></li> */}
                   {/* 飼主 */}
                   {/* {(role === "owner" || role === "sitter" || role === "admin") && (
                   )} */}
                   <li onClick={() => toggleSection('owner')}>
-                    <a className="dropdown-item">
+                    <button className="dropdown-item">
                       我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
-                    </a>
+                    </button>
                   </li>
                   <ul className={openSection === 'owner' ? 'd-block' : 'd-none'}>
                     <li><NavLink to='ownerprofile' className='text-decoration-none text-reset'>查看個人資料</NavLink></li>
                     <li><NavLink to='ownerbookings' className='text-decoration-none text-reset'>查看訂單</NavLink></li>
+                    <li><NavLink to='favsitter' className='text-decoration-none text-reset'>查看收藏的保母</NavLink></li>
                   </ul>
                   {/* 保母 */}
                   {/* {(role === "sitter" || role === "admin") && (
@@ -207,7 +208,7 @@ const Navbar = () => {
                   {role === "admin" && (
                     <li><a className="dropdown-item" href="#">管理平台</a></li>
                   )}
-                  <li><a className="dropdown-item" onClick={() => logout()}>登出</a></li>
+                  <li><button className="dropdown-item" onClick={() => logout()}>登出</button></li>
                 </ul>
               </div>
             </div>
