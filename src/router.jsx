@@ -16,6 +16,7 @@ import AdminBookings from "./views/admin/AdminBookings";
 import AdminUsers from "./views/admin/AdminUsers";
 import AdminLogin from "./views/admin/AdminLogin";
 import OwnerBookings from "./views/front/OwnerBookings";
+import FavSitter from "./views/front/FavSitter";
 
 
 export const router = createHashRouter([
@@ -46,6 +47,10 @@ export const router = createHashRouter([
       {
         path: "ownerbookings",
         element: <OwnerBookings />,
+      },
+      {
+        path: "favsitter",
+        element: <FavSitter />,
       },
       {
         path: "servicedeploy",

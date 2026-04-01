@@ -113,9 +113,9 @@ function Login() {
                       {errors.password && <p className="text-danger">{errors.password.message}</p>}
                     </div>
                     <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>{isSubmitting ? '登入中...' : '登入'}</button>
-                    <div className='d-flex mt-3'>
+                    {/* <div className='d-flex mt-3'>
                       <a className='ms-auto me-3' onClick={() => navigate('/signup')}>註冊成為comPETent會員</a>
-                    </div>
+                    </div> */}
                   </form>
                 </div>
               </div>

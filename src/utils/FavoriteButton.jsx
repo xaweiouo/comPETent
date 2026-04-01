@@ -13,9 +13,14 @@ export function FavoriteButton({
 }) {
   const dispatch = useDispatch();
   const handleClick = async () => {
-    // 未登入：只做前端效果
+    // 未登入：提示需登入
     if (!isAuthenticated || !user) {
-      onToggleDone(!isFavorite);
+      dispatch(
+        createAsyncMessage({
+          type: "warning",
+          text: "請先登入會員，才能收藏保姆服務喔！",
+        })
+      );
       return;
     }
 
@@ -58,6 +63,13 @@ export function FavoriteButton({
 
     // 後端成功，再通知父層更新 state
     onToggleDone(willFavorite);
+    
+    dispatch(
+      createAsyncMessage({
+        type: "success",
+        text: willFavorite ? "已加入收藏" : "已取消收藏",
+      })
+    );
   };
 
   return (

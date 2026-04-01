@@ -10,16 +10,14 @@ import ownerIcon from "../../images/icons/owner_icon.png"
 import sitterIcon from "../../images/icons/sitter_icon.png"
 import loveIcon from "../../images/icons/love_icon.png"
 import faqIcon from "../../images/icons/faq_icon.png"
+import feetToTopIcon from "../../images/icons/feet_to_top.png"
+import feetToBotIcon from "../../images/icons/feet_to_bottom.png"
 import { useNavigate } from 'react-router';
 import { supabase } from "../../lib/supabaseClient";
 import { PET_SPECIES_OPTIONS } from "../../utils/options"
 import { useDispatch } from 'react-redux';
 import { createAsyncMessage } from '../../slices/messageSlice';
-// import { createClient } from "@supabase/supabase-js";
 
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-// const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Home = () => {
   const [open, setOpen] = useState(false);
@@ -238,47 +236,50 @@ const Home = () => {
         <h2 className="text-center mb-4 mb-md-8 text-primary fw-bold"><img src={flowIcon} className="me-3" alt="flowIcon" width="32" />服務流程</h2>
         <div className="row">
           <div className="col-6">
-            <div className="d-flex flex-column flex-md-row align-items-center">
+            <div className="d-flex flex-column flex-lg-row align-items-center">
               <div className="bg-box mb-3 mb-md-0">
                 <img src={ownerIcon} className="flex-shrink-0" alt="ownerIcon" width="92" />
               </div>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">篩選需要的保姆服務</div>
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+              <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">選擇中意的保姆服務</div>
             </div>
           </div>
-          <div className="d-block d-md-none col-6">
-            <div className="d-flex flex-column flex-md-row align-items-center">
+          <div className="d-block d-lg-none col-6">
+            <div className="d-flex flex-column flex-lg-row align-items-center">
               <div className="bg-box mb-3 mb-md-0">
                 <img src={sitterIcon} className="flex-shrink-0" alt="sitterIcon" width="92" />
               </div>
               <div className="fs-6 fs-lg-1 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">上傳良民證審核</div>
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+              <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">通過並發布服務</div>
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+              <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">等待飼主預約</div>
             </div>
           </div>
         </div>
         <div className="row justify-content-md-end">
-          <div className="col-md-6">
-            <div className="d-flex flex-column flex-md-row justify-content-end  align-items-center">
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+          <div className="">
+            <div className="d-flex flex-column flex-lg-row justify-content-end  align-items-center">
+              <img src={feetToBotIcon} alt="feetToBotIcon" className='d-none d-xl-block me-6'/>
+              <img src={feetToTopIcon} alt="feetToTopIcon" className='d-none d-xl-block me-6'/>
+              <img src={feetToBotIcon} alt="feetToBotIcon" className='d-none d-xl-block me-6'/>
+              {/* <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i> */}
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">確認服務細節</div>
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+              <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">付款後成立訂單</div>
-              <i className="d-none d-md-block bi bi-arrow-right ms-1 text-info fs-4"></i>
-              <i className="d-block d-md-none bi bi-arrow-down ms-1 text-info fs-4"></i>
+              <i className="d-none d-lg-block bi bi-arrow-right ms-1 text-info fs-4"></i>
+              <i className="d-block d-lg-none bi bi-arrow-down ms-1 text-info fs-4"></i>
               <div className="fs-6 ms-1 bg-white rounded-4 border border-secondary py-7 px-10">完成訂單並給予評價</div>
             </div>
           </div>
         </div>
-        <div className="d-none d-md-block row">
+        <div className="d-none d-lg-block row">
           <div className="col-md-7">
             <div className="d-flex flex-column flex-md-row align-items-center">
               <div className="bg-box mb-3 mb-md-0">

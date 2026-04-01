@@ -2,7 +2,6 @@
 // import { useState } from 'react'
 import { supabase } from "./lib/supabaseClient";
 
-
 import { RouterProvider } from "react-router";
 import { router } from "./router";
 import { useDispatch } from "react-redux";
@@ -10,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { setLogout, fetchUserPermissions } from "./slices/authSlice";
 import MessageToast from "./components/MessageToast";
+// import ScrollToTop from "./components/ScrollToTop";
 
 
 function App() {
@@ -39,6 +39,7 @@ function App() {
 
   return (
     <>
+      {/* <ScrollToTop /> */}
       <MessageToast />
       <RouterProvider router={router} />
     </>
