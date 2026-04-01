@@ -200,7 +200,7 @@ function SitterBookingForm() {
     pickup_city: "",
     pickup_district: "",
     pickup_location_id: null, // 對應 locations.id（之後送出用）
-    pickup_address_detail: "公益路 26 號",
+    pickup_address_detail: "",
     note: "",
   });
 
@@ -552,6 +552,27 @@ function SitterBookingForm() {
       );
       return;
     }
+
+    // 一律必填地點
+  if (!bookingForm.pickup_location_id) {
+    dispatch(
+      createAsyncMessage({
+        message: "請選擇接送地區",
+        status: "warning",
+      })
+    );
+    return;
+  }
+
+  if (!pickup_address_detail) {
+    dispatch(
+      createAsyncMessage({
+        message: "請填寫詳細地址",
+        status: "warning",
+      })
+    );
+    return;
+  }
 
     // 2) 透過工具函式，從目前登入狀態取得 owner_id（users.id）
     const ownerResult = await getOwnerIdFromAuth();
@@ -1558,14 +1579,14 @@ function SitterBookingForm() {
                                 <>
                                   <button
                                     type="button"
-                                    className="btn btn-gradint-primary me-2"
+                                    className="btn btn-warning btn-gradint-primary me-2"
                                     onClick={handleSavePet}
                                   >
                                     保存
                                   </button>
                                   <button
                                     type="button"
-                                    className="btn btn-secondary"
+                                    className="btn btn-outline-secondary"
                                     onClick={handleCancelEdit}
                                   >
                                     取消
@@ -1574,7 +1595,7 @@ function SitterBookingForm() {
                               ) : (
                                 <button
                                   type="button"
-                                  className="btn btn-gradint-secondary"
+                                  className="btn btn-outline-primary btn-gradint-secondary"
                                   onClick={handleEditPet}
                                 >
                                   編輯

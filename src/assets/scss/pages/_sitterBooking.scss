@@ -94,16 +94,35 @@ $black-800: #353535;
 .pet-toggle-pill {
   border-radius: 999px;
   padding: 0.35rem 1.1rem;
-  border: 2px solid rgba($warning, 0.6); // Bootstrap 的 $warning
-  background-color: #fff;
+  border: 2px solid rgba($warning, 0.6);
+  background-color: #FEF3E2;
   color: $dark;
   font-weight: 700;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* 被選中狀態：框加深，接近設計稿「實線橘圈」 */
-.btn-check:checked + .pet-toggle-pill {
+.btn.pet-toggle-pill:hover {
+  background-color: #FEF3E2;
   border-color: $warning;
+  color: $warning;
+  box-shadow: 0 0 0 2px rgba($warning, 0.2);
 }
+
+.btn-check:checked + .pet-toggle-pill {
+  // background-color: $primary;
+  background: linear-gradient(180deg, #ff8a00 0%, #ff6a00 100%);
+  border-color: $warning;
+  // border: $secondary solid 2px;
+  border: 2px solid #ff8a00;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 178, 44, 0.35);
+}
+
+// 未選中的按鈕不會再灰成像快蒸發
+.btn-check:disabled + .pet-toggle-pill {
+  opacity: 1;
+}
+
 
 @media (max-width: 768px) {
   /* 讓整行有空間換行，但保持主方向橫排 */
@@ -183,6 +202,7 @@ $black-800: #353535;
   overflow: hidden;           // 超出就隱藏
   text-overflow: ellipsis;    // 超出顯示 …
 }
+
 @media (max-width: 768px) {
   /* 每張卡片在手機寬度改成吃滿一行 */
   .pet-card {
