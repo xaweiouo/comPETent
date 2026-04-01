@@ -10,6 +10,7 @@ import ownerIcon from "../../images/icons/owner_icon.png"
 import sitterIcon from "../../images/icons/sitter_icon.png"
 import loveIcon from "../../images/icons/love_icon.png"
 import faqIcon from "../../images/icons/faq_icon.png"
+import locationIcon from "../../images/icons/location_icon.png"
 import feetToTopIcon from "../../images/icons/feet_to_top.png"
 import feetToBotIcon from "../../images/icons/feet_to_bottom.png"
 import { useNavigate } from 'react-router';
@@ -202,7 +203,7 @@ const Home = () => {
                       </div>
                       <div className="card-body">
                         <div className="card-text d-flex flex-column justify-content-center align-items-center">
-                          <p className="fs-6 fw-bold mb-10"><img src="./src/images/icons/location_icon.png" className="me-2" alt="location_icon" />{sitter.city}{sitter.district}</p>
+                          <p className="fs-6 fw-bold mb-10"><img src={locationIcon} className="me-2" alt="location_icon" />{sitter.city}{sitter.district}</p>
                           <p className="mb-3">
                             {[...Array(5)].map((_, i) => {
                               if (i + 1 <= Math.floor(sitter.rating)) {
