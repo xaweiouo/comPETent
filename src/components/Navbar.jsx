@@ -182,9 +182,9 @@ const Navbar = () => {
                   {/* {(role === "owner" || role === "sitter" || role === "admin") && (
                   )} */}
                   <li onClick={() => toggleSection('owner')}>
-                    <a className="dropdown-item">
+                    <button className="dropdown-item">
                       我是飼主<img src={openSection === 'owner' ? topChevron : botChevron} alt="chevron" className='align-self-center ms-1' />
-                    </a>
+                    </button>
                   </li>
                   <ul className={openSection === 'owner' ? 'd-block' : 'd-none'}>
                     <li><NavLink to='ownerprofile' className='text-decoration-none text-reset'>查看個人資料</NavLink></li>
@@ -208,7 +208,7 @@ const Navbar = () => {
                   {role === "admin" && (
                     <li><a className="dropdown-item" href="#">管理平台</a></li>
                   )}
-                  <li><a className="dropdown-item" onClick={() => logout()}>登出</a></li>
+                  <li><button className="dropdown-item" onClick={() => logout()}>登出</button></li>
                 </ul>
               </div>
             </div>

@@ -411,7 +411,7 @@ const SitterServiceDetail = () => {
                 onClick={() => {
                   if (!isAuthenticated) {
                     dispatch(createAsyncMessage({message:'請先登入'}));
-                    // alert('請先登入');
+                    
                     return
 
 
