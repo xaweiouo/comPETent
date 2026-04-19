@@ -102,13 +102,13 @@ function Login() {
                   <form onSubmit={handleSubmit(handleLogin)}>
                     <div className="mb-3">
                       <label className="form-label">Email</label>
-                      <input id="email" type="email" name="email" className="form-control"
+                      <input id="email" type="email" name="email" className="form-control" defaultValue='owner1@example.com'
                         {...register("email", { required: "請輸入 Email" })} />
                       {errors.email && <p className="text-danger">{errors.email.message}</p>}
                     </div>
                     <div className="mb-5">
                       <label className="form-label">密碼</label>
-                      <input id="password" type="password" name="password" className="form-control"
+                      <input id="password" type="password" name="password" className="form-control" defaultValue='owner1'
                         {...register("password", { required: "請輸入密碼", })} />
                       {errors.password && <p className="text-danger">{errors.password.message}</p>}
                     </div>
