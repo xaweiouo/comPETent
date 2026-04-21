@@ -21,9 +21,14 @@ function Login() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm({
     mode: "onChange",
+    defaultValues: { 
+    email: 'owner1@example.com',
+    password: 'owner1'
+  }
   });
 
 
@@ -44,9 +49,8 @@ function Login() {
       navigate(from, { replace: true });
 
     } catch (err) {
-     
-      dispatch(createAsyncMessage(err));
-      
+      reset();
+      dispatch(createAsyncMessage({ message:`登入失敗，請輸入正確的帳號密碼` }));
     }
   };
 
@@ -102,13 +106,13 @@ function Login() {
                   <form onSubmit={handleSubmit(handleLogin)}>
                     <div className="mb-3">
                       <label className="form-label">Email</label>
-                      <input id="email" type="email" name="email" className="form-control"
+                      <input id="email" type="email" name="email" className="form-control" 
                         {...register("email", { required: "請輸入 Email" })} />
                       {errors.email && <p className="text-danger">{errors.email.message}</p>}
                     </div>
                     <div className="mb-5">
                       <label className="form-label">密碼</label>
-                      <input id="password" type="password" name="password" className="form-control"
+                      <input id="password" type="password" name="password" className="form-control" 
                         {...register("password", { required: "請輸入密碼", })} />
                       {errors.password && <p className="text-danger">{errors.password.message}</p>}
                     </div>
