@@ -9,30 +9,25 @@ import feetIcon from "../../images/icons/feet_icon.png";
 import locationIcon from "../../images/icons/location_icon.png";
 import calendarIcon from "../../images/icons/calendar_icon.png";
 import workIcon from "../../images/icons/work_icon.png";
-// import radarIcon from "../../images/icons/radar_icon.png";
 
 import { SITTER_SERVICE_OPTIONS, PET_SPECIES_OPTIONS, WEEKDAY_OPTIONS, HOUR_OPTIONS, MINUTE_OPTIONS } from "../../utils/options";
 import Select from "../../components/Select";
 import { createAsyncMessage } from "../../slices/messageSlice";
 
 const ServiceDeployForm = () => {
-  // const [isChecking, setIsChecking] = useState(true);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const { user, isAuthenticated, isAuthLoading } = useSelector(state => state.auth);
   const [userId, setUserId] = useState(null);
   const { locations, cityOptions } = useLocations();
 
-  // 監聽目前選中的縣市（這不是註冊在表單裡的，只是 UI 邏輯）
   const [tempCity, setTempCity] = useState('');
-  // const[tempDistrict,setTempDistrict]=useState('');
-
-  // 過濾出該縣市的所有地區組合
   const filteredDistricts = locations.filter(loc => loc.city === tempCity).map(loc => ({ value: loc.id, label: loc.district }));
-
-
 
   const navigate = useNavigate();
 
+  // 新增：管理選擇的檔案與預覽圖片 URL 的狀態
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -47,7 +42,6 @@ const ServiceDeployForm = () => {
     };
 
     if (!isAuthenticated) {
-      // 開啟倒數 3 秒後跳轉
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 3000);
@@ -65,21 +59,9 @@ const ServiceDeployForm = () => {
     watch,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      // category: '',
-      // species: '',
-      // location: '',
-      // photo_url: '',
-      // day_of_week: '',
-      // start_time: '',
-      // end_time: '',
-      // description: '',
-      // price: '',
-      // 設定預設值避免 undefined
-    }
+    defaultValues: {}
   });
 
-  // 監控 category 欄位的值
   const selectedCategory = watch("category");
   const getPriceInfo = (category) => {
     switch (category) {
@@ -99,40 +81,100 @@ const ServiceDeployForm = () => {
 
   const { label, fieldName } = getPriceInfo(selectedCategory);
 
+  // 新增：處理圖片選擇與產生預覽 URL
+  const handlePhotoChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // 防呆處理：限制最多 3 張
+    if (files.length > 3) {
+      dispatch(createAsyncMessage({ text: '最多只能上傳 3 張照片喔！', isError: true }));
+      e.target.value = ''; // 清空 input
+      return;
+    }
+
+    setSelectedFiles(files);
+
+    // 產生 Blob URL 供預覽輪播使用
+    const urls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+  };
 
   const onSubmit = async (data) => {
     try {
       const formattedStartTime = `${data.start_hour}:${data.start_minute}:00`;
       const formattedEndtTime = `${data.end_hour}:${data.end_minute}:00`;
-      // const dataToSave = { category: data.category };
 
-      // 寫入 services 主表
-      const { error: sError } = await supabase
+      // 新增：1. 上傳照片到 Supabase Storage
+      let uploadedUrls = [];
+      if (selectedFiles.length > 0) {
+        for (let file of selectedFiles) {
+          const fileExt = file.name.split('.').pop();
+          // 產生不重複的檔名
+          const fileName = `${userId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('service_photos') //Storage Bucket 名稱
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          // 取得公開 URL
+          const { data: publicUrlData } = supabase.storage
+            .from('service_photos')
+            .getPublicUrl(filePath);
+
+          uploadedUrls.push(publicUrlData.publicUrl);
+        }
+      }
+
+      // 新增：取第一張上傳的照片做為列表主圖，若無則為 null
+      const mainPhotoUrl = uploadedUrls.length > 0 ? uploadedUrls[0] : null;
+
+      // 修改：寫入 services 主表，加入 photo_url
+      const { data: insertedService, error: sError } = await supabase
         .from('services')
         .insert([{
           sitter_id: userId,
           location_id: data.location_id,
-          // photo_url: mainPhotoPath,
+          photo_url: mainPhotoUrl, // 寫入主封面照片
           category: data.category,
           species: data.species,
           day_of_week: data.day_of_week,
           start_time: formattedStartTime,
           end_time: formattedEndtTime,
           description: data.description,
-          // 根據類別寫入對應價格，其餘為 null
           price_per_30min: data.price_per_30min || null,
           price_per_day: data.price_per_day || null,
           price_per_session: data.price_per_session || null,
         }])
         .select()
-        .single();
+        .single(); // 取得剛新增的服務 ID 以便寫入關聯照片
 
       if (sError) throw sError;
-      dispatch(createAsyncMessage({text:'已發布服務'}));
+
+      // 新增：3. 寫入 service_photos 表格
+      if (uploadedUrls.length > 0) {
+        const photoRecords = uploadedUrls.map((url, index) => ({
+          service_id: insertedService.id,
+          photo_url: url,
+          sort_order: index + 1
+        }));
+
+        const { error: photoError } = await supabase
+          .from('service_photos')
+          .insert(photoRecords);
+
+        if (photoError) throw photoError;
+      }
+
+      dispatch(createAsyncMessage({ text: '已成功發布服務' }));
       reset();
       setTempCity('');
+      setSelectedFiles([]);
+      setPreviewUrls([]);
     } catch (error) {
-      dispatch(createAsyncMessage(error));
+      dispatch(createAsyncMessage({ text: error.message || '發布失敗', isError: true }));
     }
   };
 
@@ -149,11 +191,82 @@ const ServiceDeployForm = () => {
     <>
       <section className="lookfor-filter-group py-5">
         <div className="container">
-          <form action="" onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-center fw-bold text-primary mb-5">發布服務</h2>
 
-            <div className="row g-3 align-items-start justify-content-between">
+            {/* 新增：最上方的照片上傳與預覽區塊 */}
+            <div className="row justify-content-center mb-5">
+              <div className="col-md-8">
+                <label className="form-label fw-bold">上傳服務照片 (最多 3 張)</label>
+                <input
+                  type="file"
+                  className="form-control mb-3"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoChange}
+                />
 
+                {/* 照片預覽輪播 (Bootstrap Carousel) */}
+                <div id="servicePhotoCarousel" className="carousel slide position-relative rounded-4 overflow-hidden bg-light" style={{ height: '350px' }}>
+                  
+                  {/* Indicators */}
+                  <div className="carousel-indicators">
+                    {previewUrls.map((_, index) => (
+                      <button
+                        key={`indicator-${index}`}
+                        type="button"
+                        data-bs-target="#servicePhotoCarousel"
+                        data-bs-slide-to={index}
+                        className={index === 0 ? "active" : ""}
+                        aria-current={index === 0 ? "true" : undefined}
+                        aria-label={`Slide ${index + 1}`}
+                      ></button>
+                    ))}
+                  </div>
+
+                  {/* Carousel Items */}
+                  <div className="carousel-inner h-100">
+                    {previewUrls.length > 0 ? (
+                      previewUrls.map((url, index) => (
+                        <div
+                          key={`photo-${index}`}
+                          className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+                        >
+                          <img
+                            src={url}
+                            className="d-block w-100 h-100"
+                            style={{ objectFit: 'cover', objectPosition: 'center' }}
+                            alt={`預覽照片 ${index + 1}`}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="carousel-item h-100 active d-flex justify-content-center align-items-center">
+                        <span className="text-muted">尚無照片，請選擇檔案上傳</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Controls */}
+                  {previewUrls.length > 1 && (
+                    <>
+                      <button className="carousel-control-prev" type="button" data-bs-target="#servicePhotoCarousel" data-bs-slide="prev">
+                        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span className="visually-hidden">Previous</span>
+                      </button>
+                      <button className="carousel-control-next" type="button" data-bs-target="#servicePhotoCarousel" data-bs-slide="next">
+                        <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span className="visually-hidden">Next</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* 照片上傳區塊結束 */}
+
+
+            <div className="row g-3 align-items-start justify-content-between">
               <div className="col-md-3">
                 <Controller
                   name="category"
@@ -168,13 +281,10 @@ const ServiceDeployForm = () => {
                       onChange={(e) => {
                         const newValue = e.target.value;
                         field.onChange(newValue);
-
-                        // 當類別改變，清空所有價格欄位
                         setValue("price_per_30min", null);
                         setValue("price_per_day", null);
                         setValue("price_per_session", null);
                       }}
-                      // {...field} // 這會自動傳入 value 和 onChange
                       error={errors?.category}
                     />
                   )}
@@ -192,7 +302,7 @@ const ServiceDeployForm = () => {
                       imgSrc={feetIcon}
                       label="寵物類別"
                       options={PET_SPECIES_OPTIONS}
-                      {...field} // 這會自動傳入 value 和 onChange
+                      {...field}
                       error={errors?.species}
                     />
                   )}
@@ -200,17 +310,16 @@ const ServiceDeployForm = () => {
               </div>
 
               <div className="col-md-3">
-                {/* 1. 縣市選單 (純 UI) */}
                 <Select
                   id="city"
                   imgSrc={locationIcon}
                   label="服務地區"
                   options={cityOptions}
-                  value={tempCity} // 手動綁定狀態
+                  value={tempCity}
                   onChange={(e) => {
                     const newCity = e.target.value;
                     setTempCity(newCity);
-                    setValue("location_id", ""); // 連動清空地區 ID
+                    setValue("location_id", "");
                   }}
                 />
               </div>
@@ -226,7 +335,7 @@ const ServiceDeployForm = () => {
                       imgSrc={locationIcon}
                       label="服務地區"
                       options={filteredDistricts}
-                      {...field} // 這會自動傳入 value 和 onChange
+                      {...field}
                       disabled={!tempCity}
                       error={errors?.location_id}
                     />
@@ -245,21 +354,16 @@ const ServiceDeployForm = () => {
                       imgSrc={calendarIcon}
                       label="服務星期"
                       options={WEEKDAY_OPTIONS}
-                      {...field} // 這會自動傳入 value 和 onChange
+                      {...field}
                       error={errors?.day_of_week}
                     />
                   )}
                 />
               </div>
               
-
-              {/* --- 時間選擇區塊開始 --- */}
+              {/* --- 時間選擇區塊 --- */}
               <div className="col-md-9">
-                {/* 行動版採垂直排列 (flex-column)，桌機版採水平排列 (flex-md-row) */}
                 <div className="d-flex flex-column flex-md-row align-items-md-center">
-                  
-                  {/* 開始時間群組 */}
-                  {/* mb-3 讓行動版在換行時與下方有間距，mb-md-0 讓桌機版取消此間距 */}
                   <div className="row gx-3 flex-grow-1 mb-3 mb-md-0">
                     <div className="col-6">
                       <Controller
@@ -295,7 +399,6 @@ const ServiceDeployForm = () => {
                     </div>
                   </div>
 
-                  {/* 中間的 －（使用 d-none d-md-block 確保只有桌機顯示） */}
                   <span
                     className="mx-3 flex-shrink-0 d-none d-md-block"
                     style={{ color: "#FF8400", fontWeight: 700 }}
@@ -303,7 +406,6 @@ const ServiceDeployForm = () => {
                     －
                   </span>
 
-                  {/* 結束時間群組 */}
                   <div className="row gx-3 flex-grow-1">
                     <div className="col-6">
                       <Controller
@@ -338,11 +440,9 @@ const ServiceDeployForm = () => {
                       />
                     </div>
                   </div>
-
                 </div>
               </div>
               {/* --- 時間選擇區塊結束 --- */}
-
               
               <div className="col-md-3">
                 <label className="form-label">
@@ -387,9 +487,7 @@ const ServiceDeployForm = () => {
                 <button type="submit" className="btn btn-primary px-5">發布服務</button>
               </div>
 
-
             </div>
-
           </form>
         </div>
       </section>
