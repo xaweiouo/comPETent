@@ -123,7 +123,7 @@ function OwnerBookings() {
               <div>
                 <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
                 <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
-                <p className="fs-6 mb-0">{b.arrival_date + ' ' + b.arrival_time + '~' + b.departure_time}</p>
+                <p className="fs-6 mb-0">{b.arrival_date + ' ' + b.arrival_time + ' ~ ' + b.departure_date + ' ' + b.departure_time}</p>
                 <p className="fs-6">服務對象：{petMap[b.pet_id]}</p>
               </div>
               <div className="text-end d-flex flex-column align-items-end">
