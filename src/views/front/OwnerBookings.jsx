@@ -52,6 +52,17 @@ function OwnerBookings() {
           // 拆分資料存入不同的 State
           // setOwnerProfile(data);
           setOwnerPets(data.pets || []);
+
+          // 排序邏輯
+          const sortedBookings = (data.bookings || []).sort((a, b) => {
+            // 優先取 cancelled_at，若為 null 則取 created_at
+            const timeA = new Date(a.cancelled_at || a.created_at).getTime();
+            const timeB = new Date(b.cancelled_at || b.created_at).getTime();
+            
+            // B - A 確保最新的時間排在最前面（降冪）
+            return timeB - timeA;
+          });
+
           setOwnerBooking(data.bookings || []);
           setLoading(false);
         }
