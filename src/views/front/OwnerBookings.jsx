@@ -97,6 +97,24 @@ function OwnerBookings() {
     }
   };
 
+  const STATUS_MAP = {
+  pending: '待保母確認',
+  accepted: '保母已接受',
+  paid: '已付款',
+  completed: '已完成',
+  rated: '已評價',
+  cancelled: '已取消',
+};
+
+const STATUS_COLOR_MAP = {
+  pending: 'info',
+  accepted: 'info',
+  paid: 'info',
+  completed: 'success',
+  rated: 'success',
+  cancelled: 'danger',
+};
+
 
   if (!isAuthenticated) {
     return (
@@ -121,7 +139,9 @@ function OwnerBookings() {
           <div key={b.id} className="card border-0 rounded-4 shadow-sm mb-3">
             <div className="card-body p-3 d-flex justify-content-between align-items-center">
               <div>
-                <span className="badge bg-success rounded-pill mb-2">{b?.status}</span>
+                {/* <span className="badge bg-success rounded-pill mb-2">{b?.status}</span> */}
+                {/* <span className="badge bg-success rounded-pill mb-2">{STATUS_MAP[b?.status]}</span> */}
+                <span className={`badge bg-${STATUS_COLOR_MAP[b?.status]} rounded-pill mb-2`}>{STATUS_MAP[b?.status]}</span>
                 <h5 className="fw-bold mb-1">{b.services.category} (保母：{b.services.users.nickname})</h5>
                 <p className="fs-6 mb-0">{b.arrival_date + ' ' + b.arrival_time + ' ~ ' + b.departure_date + ' ' + b.departure_time}</p>
                 <p className="fs-6">服務對象：{petMap[b.pet_id]}</p>
